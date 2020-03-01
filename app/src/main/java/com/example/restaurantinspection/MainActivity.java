@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
 
     private List<Restaurant> restaurantSamples= new ArrayList<>();
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             // Step over headers
             reader.readLine();
             while( (line = reader.readLine()) != null){
-                Log.d("MyActivity", "Line is: " + line);
+                Log.d(MAIN_ACTIVITY_TAG, "Line is: " + line);
                 // Split line by ','
                 String [] tokens = line.split(",");
                 Restaurant sample = new Restaurant(tokens[0],tokens[1],
@@ -49,10 +50,10 @@ public class MainActivity extends AppCompatActivity {
                         tokens[5],tokens[6]);
 
                 restaurantManager.add(sample);
-                Log.d("MyActivity", "Just created: " + sample);
+                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
             }
         }catch (IOException e){
-            Log.wtf("MyActivity","Error reading data file on line" + line, e);
+            Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
         }
 
     }
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
             // Step over headers
             reader.readLine();
             while( (line = reader.readLine()) != null){
-                Log.d("MyActivity", "Line is: " + line);
+                Log.d(MAIN_ACTIVITY_TAG, "Line is: " + line);
                 // Split line by ','
                 String [] tokens = line.split(",");
                 String var_token6;
@@ -86,10 +87,10 @@ public class MainActivity extends AppCompatActivity {
                         restaurant.setInspection(sample);
                     }
                 }
-                Log.d("MyActivity", "Just created: " + sample);
+                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
             }
         }catch (IOException e){
-            Log.wtf("MyActivity","Error reading data file on line" + line, e);
+            Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
         }
     }
 }
