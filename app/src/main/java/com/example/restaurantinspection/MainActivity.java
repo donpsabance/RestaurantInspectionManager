@@ -141,17 +141,17 @@ public class MainActivity extends AppCompatActivity {
                     var_token6 = "No violations";
                 }
 
-                RestaurantInspection sample = new RestaurantInspection(tokens[0],tokens[1],
+                RestaurantInspection inspection = new RestaurantInspection(tokens[0],tokens[1],
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
 
-                //inspections.add(sample);
+                //inspections.add(inspection);
                 for(Restaurant restaurant : restaurantManager){
-                    if(sample.getTrackingNumber() == restaurant.getTrackingNumber()){
-                        restaurant.setInspection(sample);
+                    if(inspection.getTrackingNumber() == restaurant.getTrackingNumber()){
+                        restaurant.getInspectionManager().add(inspection);
                     }
                 }
-                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
+                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + inspection);
             }
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
