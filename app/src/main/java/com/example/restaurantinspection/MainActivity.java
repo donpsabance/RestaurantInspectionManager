@@ -1,10 +1,22 @@
 package com.example.restaurantinspection;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 
@@ -13,22 +25,74 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
 
-    private List<Restaurant> restaurantSamples= new ArrayList<>();
-    private List<RestaurantInspection> inspections = new ArrayList<>();
+    private class CustomListAdapter extends ArrayAdapter<Restaurant> {
+        public CustomListAdapter(){
+            super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
+        }
 
+        @Override
+        public View getView(int position, View view, ViewGroup viewGroup){
+
+            View itemView = view;
+            if(itemView == null){
+                itemView = getLayoutInflater().inflate(R.layout.restaurantlistlayout, viewGroup, false);
+            }
+
+            Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
+
+
+            String reportMsg = "Most Recent Report: ";
+
+            ImageView imageView = itemView.findViewById(R.id.restaurantIcon);
+            imageView.setImageResource(R.drawable.food);
+
+            TextView textView =  itemView.findViewById(R.id.restaurantDescription);
+            textView.setText(restaurant.getName());
+
+            TextView report = itemView.findViewById(R.id.restaurantRecentReport);
+            report.setText(reportMsg);
+
+
+            return itemView;
+
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         readRestaurantData();
         readInspectionData();
+
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+
+
+        loadRestaurants();
+        registerClickFeedback();
+
+    }
+
+    private void registerClickFeedback(){
+
+        ListView listView = findViewById(R.id.restaurantListView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
+                Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
+
+                //run intent
+            }
+        });
     }
 
     private void readRestaurantData() {
@@ -92,5 +156,12 @@ public class MainActivity extends AppCompatActivity {
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
         }
+    }
+
+    public void loadRestaurants(){
+
+        ArrayAdapter<Restaurant> arrayAdapter = new CustomListAdapter();
+        ListView listView = findViewById(R.id.restaurantListView);
+        listView.setAdapter(arrayAdapter);
     }
 }
