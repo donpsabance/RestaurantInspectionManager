@@ -1,11 +1,16 @@
 package com.example.restaurantinspection.model;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class RestaurantManager {
-
+public class RestaurantManager implements Iterable<Restaurant> {
+    private List<Restaurant> restaurantList = new ArrayList<>();
     private static RestaurantManager instance;
+
+    //singleton model
     public static RestaurantManager getInstance(){
         if(instance == null){
             instance = new RestaurantManager();
@@ -13,14 +18,17 @@ public class RestaurantManager {
         return instance;
     }
 
-    private List<Restaurant> restaurantList = new ArrayList<>();
-
-
     public List<Restaurant> getRestaurantList() {
         return restaurantList;
     }
 
     public void add(Restaurant restaurant){
         restaurantList.add(restaurant);
+    }
+
+    @NonNull
+    @Override
+    public Iterator<Restaurant> iterator() {
+        return restaurantList.iterator();
     }
 }
