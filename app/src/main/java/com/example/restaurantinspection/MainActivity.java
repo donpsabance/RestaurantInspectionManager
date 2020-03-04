@@ -3,6 +3,8 @@ package com.example.restaurantinspection;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
             super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public View getView(int position, View view, ViewGroup viewGroup){
 
@@ -56,8 +60,14 @@ public class MainActivity extends AppCompatActivity {
             Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
 
             ImageView imageView = itemView.findViewById(R.id.restaurantIcon);
-            TextView textView =  itemView.findViewById(R.id.restaurantDescription);
-            TextView report = itemView.findViewById(R.id.restaurantRecentReport);
+            TextView addressText = itemView.findViewById(R.id.restaurantLocation);
+            TextView descriptionText =  itemView.findViewById(R.id.restaurantDescription);
+            TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
+            ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
+
+            imageView.setImageResource(R.drawable.food);
+            addressText.setText(restaurant.getAddress());
+            descriptionText.setText(restaurant.getName());
 
             //make sure they have an inspection report available
             if(restaurant.getInspection() != null){
@@ -65,6 +75,8 @@ public class MainActivity extends AppCompatActivity {
                 RestaurantInspection restaurantInspection = restaurant.getInspection();
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
                 Date inspectionDate = null;
+
+                determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
 
                 try {
                     inspectionDate = simpleDateFormat.parse(restaurantInspection.getInspectionDate());
@@ -79,15 +91,14 @@ public class MainActivity extends AppCompatActivity {
                 reportMsg += issuesFound + " issues found";
 
                 imageView.setImageResource(R.drawable.food);
-                textView.setText(restaurant.getName());
-                report.setText(reportMsg);
+                descriptionText.setText(restaurant.getName());
+                reportText.setText(reportMsg);
+
 
             } else {
 
-                imageView.setImageResource(R.drawable.food);
-                textView.setText(restaurant.getName());
-                report.setText("No recent reports");
-
+                reportText.setText("No available reports");
+                hazardRating.setVisibility(View.INVISIBLE);
 
             }
 
@@ -117,6 +128,25 @@ public class MainActivity extends AppCompatActivity {
 
         return result;
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel){
+
+        if(hazardLevel.equalsIgnoreCase("LOW")){
+            progressBar.setProgress(30);
+            progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(75, 194, 54)));
+
+        } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
+
+            progressBar.setProgress(60);
+            progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 158, 66)));
+
+        } else if(hazardLevel.equalsIgnoreCase("HIGH")){
+
+            progressBar.setProgress(90);
+            progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 66, 66)));
+        }
     }
 
     @Override
