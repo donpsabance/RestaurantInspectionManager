@@ -25,6 +25,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,25 +55,70 @@ public class MainActivity extends AppCompatActivity {
 
             Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
 
-
-            String reportMsg = "Most Recent Report: ";
-
             ImageView imageView = itemView.findViewById(R.id.restaurantIcon);
-            imageView.setImageResource(R.drawable.food);
-
             TextView textView =  itemView.findViewById(R.id.restaurantDescription);
-            textView.setText(restaurant.getName());
-
             TextView report = itemView.findViewById(R.id.restaurantRecentReport);
-            report.setText(reportMsg);
 
+            //make sure they have an inspection report available
+            if(restaurant.getInspection() != null){
+
+                RestaurantInspection restaurantInspection = restaurant.getInspection();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+                Date inspectionDate = null;
+
+                try {
+                    inspectionDate = simpleDateFormat.parse(restaurantInspection.getInspectionDate());
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                int issuesFound = restaurantInspection.getNumCritical() + restaurantInspection.getNumNonCritical();
+
+                String formattedInspectionDate = formatDateInspection(inspectionDate);
+                String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
+                reportMsg += issuesFound + " issues found";
+
+                imageView.setImageResource(R.drawable.food);
+                textView.setText(restaurant.getName());
+                report.setText(reportMsg);
+
+            } else {
+
+                imageView.setImageResource(R.drawable.food);
+                textView.setText(restaurant.getName());
+                report.setText("No recent reports");
+
+
+            }
 
             return itemView;
 
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
+    private String formatDateInspection(Date inspectionDate){
+
+        String result = "";
+
+        Date dateToday = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(inspectionDate);
+
+        long dateDifference = TimeUnit.DAYS.convert(dateToday.getTime() - inspectionDate.getTime(), TimeUnit.MILLISECONDS);
+
+        if(dateDifference < 30){
+            result = Long.toString(dateDifference);
+        } else if (dateDifference > 30 && dateDifference < 365){
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.DAY_OF_MONTH);
+        } else {
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
+        }
+
+        return result;
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +126,9 @@ public class MainActivity extends AppCompatActivity {
         readRestaurantData();
         readInspectionData();
 
-        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        }
 
 
         loadRestaurants();
@@ -106,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
             // Step over headers
             reader.readLine();
             while( (line = reader.readLine()) != null){
-                Log.d(MAIN_ACTIVITY_TAG, "Line is: " + line);
                 // Split line by ','
                 String [] tokens = line.split(",");
                 Restaurant sample = new Restaurant(tokens[0],tokens[1],
@@ -114,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                         tokens[5],tokens[6]);
 
                 restaurantManager.add(sample);
-                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
             }
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
@@ -131,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
             // Step over headers
             reader.readLine();
             while( (line = reader.readLine()) != null){
-                Log.d(MAIN_ACTIVITY_TAG, "Line is: " + line);
+
                 // Split line by ','
                 String [] tokens = line.split(",");
                 String var_token6;
@@ -147,11 +201,13 @@ public class MainActivity extends AppCompatActivity {
 
                 //inspections.add(sample);
                 for(Restaurant restaurant : restaurantManager){
-                    if(sample.getTrackingNumber() == restaurant.getTrackingNumber()){
+                    if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
+
+//                        Log.wtf("TEST", "FOUND MATCHING TRACKING");
                         restaurant.setInspection(sample);
                     }
                 }
-                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
+//                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
             }
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);

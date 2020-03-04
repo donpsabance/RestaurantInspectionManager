@@ -9,8 +9,10 @@
 
     <ListView
         android:id="@+id/restaurantListView"
-        android:layout_width="416dp"
-        android:layout_height="730dp"
+        android:layout_width="405dp"
+        android:layout_height="628dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
