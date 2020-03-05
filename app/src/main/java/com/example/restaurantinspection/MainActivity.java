@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
 
-//            imageView.setImageResource(R.drawable.food);
+            imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
 
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
                 reportMsg += issuesFound + " issues found";
 
-//                imageView.setImageResource(R.drawable.food);
+                imageView.setImageResource(R.drawable.food);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
 

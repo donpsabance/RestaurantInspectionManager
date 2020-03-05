@@ -79,7 +79,7 @@ public class RestaurantActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                     RestaurantInspection restaurantInspection = restaurantInspectionList.get(position);
-                    Toast.makeText(RestaurantActivity.this, "You are inspecting report from " + restaurantInspection.getInspectionDate(), Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(RestaurantActivity.this, "You are inspecting report from " + restaurantInspection.getInspectionDate(), Toast.LENGTH_SHORT).show();
 
                     //run intent
                     Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantInspection);
@@ -103,7 +103,6 @@ public class RestaurantActivity extends AppCompatActivity {
                 itemView = getLayoutInflater().inflate(R.layout.restaurant_inspections_list, viewGroup, false);
             }
 
-
             RestaurantInspection restaurantInspection = restaurantInspectionList.get(position);
 
             //Textview
@@ -112,25 +111,31 @@ public class RestaurantActivity extends AppCompatActivity {
             TextView timeText = itemView.findViewById(R.id.timeSinceInspection);
             Button hazardRating = itemView.findViewById(R.id.button);
 
-            //# critical issues found
-            int numCritical = restaurantInspection.getNumCritical();
+            if (restaurantInspectionList.size() != 0) {
 
-            //# non-critical issues found
-            int numNonCritical = restaurantInspection.getNumNonCritical();
+                //# critical issues found
+                int numCritical = restaurantInspection.getNumCritical();
 
-            //How long ago the inspection occurred
-            DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-            try {
-                Date formatDate = format.parse(restaurantInspection.getInspectionDate());
-                String inspectionDate = formatDateInspection(formatDate);
-                timeText.setText("Inspection date: " + inspectionDate);
-            } catch (ParseException e) {
-                e.printStackTrace();
+                //# non-critical issues found
+                int numNonCritical = restaurantInspection.getNumNonCritical();
+
+                //How long ago the inspection occurred
+                DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+                try {
+                    Date formatDate = format.parse(restaurantInspection.getInspectionDate());
+                    String inspectionDate = formatDateInspection(formatDate);
+                    timeText.setText("Inspection date: " + inspectionDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                criticalText.setText("Number of critical issues: " + numCritical);
+                nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
+                determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
+            }else{
+                criticalText.setText("No inspections available");
+                hazardRating.setVisibility(view.INVISIBLE);
             }
-
-            criticalText.setText("Number of critical issues: " + numCritical);
-            nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
-            determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
 
             return itemView;
         }
