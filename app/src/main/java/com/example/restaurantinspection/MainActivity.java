@@ -145,9 +145,8 @@ public class MainActivity extends AppCompatActivity {
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
 
-                //inspections.add(inspection);
                 for(Restaurant restaurant : restaurantManager){
-                    if(inspection.getTrackingNumber() == restaurant.getTrackingNumber()){
+                    if(inspection.getTrackingNumber().equals(restaurant.getTrackingNumber())){
                         restaurant.getInspectionManager().add(inspection);
                     }
                 }
