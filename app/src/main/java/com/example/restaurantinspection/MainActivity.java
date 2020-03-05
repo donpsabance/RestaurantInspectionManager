@@ -3,8 +3,10 @@ package com.example.restaurantinspection;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
@@ -42,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private InspectionManager inspectionManager = InspectionManager.getInstance();
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter(){
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
 
-            imageView.setImageResource(R.drawable.food);
+//            imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
 
@@ -90,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                 String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
                 reportMsg += issuesFound + " issues found";
 
-                imageView.setImageResource(R.drawable.food);
+//                imageView.setImageResource(R.drawable.food);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
 
@@ -177,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
                 //run intent
+                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, restaurant);
+                startActivity(intent);
             }
         });
     }
@@ -229,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
 
-                //inspections.add(sample);
+                inspectionManager.add(sample);
                 for(Restaurant restaurant : restaurantManager){
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
 
