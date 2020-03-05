@@ -5,19 +5,25 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 
+import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class RestaurantActivity extends AppCompatActivity {
@@ -35,7 +42,7 @@ public class RestaurantActivity extends AppCompatActivity {
     private static final String EXTRA_RESTAURANTLON = "com.example.restaurantinspection.RestaurantActivity - the restaurantLongitude";
     private static final String EXTRA_RESTAURANTTN = "com.example.restaurantinspection.RestaurantActivity - the restaurantTrackingNumber";
 
-    //access restaurant information
+    //store extracted restaurant information
     private String restaurantName;
     private String restaurantAddr;
     private String restaurantLat;
@@ -52,6 +59,7 @@ public class RestaurantActivity extends AppCompatActivity {
         extractDatafromIntent();
         updateTextView();
 
+        //access relevant inspections for selected restaurant
         for (RestaurantInspection ri: inspectionManager){
             if (ri.getTrackingNumber().equals(restaurantTN)){
                 restaurantInspectionList.add(ri);
@@ -59,7 +67,25 @@ public class RestaurantActivity extends AppCompatActivity {
         }
 
         loadInspections();
+        registerClickBack();
 
+    }
+
+    private void registerClickBack() {
+
+            ListView listView = findViewById(R.id.inspectionList);
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    RestaurantInspection restaurantInspection = restaurantInspectionList.get(position);
+                    Toast.makeText(RestaurantActivity.this, "You are inspecting report from " + restaurantInspection.getInspectionDate(), Toast.LENGTH_SHORT).show();
+
+                    //run intent
+                    Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantInspection);
+                    startActivity(intent);
+                }
+            });
     }
 
 
@@ -77,7 +103,14 @@ public class RestaurantActivity extends AppCompatActivity {
                 itemView = getLayoutInflater().inflate(R.layout.restaurant_inspections_list, viewGroup, false);
             }
 
+
             RestaurantInspection restaurantInspection = restaurantInspectionList.get(position);
+
+            //Textview
+            TextView criticalText = itemView.findViewById(R.id.inspectionNumNonCritical);
+            TextView nonCriticalText = itemView.findViewById(R.id.inspectionNumCritical);
+            TextView timeText = itemView.findViewById(R.id.timeSinceInspection);
+            Button hazardRating = itemView.findViewById(R.id.button);
 
             //# critical issues found
             int numCritical = restaurantInspection.getNumCritical();
@@ -85,14 +118,19 @@ public class RestaurantActivity extends AppCompatActivity {
             //# non-critical issues found
             int numNonCritical = restaurantInspection.getNumNonCritical();
 
-
-            TextView criticalText = itemView.findViewById(R.id.inspectionNumNonCritical);
-            TextView nonCriticalText = itemView.findViewById(R.id.inspectionNumCritical);
-            TextView timeText = itemView.findViewById(R.id.timeSinceInspection);
+            //How long ago the inspection occurred
+            DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+            try {
+                Date formatDate = format.parse(restaurantInspection.getInspectionDate());
+                String inspectionDate = formatDateInspection(formatDate);
+                timeText.setText("Inspection date: " + inspectionDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
 
             criticalText.setText("Number of critical issues: " + numCritical);
             nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
-            timeText.setText("Time since last inspection: ");
+            determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
 
             return itemView;
         }
@@ -121,16 +159,6 @@ public class RestaurantActivity extends AppCompatActivity {
         restaurantGPSView.setText("GPS Coordinates: (" + restaurantLat + ", " + restaurantLon + ")");
     }
 
-    //called by Main Activity
-    public static Intent makeIntent(Context context, Restaurant restaurant) {
-        Intent intent = new Intent (context, RestaurantActivity.class);
-        intent.putExtra(EXTRA_RESTAURANTTN, restaurant.getTrackingNumber());
-        intent.putExtra(EXTRA_RESTAURANTNAME, restaurant.getName());
-        intent.putExtra(EXTRA_RESTAURANTADDR, restaurant.getAddress());
-        intent.putExtra(EXTRA_RESTAURANTLAT, restaurant.getLatitude());
-        intent.putExtra(EXTRA_RESTAURANTLON, restaurant.getLongitude());
-        return intent;
-    }
 
     public void loadInspections(){
         ArrayAdapter<RestaurantInspection> arrayAdapter = new RestaurantActivity.CustomListAdapter();
@@ -158,5 +186,32 @@ public class RestaurantActivity extends AppCompatActivity {
 
         return result;
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void determineHazardLevel(Button button, String hazardLevel){
+        button.setPadding(25, 0, 25, 0);
+        if(hazardLevel.equalsIgnoreCase("LOW")){
+            button.setText("Low");
+            button.setBackgroundColor(Color.rgb(75, 194, 54));
+        } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
+            button.setText("Moderate");
+            button.setBackgroundColor(Color.rgb(245, 158, 66));
+        } else if(hazardLevel.equalsIgnoreCase("HIGH")){
+            button.setText("High");
+            button.setBackgroundColor(Color.rgb(245, 66, 66));
+        }
+    }
+
+
+    //called by Main Activity
+    public static Intent makeIntent(Context context, Restaurant restaurant) {
+        Intent intent = new Intent (context, RestaurantActivity.class);
+        intent.putExtra(EXTRA_RESTAURANTTN, restaurant.getTrackingNumber());
+        intent.putExtra(EXTRA_RESTAURANTNAME, restaurant.getName());
+        intent.putExtra(EXTRA_RESTAURANTADDR, restaurant.getAddress());
+        intent.putExtra(EXTRA_RESTAURANTLAT, restaurant.getLatitude());
+        intent.putExtra(EXTRA_RESTAURANTLON, restaurant.getLongitude());
+        return intent;
     }
 }

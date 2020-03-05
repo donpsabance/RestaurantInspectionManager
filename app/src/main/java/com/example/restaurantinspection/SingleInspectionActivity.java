@@ -2,10 +2,13 @@ package com.example.restaurantinspection;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantInspection;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,5 +52,11 @@ public class SingleInspectionActivity extends AppCompatActivity {
             Log.wtf("MyActivity","Error reading data file on line" + line, e);
         }
 
+    }
+
+    //called by Restaurant Activity
+    public static Intent makeIntent(Context context, RestaurantInspection restaurantInspection) {
+        Intent intent = new Intent (context, SingleInspectionActivity.class);
+        return intent;
     }
 }

@@ -6,36 +6,16 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/inspectionDescription"
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="9dp"
-        android:layout_marginRight="10dp"
-        android:gravity="center_vertical"
-        android:text="Inspection Information"
-        android:textColor="#000000"
-        android:textSize="18sp"
-        android:textStyle="italic" />
-
-    <TextView
         android:id="@+id/inspectionNumNonCritical"
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:layout_below="@+id/inspectionDescription"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginStart="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="14dp"
-        android:layout_marginRight="20dp"
-        android:text="Number of non-critical issues:" />
+        android:layout_marginRight="20dp" />
 
     <TextView
         android:id="@+id/inspectionNumCritical"
@@ -48,8 +28,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="1dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:text="Number of critical issues:" />
+        android:layout_marginRight="16dp" />
 
     <TextView
         android:id="@+id/timeSinceInspection"
@@ -62,21 +41,23 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="1dp"
         android:layout_marginEnd="18dp"
-        android:layout_marginRight="18dp"
-        android:text="Time since last inspection:" />
+        android:layout_marginRight="18dp" />
 
-    <ProgressBar
-        android:id="@+id/hazardIcon"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="216dp"
+    <Button
+        android:id="@+id/button"
+        android:layout_width="110dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/inspectionNumCritical"
+        android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginStart="18dp"
-        android:layout_marginLeft="18dp"
-        android:layout_marginTop="65dp"
-        android:layout_marginEnd="175dp"
-        android:layout_marginRight="175dp" />
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginEnd="280dp"
+        android:layout_marginRight="280dp"
+        android:gravity="center_vertical"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        android:textStyle="italic" />
 
 </RelativeLayout>
