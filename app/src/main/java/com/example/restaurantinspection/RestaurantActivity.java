@@ -18,8 +18,14 @@ import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 
+import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class RestaurantActivity extends AppCompatActivity {
 
@@ -34,9 +40,8 @@ public class RestaurantActivity extends AppCompatActivity {
     private String restaurantAddr;
     private String restaurantLat;
     private String restaurantLon;
-    private String restaurantTrackingNumber;
+    private String restaurantTN;
     private InspectionManager inspectionManager = InspectionManager.getInstance();
-
     private List<RestaurantInspection> restaurantInspectionList = new ArrayList<>();
 
 
@@ -44,26 +49,23 @@ public class RestaurantActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant);
-
-//        displayInspections();
         extractDatafromIntent();
         updateTextView();
+
+        for (RestaurantInspection ri: inspectionManager){
+            if (ri.getTrackingNumber().equals(restaurantTN)){
+                restaurantInspectionList.add(ri);
+            }
+        }
 
         loadInspections();
 
     }
 
-//    private void displayInspections() {
-//        for (RestaurantInspection RI: inspectionManager){
-//            if (RI.getTrackingNumber() == restaurantTrackingNumber){
-//                restaurantInspectionList.add(RI);
-//            }
-//        }
-//    }
 
     private class CustomListAdapter extends ArrayAdapter<RestaurantInspection> {
         public CustomListAdapter(){
-            super(RestaurantActivity.this, R.layout.restaurant_inspections_list, inspectionManager.getInspectionList());
+            super(RestaurantActivity.this, R.layout.restaurant_inspections_list, restaurantInspectionList);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -75,11 +77,22 @@ public class RestaurantActivity extends AppCompatActivity {
                 itemView = getLayoutInflater().inflate(R.layout.restaurant_inspections_list, viewGroup, false);
             }
 
+            RestaurantInspection restaurantInspection = restaurantInspectionList.get(position);
+
+            //# critical issues found
+            int numCritical = restaurantInspection.getNumCritical();
+
+            //# non-critical issues found
+            int numNonCritical = restaurantInspection.getNumNonCritical();
+
+
             TextView criticalText = itemView.findViewById(R.id.inspectionNumNonCritical);
             TextView nonCriticalText = itemView.findViewById(R.id.inspectionNumCritical);
+            TextView timeText = itemView.findViewById(R.id.timeSinceInspection);
 
-            criticalText.setText("Number of critical issues: 1");
-            nonCriticalText.setText("2");
+            criticalText.setText("Number of critical issues: " + numCritical);
+            nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
+            timeText.setText("Time since last inspection: ");
 
             return itemView;
         }
@@ -93,7 +106,7 @@ public class RestaurantActivity extends AppCompatActivity {
         restaurantAddr = intent.getStringExtra(EXTRA_RESTAURANTADDR);
         restaurantLat = intent.getStringExtra(EXTRA_RESTAURANTLAT);
         restaurantLon = intent.getStringExtra(EXTRA_RESTAURANTLON);
-        restaurantTrackingNumber = intent.getStringExtra((EXTRA_RESTAURANTTN));
+        restaurantTN = intent.getStringExtra(EXTRA_RESTAURANTTN);
     }
 
 
@@ -123,5 +136,27 @@ public class RestaurantActivity extends AppCompatActivity {
         ArrayAdapter<RestaurantInspection> arrayAdapter = new RestaurantActivity.CustomListAdapter();
         ListView listView = findViewById(R.id.inspectionList);
         listView.setAdapter(arrayAdapter);
+    }
+
+    private String formatDateInspection(Date inspectionDate){
+
+        String result = "";
+
+        Date dateToday = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(inspectionDate);
+
+        long dateDifference = TimeUnit.DAYS.convert(dateToday.getTime() - inspectionDate.getTime(), TimeUnit.MILLISECONDS);
+
+        if(dateDifference < 30){
+            result = Long.toString(dateDifference);
+        } else if (dateDifference > 30 && dateDifference < 365){
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.DAY_OF_MONTH);
+        } else {
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
+        }
+
+        return result;
+
     }
 }
