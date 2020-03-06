@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
         String result = "";
 
+/*
         Date dateToday = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(inspectionDate);
@@ -127,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
         }
+*/
 
         return result;
 
@@ -167,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadRestaurants();
         registerClickFeedback();
+        Log.d("MY_ACTIVITY", "INSPECTION COUNT: " + inspectionManager.getInspectionList().size());
 
     }
 
@@ -212,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
     private void readInspectionData() {
-        InputStream is = getResources().openRawResource(R.raw.inspections);
+        InputStream is = getResources().openRawResource(R.raw.inspectionsdata);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, Charset.forName("UTF-8"))
         );
@@ -221,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
             // Step over headers
             reader.readLine();
             while( (line = reader.readLine()) != null){
-
                 // Split line by ','
                 String [] tokens = line.split(",");
                 String var_token6;
@@ -234,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                 RestaurantInspection sample = new RestaurantInspection(tokens[0],tokens[1],
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
-
+//                Log.d("MY_ACTIVITY",sample.getTrackingNumber()+ " "+sample.getViolations());
                 inspectionManager.add(sample);
                 for(Restaurant restaurant : restaurantManager){
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){

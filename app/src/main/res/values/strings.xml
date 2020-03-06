@@ -2,4 +2,6 @@
     <string name="app_name">Restaurant Inspection</string>
     <string name="restaurant_information">Restaurant Information</string>
     <string name="todo">TODO</string>
+    <string name="critical_issues">Critical issues:</string>
+    <string name="hazard_rating">Hazard rating:</string>
 </resources>
