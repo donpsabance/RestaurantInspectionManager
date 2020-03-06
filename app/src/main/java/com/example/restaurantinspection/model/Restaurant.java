@@ -1,8 +1,11 @@
 package com.example.restaurantinspection.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Restaurant {
 
-    private InspectionManager inspectionManager;
+    private List<RestaurantInspection> restaurantInspectionList = new ArrayList<>();
 
     private String trackingNumber;
     private String name;
@@ -26,8 +29,8 @@ public class Restaurant {
         this.longitude = longitude;
     }
 
-    public InspectionManager getInspectionManager(){
-        return inspectionManager;
+    public List<RestaurantInspection> getRestaurantInspectionList(){
+        return restaurantInspectionList;
     }
 
     public String getTrackingNumber() {

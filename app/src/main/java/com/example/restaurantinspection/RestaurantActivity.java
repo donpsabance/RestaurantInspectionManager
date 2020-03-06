@@ -42,8 +42,7 @@ public class RestaurantActivity extends AppCompatActivity {
 
     private int restaurantIndex;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
-    private InspectionManager inspectionManager = InspectionManager.getInstance();
-    private Restaurant restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
+    private Restaurant restaurant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +63,7 @@ public class RestaurantActivity extends AppCompatActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                    RestaurantInspection restaurantInspection = restaurant.getInspectionManager().getInspectionList().get(position);
+                    RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
 //                    Toast.makeText(RestaurantActivity.this, "You are inspecting report from " + restaurantInspection.getInspectionDate(), Toast.LENGTH_SHORT).show();
                     Log.d("MAKE",restaurantInspection.getViolations());
                     //run intent
@@ -77,7 +76,7 @@ public class RestaurantActivity extends AppCompatActivity {
 
     private class CustomListAdapter extends ArrayAdapter<RestaurantInspection> {
         public CustomListAdapter(){
-            super(RestaurantActivity.this, R.layout.restaurant_inspections_list, restaurant.getInspectionManager().getInspectionList());
+            super(RestaurantActivity.this, R.layout.restaurant_inspections_list, restaurant.getRestaurantInspectionList());
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -89,7 +88,9 @@ public class RestaurantActivity extends AppCompatActivity {
                 itemView = getLayoutInflater().inflate(R.layout.restaurant_inspections_list, viewGroup, false);
             }
 
-            RestaurantInspection restaurantInspection = restaurant.getInspectionManager().getInspectionList().get(position);
+
+
+            RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
 
             //Textview
             TextView criticalText = itemView.findViewById(R.id.inspectionNumNonCritical);
@@ -97,7 +98,7 @@ public class RestaurantActivity extends AppCompatActivity {
             TextView timeText = itemView.findViewById(R.id.timeSinceInspection);
             Button hazardRating = itemView.findViewById(R.id.button);
 
-            if (restaurant.getInspectionManager().getInspectionList().size() != 0) {
+            if (restaurant.getRestaurantInspectionList().size() != 0) {
 
                 //# critical issues found
                 int numCritical = restaurantInspection.getNumCritical();
@@ -106,14 +107,14 @@ public class RestaurantActivity extends AppCompatActivity {
                 int numNonCritical = restaurantInspection.getNumNonCritical();
 
                 //How long ago the inspection occurred
-                DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-                try {
-                    Date formatDate = format.parse(restaurantInspection.getInspectionDate());
-                    String inspectionDate = formatDateInspection(formatDate);
-                    timeText.setText("Inspection date: " + inspectionDate);
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+//                DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+//                try {
+//                    Date formatDate = format.parse(restaurantInspection.getInspectionDate());
+//                    String inspectionDate = formatDateInspection(formatDate);
+//                    timeText.setText("Inspection date: " + inspectionDate);
+//                } catch (ParseException e) {
+//                    e.printStackTrace();
+//                }
 
                 criticalText.setText("Number of critical issues: " + numCritical);
                 nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
@@ -132,6 +133,7 @@ public class RestaurantActivity extends AppCompatActivity {
     private void extractDatafromIntent() {
         Intent intent = getIntent();
         restaurantIndex = intent.getIntExtra("restaurant index", 0);
+        restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
 //        restaurantName = intent.getStringExtra(EXTRA_RESTAURANTNAME);
 //        restaurantAddr = intent.getStringExtra(EXTRA_RESTAURANTADDR);
 //        restaurantLat = intent.getStringExtra(EXTRA_RESTAURANTLAT);
@@ -201,11 +203,6 @@ public class RestaurantActivity extends AppCompatActivity {
     //called by Main Activity
     public static Intent makeIntent(Context context, int restaurantIndex) {
         Intent intent = new Intent (context, RestaurantActivity.class);
-//        intent.putExtra(EXTRA_RESTAURANTTN, restaurant.getTrackingNumber());
-//        intent.putExtra(EXTRA_RESTAURANTNAME, restaurant.getName());
-//        intent.putExtra(EXTRA_RESTAURANTADDR, restaurant.getAddress());
-//        intent.putExtra(EXTRA_RESTAURANTLAT, restaurant.getLatitude());
-//        intent.putExtra(EXTRA_RESTAURANTLON, restaurant.getLongitude());
         intent.putExtra("restaurant index", restaurantIndex);
         return intent;
     }

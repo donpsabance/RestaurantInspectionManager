@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
             descriptionText.setText(restaurant.getName());
 
             //make sure they have an inspection report available
-            if(restaurant.getInspectionManager().getInspectionList().size() > 0){
+            if(restaurant.getRestaurantInspectionList().size() > 0){
 
-                RestaurantInspection restaurantInspection = restaurant.getInspectionManager().getInspectionList().get(0);
+                RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(0);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
                 Date inspectionDate = null;
 
@@ -242,8 +242,7 @@ public class MainActivity extends AppCompatActivity {
                 inspectionManager.add(sample);
                 for(Restaurant restaurant : restaurantManager){
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
-
-                        restaurant.getInspectionManager().add(sample);
+                        restaurant.getRestaurantInspectionList().add(sample);
                     }
                 };
             }
