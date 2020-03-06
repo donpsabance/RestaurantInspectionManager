@@ -3,6 +3,7 @@ package com.example.restaurantinspection;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -18,6 +19,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.InspectionComparator;
+import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
@@ -31,10 +34,8 @@ import java.nio.charset.Charset;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private InspectionManager inspectionManager = InspectionManager.getInstance();
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter(){
@@ -158,8 +160,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+//            for(Restaurant restaurant : restaurantManager){
+//                Collections.sort(restaurant.getInspectionManager().getInspectionList(),new InspectionComparator());
+//            }
         }
-
 
         loadRestaurants();
         registerClickFeedback();
@@ -177,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
                 //run intent
+                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, restaurant);
+                startActivity(intent);
             }
         });
     }
@@ -229,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
 
-                //inspections.add(sample);
+                inspectionManager.add(sample);
                 for(Restaurant restaurant : restaurantManager){
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
 

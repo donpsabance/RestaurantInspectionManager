@@ -1,6 +1,12 @@
 package com.example.restaurantinspection.model;
 
-public class RestaurantInspection {
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+public class RestaurantInspection implements Comparable<RestaurantInspection> {
 
     private String trackingNumber;
     private String inspectionDate;
@@ -9,6 +15,7 @@ public class RestaurantInspection {
     private int numNonCritical;
     private String hazardRating;
     private String violations;
+    private Date formatDate;
 
     public RestaurantInspection(String trackingNumber, String inspectionDate,
                                 String inspectionType, String numCritical, String numNonCritical,
@@ -22,6 +29,8 @@ public class RestaurantInspection {
         this.violations = violations;
     }
 
+    public Date getFormatDate(){return formatDate;}
+
     public String getTrackingNumber() {
         return trackingNumber;
     }
@@ -33,6 +42,8 @@ public class RestaurantInspection {
     public String getInspectionDate() {
         return inspectionDate;
     }
+
+
 
     public void setInspectionDate(String inspectionDate) {
         this.inspectionDate = inspectionDate;
@@ -89,5 +100,20 @@ public class RestaurantInspection {
                 ", hazardRating='" + hazardRating + '\'' +
                 ", violations='" + violations + '\'' +
                 '}';
+    }
+
+
+    public Date convertStringtoDate(String string) throws ParseException {
+        DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+        formatDate = format.parse(string);
+        return formatDate;
+    }
+
+    @Override
+    public int compareTo(RestaurantInspection o) {
+        if (getInspectionDate() == null || o.getInspectionDate() == null){
+            return 0;
+        }
+        return getFormatDate().compareTo(o.getFormatDate());
     }
 }
