@@ -6,4 +6,90 @@
     android:layout_height="match_parent"
     tools:context=".SingleInspectionActivity">
 
+    <ListView
+    android:id="@+id/inspectionListView"
+    android:layout_width="0dp"
+    android:layout_height="0dp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@+id/guideline"
+    app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="117dp" />
+
+    <TextView
+        android:id="@+id/inspectionDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="50dp"
+        android:layout_marginRight="50dp"
+        android:text="inspection date"
+        app:layout_constraintBottom_toBottomOf="@+id/inspectionType"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/inspectionType" />
+
+    <TextView
+        android:id="@+id/numNonCriticalmsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/critical_issues"
+        app:layout_constraintStart_toStartOf="@+id/numCriticalmsg"
+        app:layout_constraintTop_toBottomOf="@+id/numCriticalmsg" />
+
+    <TextView
+        android:id="@+id/numCriticalmsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="# of critical"
+        app:layout_constraintStart_toStartOf="@+id/inspectionDate"
+        app:layout_constraintTop_toBottomOf="@+id/inspectionDate" />
+
+    <TextView
+        android:id="@+id/inspectionType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="inspection type"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/hazardBarSingle"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/dangertype"
+        app:layout_constraintTop_toBottomOf="@+id/dangertype" />
+
+    <TextView
+        android:id="@+id/dangertype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/hazard_rating"
+        app:layout_constraintStart_toStartOf="@+id/inspectionType"
+        app:layout_constraintTop_toBottomOf="@+id/inspectionType" />
+
+    <TextView
+        android:id="@+id/HazardResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="hazard message"
+        android:textAllCaps="true"
+        app:layout_constraintEnd_toEndOf="@+id/hazardBarSingle"
+        app:layout_constraintStart_toStartOf="@+id/hazardBarSingle"
+        app:layout_constraintTop_toBottomOf="@+id/hazardBarSingle" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

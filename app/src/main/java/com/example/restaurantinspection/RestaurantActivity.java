@@ -85,7 +85,7 @@ public class RestaurantActivity extends AppCompatActivity {
 
                     RestaurantInspection restaurantInspection = restaurantInspectionList.get(position);
 //                    Toast.makeText(RestaurantActivity.this, "You are inspecting report from " + restaurantInspection.getInspectionDate(), Toast.LENGTH_SHORT).show();
-
+                    Log.d("MAKE",restaurantInspection.getViolations());
                     //run intent
                     Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantInspection);
                     startActivity(intent);
