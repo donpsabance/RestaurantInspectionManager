@@ -187,14 +187,8 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     //called by Restaurant Activity
 
-    public static Intent makeIntent(Context context, RestaurantInspection restaurantInspection) {
+    public static Intent makeIntent(Context context, int restaurantIndex, int inspectionIndex) {
         Intent intent = new Intent (context, SingleInspectionActivity.class);
-        intent.putExtra(EXTRA_DATE,restaurantInspection.getInspectionDate());
-        intent.putExtra(EXTRA_INSPECTION_TYPE,restaurantInspection.getInspectionType());
-        intent.putExtra(EXTRA_NONCRITICAL,restaurantInspection.getNumNonCritical());
-        intent.putExtra(EXTRA_CRITICAL,restaurantInspection.getNumCritical());
-        intent.putExtra(EXTRA_HZDRATING,restaurantInspection.getHazardRating());
-        intent.putExtra(EXTRA_VIOLATION_DUMP, restaurantInspection.getViolations());
         return intent;
     }
 
