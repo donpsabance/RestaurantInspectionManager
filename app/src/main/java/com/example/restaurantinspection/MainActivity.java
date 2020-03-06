@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
@@ -34,6 +35,7 @@ import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -158,8 +160,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+//            for(Restaurant restaurant : restaurantManager){
+//                Collections.sort(restaurant.getInspectionManager().getInspectionList(),new InspectionComparator());
+//            }
         }
-
 
         loadRestaurants();
         registerClickFeedback();

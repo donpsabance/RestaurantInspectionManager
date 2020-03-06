@@ -2,6 +2,7 @@ package com.example.restaurantinspection.model;
 
 public class Restaurant {
 
+    private InspectionManager inspectionManager;
     private RestaurantInspection inspection;
 
     private String trackingNumber;
@@ -21,6 +22,10 @@ public class Restaurant {
         this.facilityType = facilityType;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public InspectionManager getInspectionManager(){
+        return inspectionManager;
     }
 
     public RestaurantInspection getInspection() {
