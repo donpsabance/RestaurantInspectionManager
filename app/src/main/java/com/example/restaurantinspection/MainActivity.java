@@ -3,6 +3,7 @@ package com.example.restaurantinspection;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private InspectionManager inspectionManager = InspectionManager.getInstance();
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter(){
@@ -158,18 +160,15 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-
-            for(Restaurant restaurant : restaurantManager){
-                Collections.sort(restaurant.getInspectionManager().getInspectionList(),new InspectionComparator());
-            }
+//            for(Restaurant restaurant : restaurantManager){
+//                Collections.sort(restaurant.getInspectionManager().getInspectionList(),new InspectionComparator());
+//            }
         }
-
 
         loadRestaurants();
         registerClickFeedback();
 
     }
-
 
     private void registerClickFeedback(){
 
@@ -182,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
                 //run intent
+                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, restaurant);
+                startActivity(intent);
             }
         });
     }
@@ -230,20 +231,20 @@ public class MainActivity extends AppCompatActivity {
                     var_token6 = "No violations";
                 }
 
-                RestaurantInspection inspection = new RestaurantInspection(tokens[0],tokens[1],
+                RestaurantInspection sample = new RestaurantInspection(tokens[0],tokens[1],
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
 
+                inspectionManager.add(sample);
                 for(Restaurant restaurant : restaurantManager){
-                    if(inspection.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
-                        restaurant.addNum_critical(inspection.getNumCritical());
-                        restaurant.addNum_noncritical(inspection.getNumNonCritical());
-                        restaurant.getInspectionManager().add(inspection);
+                    if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
 
+//                        Log.wtf("TEST", "FOUND MATCHING TRACKING");
+                        restaurant.setInspection(sample);
                     }
                 }
-            }
 //                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
+            }
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
         }
