@@ -6,4 +6,79 @@
     android:layout_height="match_parent"
     tools:context=".SingleInspectionActivity">
 
+    <ListView
+        android:id="@+id/inspectionListView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="105dp" />
+
+    <TextView
+        android:id="@+id/restaurantName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Restaurant Name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/inspectionDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="inspection date"
+        app:layout_constraintBottom_toBottomOf="@+id/dangertype"
+        app:layout_constraintStart_toStartOf="@+id/restaurantName"
+        app:layout_constraintTop_toTopOf="@+id/dangertype" />
+
+    <TextView
+        android:id="@+id/inspectionType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="56dp"
+        android:layout_marginLeft="56dp"
+        android:text="inspection type"
+        app:layout_constraintStart_toEndOf="@+id/restaurantName"
+        app:layout_constraintTop_toTopOf="@+id/restaurantName" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="216dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/dangertype"
+        app:layout_constraintTop_toBottomOf="@+id/dangertype" />
+
+    <TextView
+        android:id="@+id/dangertype"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="hazard rating:"
+        app:layout_constraintStart_toStartOf="@+id/inspectionType"
+        app:layout_constraintTop_toBottomOf="@+id/inspectionType" />
+
+    <TextView
+        android:id="@+id/HazardResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:text="hazard message"
+        app:layout_constraintEnd_toEndOf="@+id/progressBar"
+        app:layout_constraintStart_toStartOf="@+id/progressBar"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

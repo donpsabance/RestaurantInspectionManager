@@ -12,6 +12,9 @@ public class Restaurant {
     private String latitude;
     private String longitude;
 
+    private int num_critical;
+    private int num_noncritical;
+
     public Restaurant(String trackingNumber, String name, String address, String city,
                       String facilityType, String latitude, String longitude) {
         this.trackingNumber = trackingNumber;
@@ -82,6 +85,22 @@ public class Restaurant {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public int getNum_critical() {
+        return num_critical;
+    }
+
+    public void addNum_critical(int num_critical) {
+        this.num_critical += num_critical;
+    }
+
+    public int getNum_noncritical() {
+        return num_noncritical;
+    }
+
+    public void addNum_noncritical(int num_noncritical) {
+        this.num_noncritical += num_noncritical;
     }
 
     @Override

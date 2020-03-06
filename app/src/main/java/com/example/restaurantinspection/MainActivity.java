@@ -236,9 +236,10 @@ public class MainActivity extends AppCompatActivity {
 
                 for(Restaurant restaurant : restaurantManager){
                     if(inspection.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
-
-//                        Log.wtf("TEST", "FOUND MATCHING TRACKING");
+                        restaurant.addNum_critical(inspection.getNumCritical());
+                        restaurant.addNum_noncritical(inspection.getNumNonCritical());
                         restaurant.getInspectionManager().add(inspection);
+
                     }
                 }
             }
