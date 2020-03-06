@@ -3,7 +3,6 @@ package com.example.restaurantinspection.model;
 public class Restaurant {
 
     private InspectionManager inspectionManager;
-    private RestaurantInspection inspection;
 
     private String trackingNumber;
     private String name;
@@ -26,14 +25,6 @@ public class Restaurant {
 
     public InspectionManager getInspectionManager(){
         return inspectionManager;
-    }
-
-    public RestaurantInspection getInspection() {
-        return inspection;
-    }
-
-    public void setInspection(RestaurantInspection inspection) {
-        this.inspection = inspection;
     }
 
     public String getTrackingNumber() {

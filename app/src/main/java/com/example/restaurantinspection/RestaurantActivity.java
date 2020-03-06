@@ -9,6 +9,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -189,12 +190,13 @@ public class RestaurantActivity extends AppCompatActivity {
             result = Long.toString(dateDifference);
         } else if (dateDifference > 30 && dateDifference < 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.DAY_OF_MONTH);
-        } else {
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
+        } else if(dateDifference > 365){
+//            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
+            Log.wtf("DATE:", dateDifference + " ");
+            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
         }
 
         return result;
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

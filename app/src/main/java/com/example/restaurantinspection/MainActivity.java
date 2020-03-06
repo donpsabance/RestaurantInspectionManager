@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity {
             descriptionText.setText(restaurant.getName());
 
             //make sure they have an inspection report available
-            if(restaurant.getInspection() != null){
+            if(restaurant.getInspectionManager().getInspectionList().size() > 0){
 
-                RestaurantInspection restaurantInspection = restaurant.getInspection();
+                RestaurantInspection restaurantInspection = restaurant.getInspectionManager().getInspectionList().get(0);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
                 Date inspectionDate = null;
 
@@ -126,6 +126,8 @@ public class MainActivity extends AppCompatActivity {
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.DAY_OF_MONTH);
         } else {
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
+            Log.wtf("DATE:", dateDifference + " ");
+            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + "  " +  calendar.getTime());
         }
 
         return result;
@@ -209,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
         }
-
     }
     private void readInspectionData() {
         InputStream is = getResources().openRawResource(R.raw.inspections);
@@ -239,11 +240,9 @@ public class MainActivity extends AppCompatActivity {
                 for(Restaurant restaurant : restaurantManager){
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
 
-//                        Log.wtf("TEST", "FOUND MATCHING TRACKING");
-                        restaurant.setInspection(sample);
+                        restaurant.getInspectionManager().add(sample);
                     }
-                }
-//                Log.d(MAIN_ACTIVITY_TAG, "Just created: " + sample);
+                };
             }
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
