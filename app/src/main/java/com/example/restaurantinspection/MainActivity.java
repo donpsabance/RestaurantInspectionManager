@@ -167,9 +167,10 @@ public class MainActivity extends AppCompatActivity {
 //            }
         }
 
+
+        Log.d("MY_ACTIVITY", "Size: " + inspectionManager.getInspectionList().size());
         loadRestaurants();
         registerClickFeedback();
-        Log.d("MY_ACTIVITY", "INSPECTION COUNT: " + inspectionManager.getInspectionList().size());
 
     }
 
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 RestaurantInspection sample = new RestaurantInspection(tokens[0],tokens[1],
                                             tokens[2], tokens[3], tokens[4],
                                             tokens[5],var_token6);
-//                Log.d("MY_ACTIVITY",sample.getTrackingNumber()+ " "+sample.getViolations());
+                Log.d("MY_ACTIVITY",sample.getTrackingNumber()+ " "+sample.getInspectionDate());
                 inspectionManager.add(sample);
                 for(Restaurant restaurant : restaurantManager){
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){

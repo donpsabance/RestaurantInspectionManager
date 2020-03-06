@@ -1,5 +1,7 @@
 package com.example.restaurantinspection;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,10 +11,18 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.restaurantinspection.model.RestaurantInspection;
+import com.example.restaurantinspection.model.Violation;
+import com.example.restaurantinspection.model.ViolationsManager;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -31,6 +41,8 @@ public class SingleInspectionActivity extends AppCompatActivity {
     public static final String EXTRA_INSPECTION_TYPE = "com.example.restaurantinspection: inspection_type";
     public static final String EXTRA_VIOLATION_DUMP = "com.example.restaurantinspection: violationDump";
 
+    private ViolationsManager violationsManager = new ViolationsManager();
+
     private String inspectionDate;
     private String violations;
     private String inspectiontype;
@@ -47,8 +59,18 @@ public class SingleInspectionActivity extends AppCompatActivity {
         getFromExtra();
         updateTextUI();
 
+        buildViolationManager();
+        loadViolations();
 
+    }
 
+    private void buildViolationManager() {
+        String [] arr = violations.split("\\|");
+        for(String s : arr){
+            Log.d("TAG",s);
+            Violation violation = new Violation(s);
+            violationsManager.add(violation);
+        }
     }
 
     private void getFromExtra() {
@@ -136,7 +158,35 @@ public class SingleInspectionActivity extends AppCompatActivity {
         }
     }
 
+    private void loadViolations() {
+        ArrayAdapter<Violation> adapter = new CustomListAdapter();
+        ListView listView = findViewById(R.id.inspectionListView);
+        listView.setAdapter(adapter);
+    }
+
+    private class CustomListAdapter extends ArrayAdapter<Violation>{
+        public CustomListAdapter(){
+            super(SingleInspectionActivity.this,R.layout.list_violations_layout,violationsManager.getViolationList());
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup viewGroup) {
+
+            View itemview = view;
+            if(itemview == null){
+                itemview = getLayoutInflater().inflate(R.layout.list_violations_layout,viewGroup,false);
+            }
+            //TODO use violation data to create listview
+            ImageView imageView = itemview.findViewById(R.id.violationIcon);
+            imageView.setImageResource(R.drawable.food);
+
+            return itemview;
+//            return super.getView(position, convertView, parent);
+        }
+    }
+
     //called by Restaurant Activity
+
     public static Intent makeIntent(Context context, RestaurantInspection restaurantInspection) {
         Intent intent = new Intent (context, SingleInspectionActivity.class);
         intent.putExtra(EXTRA_DATE,restaurantInspection.getInspectionDate());
@@ -147,7 +197,6 @@ public class SingleInspectionActivity extends AppCompatActivity {
         intent.putExtra(EXTRA_VIOLATION_DUMP, restaurantInspection.getViolations());
         return intent;
     }
-
 
 }
 
