@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
                 //run intent
-                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, restaurant);
+                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
                 startActivity(intent);
             }
         });
