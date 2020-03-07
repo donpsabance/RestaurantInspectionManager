@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity {
 
         String result = "";
 
-/*
         Date dateToday = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(inspectionDate);
@@ -127,10 +126,7 @@ public class MainActivity extends AppCompatActivity {
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.DAY_OF_MONTH);
         } else {
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
-            Log.wtf("DATE:", dateDifference + " ");
-            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + "  " +  calendar.getTime());
         }
-*/
 
         return result;
 
