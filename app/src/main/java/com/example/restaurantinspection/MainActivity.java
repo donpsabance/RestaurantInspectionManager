@@ -160,9 +160,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-//            for(Restaurant restaurant : restaurantManager){
-//                Collections.sort(restaurant.getInspectionManager().getInspectionList(),new InspectionComparator());
-//            }
+            for(Restaurant restaurant : restaurantManager){
+                Collections.sort(restaurant.getRestaurantInspectionList(),new InspectionComparator());
+            }
         }
 
 
