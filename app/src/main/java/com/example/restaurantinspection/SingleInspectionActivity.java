@@ -21,6 +21,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.restaurantinspection.model.RestaurantInspection;
+import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Violation;
 import com.example.restaurantinspection.model.ViolationsManager;
 
@@ -40,16 +41,13 @@ public class SingleInspectionActivity extends AppCompatActivity {
     public static final String EXTRA_HZDRATING = "com.example.restaurantinspection: hazardLVL";
     public static final String EXTRA_INSPECTION_TYPE = "com.example.restaurantinspection: inspection_type";
     public static final String EXTRA_VIOLATION_DUMP = "com.example.restaurantinspection: violationDump";
+    public static final String EXTRA_RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
+    public static final String EXTRA_INSPECTION_INDEX = "com.example.restaurantinspection - inspection index";
+    private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private RestaurantInspection restaurantInspection;
+
 
     private ViolationsManager violationsManager = new ViolationsManager();
-
-    private String inspectionDate;
-    private String violations;
-    private String inspectiontype;
-    private String trackingNumber;
-    private String hazardLVL;
-    private int numNonCritical;
-    private int numCritical;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -65,7 +63,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
     }
 
     private void buildViolationManager() {
-        String [] arr = violations.split("\\|");
+        String [] arr = restaurantInspection.getViolations().split("\\|");
         for(String s : arr){
             Log.d("TAG",s);
             Violation violation = new Violation(s);
@@ -75,37 +73,36 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     private void getFromExtra() {
         Intent intent = getIntent();
-        inspectionDate = intent.getStringExtra(EXTRA_DATE);
-        inspectiontype = intent.getStringExtra(EXTRA_INSPECTION_TYPE);
-        hazardLVL = intent.getStringExtra(EXTRA_HZDRATING);
-        violations = intent.getStringExtra(EXTRA_VIOLATION_DUMP);
-        numNonCritical = intent.getIntExtra(EXTRA_NONCRITICAL,0);
-        numCritical = intent.getIntExtra(EXTRA_CRITICAL,0);
+        int restaurant_index = intent.getIntExtra(EXTRA_RESTAURANT_INDEX, 0);
+        int inspection_index = intent.getIntExtra(EXTRA_INSPECTION_INDEX, 0);
 
+        restaurantInspection = restaurantManager.getRestaurantList()
+                .get(restaurant_index)
+                .getRestaurantInspectionList().get(inspection_index);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void updateTextUI() {
 
         TextView inspectionTypeView = findViewById(R.id.inspectionType);
-        inspectionTypeView.setText("Inspection type: " + inspectiontype);
+        inspectionTypeView.setText("Inspection type: " + restaurantInspection.getInspectionType());
 
         TextView inspectionDateView = findViewById(R.id.inspectionDate);
-        inspectionDateView.setText("Date: " + formatDate(inspectionDate));
+        inspectionDateView.setText("Date: " + formatDate(restaurantInspection.getInspectionDate()));
 
         TextView hazardResultView = findViewById(R.id.HazardResult);
-        hazardResultView.setText(hazardLVL);
+        hazardResultView.setText(restaurantInspection.getHazardRating());
 
         TextView numCriticalView = findViewById(R.id.numCriticalmsg);
-        numCriticalView.setText("Critical issues: " + numCritical);
+        numCriticalView.setText("Critical issues: " + restaurantInspection.getNumCritical());
 
         TextView numNonCriticalView = findViewById(R.id.numNonCriticalmsg);
-        numNonCriticalView.setText("Non critical issues: " + numNonCritical);
+        numNonCriticalView.setText("Non critical issues: " + restaurantInspection.getNumNonCritical());
 
         ProgressBar progressBar = findViewById(R.id.hazardBarSingle);
         TextView hazardMessageView = findViewById(R.id.HazardResult);
-        determineHazardLevel(progressBar,hazardLVL,hazardMessageView);
-        hazardMessageView.setText(hazardLVL);
+        determineHazardLevel(progressBar,restaurantInspection.getHazardRating(),hazardMessageView);
+        hazardMessageView.setText(restaurantInspection.getHazardRating());
 
 
     }
@@ -130,8 +127,8 @@ public class SingleInspectionActivity extends AppCompatActivity {
         calendar.setTime(formatDate);
 
         result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " +
-                                                    calendar.get(Calendar.DAY_OF_MONTH) +
-                                                    ", " + calendar.get(Calendar.YEAR);
+                calendar.get(Calendar.DAY_OF_MONTH) +
+                ", " + calendar.get(Calendar.YEAR);
 
         return result;
     }
@@ -189,6 +186,8 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     public static Intent makeIntent(Context context, int restaurantIndex, int inspectionIndex) {
         Intent intent = new Intent (context, SingleInspectionActivity.class);
+        intent.putExtra(EXTRA_RESTAURANT_INDEX,restaurantIndex);
+        intent.putExtra(EXTRA_INSPECTION_INDEX,inspectionIndex);
         return intent;
     }
 
