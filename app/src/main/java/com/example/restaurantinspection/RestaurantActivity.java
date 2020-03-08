@@ -53,6 +53,7 @@ public class RestaurantActivity extends AppCompatActivity {
         extractDatafromIntent();
         updateTextView();
         ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
 
 
@@ -64,10 +65,9 @@ public class RestaurantActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item)
     {
         super.onOptionsItemSelected(item);
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-                return true;
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
         }
         return true;
     }
