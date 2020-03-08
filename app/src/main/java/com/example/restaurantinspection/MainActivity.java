@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                     if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
                         restaurant.getRestaurantInspectionList().add(sample);
                     }
-                };
+                }
             }
         }catch (IOException e){
             Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
