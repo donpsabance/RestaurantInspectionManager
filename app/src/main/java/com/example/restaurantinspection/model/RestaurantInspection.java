@@ -1,12 +1,19 @@
 package com.example.restaurantinspection.model;
 
+import android.util.Log;
+
+import java.lang.reflect.Array;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class RestaurantInspection implements Comparable<RestaurantInspection> {
+
+    private List<Violation> violationsList = new ArrayList<>();
 
     private String trackingNumber;
     private String inspectionDate;
@@ -27,6 +34,27 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
         this.numNonCritical = Integer.parseInt(numNonCritical);
         this.hazardRating = hazardRating;
         this.violations = violations;
+        parseViolations(violations);
+    }
+
+    private void parseViolations(String violationdump) {
+        String [] arr = violations.split("\\|");
+        for(String s : arr){
+            Log.d("TAG",s);
+            //if s == "No violations" do not add to list
+            if(!violationdump.equalsIgnoreCase("No violations")){
+                // TODO: for each string s, parse the violation # and Critical/NonCritical
+
+
+                //create new violation here
+
+                violationsList.add(violation);
+            }
+        }
+    }
+
+    public List<Violation> getViolationsList() {
+        return violationsList;
     }
 
     public Date getFormatDate(){return formatDate;}

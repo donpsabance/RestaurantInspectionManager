@@ -35,12 +35,6 @@ import java.util.Locale;
 
 public class SingleInspectionActivity extends AppCompatActivity {
 
-    public static final String EXTRA_DATE = "com.example.restaurantinspection: date";
-    public static final String EXTRA_NONCRITICAL = "com.example.restaurantinspection: nonCritical";
-    public static final String EXTRA_CRITICAL = "com.example.restaurantinspection critical";
-    public static final String EXTRA_HZDRATING = "com.example.restaurantinspection: hazardLVL";
-    public static final String EXTRA_INSPECTION_TYPE = "com.example.restaurantinspection: inspection_type";
-    public static final String EXTRA_VIOLATION_DUMP = "com.example.restaurantinspection: violationDump";
     public static final String EXTRA_RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
     public static final String EXTRA_INSPECTION_INDEX = "com.example.restaurantinspection - inspection index";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
@@ -57,19 +51,19 @@ public class SingleInspectionActivity extends AppCompatActivity {
         getFromExtra();
         updateTextUI();
 
-        buildViolationManager();
+//        buildViolationManager();
         loadViolations();
 
     }
 
-    private void buildViolationManager() {
+/*    private void buildViolationManager() {
         String [] arr = restaurantInspection.getViolations().split("\\|");
         for(String s : arr){
             Log.d("TAG",s);
             Violation violation = new Violation(s);
             violationsManager.add(violation);
         }
-    }
+    }*/
 
     private void getFromExtra() {
         Intent intent = getIntent();
@@ -163,7 +157,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     private class CustomListAdapter extends ArrayAdapter<Violation>{
         public CustomListAdapter(){
-            super(SingleInspectionActivity.this,R.layout.list_violations_layout,violationsManager.getViolationList());
+            super(SingleInspectionActivity.this,R.layout.list_violations_layout,restaurantInspection.getViolationsList());
         }
 
         @Override

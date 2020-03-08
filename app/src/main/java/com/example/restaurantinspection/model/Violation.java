@@ -3,16 +3,16 @@ package com.example.restaurantinspection.model;
 public class Violation {
     private int violation_id;
     private String status;
-    private  String wholeString;
+    private  String violationDump;
 
-    public Violation(String wholeString) {
-        this.wholeString = wholeString;
+    public Violation(String violationDump) {
+        this.violationDump = violationDump;
     }
 
-    public Violation(int violation_id, String status, String wholeString) {
+    public Violation(int violation_id, String status, String violationDump) {
         this.violation_id = violation_id;
         this.status = status;
-        this.wholeString = wholeString;
+        this.violationDump = violationDump;
     }
 
     public int getViolation_id() {
