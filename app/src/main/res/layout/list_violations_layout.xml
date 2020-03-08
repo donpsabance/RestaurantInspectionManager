@@ -4,10 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
+
     <ImageView
         android:id="@+id/violationIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="110dp"
+        android:layout_width="78dp"
+        android:layout_height="84dp"
         android:paddingTop="8dp"
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
@@ -45,7 +46,7 @@
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@+id/violationIcon"
         android:layout_toRightOf="@+id/violationIcon"
-        android:text="Hazard Rating:" />
+        android:text="@string/violation_severity" />
 
     <ImageView
         android:id="@+id/hazardColor"
@@ -60,7 +61,7 @@
         app:srcCompat="@color/colorAccent" />
 
     <TextView
-        android:id="@+id/hazardLeveltxt"
+        android:id="@+id/violationSeverityTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/hazardLevelmsg"

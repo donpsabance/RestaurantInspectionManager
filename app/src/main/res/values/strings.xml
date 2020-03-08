@@ -4,4 +4,5 @@
     <string name="todo">TODO</string>
     <string name="critical_issues">Critical issues:</string>
     <string name="hazard_rating">Hazard rating:</string>
+    <string name="violation_severity">Violation Severity:</string>
 </resources>

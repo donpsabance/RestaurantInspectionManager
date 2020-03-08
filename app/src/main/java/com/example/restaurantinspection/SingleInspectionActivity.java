@@ -25,6 +25,8 @@ import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Violation;
 import com.example.restaurantinspection.model.ViolationsManager;
 
+import org.w3c.dom.Text;
+
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
@@ -167,9 +169,29 @@ public class SingleInspectionActivity extends AppCompatActivity {
             if(itemview == null){
                 itemview = getLayoutInflater().inflate(R.layout.list_violations_layout,viewGroup,false);
             }
-            //TODO use violation data to create listview
             ImageView imageView = itemview.findViewById(R.id.violationIcon);
-            imageView.setImageResource(R.drawable.food);
+            TextView briefMessage_view = itemview.findViewById(R.id.violationDescription);
+            TextView severityMessage_view = itemview.findViewById(R.id.violationSeverityTxt);
+
+
+            Violation violation = restaurantInspection.getViolationsList().get(position);
+            //TODO use violation data to create listview
+            int id_num = violation.getViolation_id();
+
+            if(id_num >= 100 && id_num < 200){
+                imageView.setImageResource(R.drawable.food);
+            }else if(id_num >= 200 && id_num < 300){
+
+            }else if (id_num >= 300 && id_num < 400){
+
+            }else if(id_num >= 400 && id_num < 500){
+
+            }else if(id_num >= 500 && id_num < 600){
+
+            }
+
+            severityMessage_view.setText(violation.getStatus());
+
 
             return itemview;
 //            return super.getView(position, convertView, parent);
