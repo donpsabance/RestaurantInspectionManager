@@ -104,7 +104,6 @@ public class RestaurantActivity extends AppCompatActivity {
                 itemView = getLayoutInflater().inflate(R.layout.restaurant_inspections_list, viewGroup, false);
             }
 
-
             RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
 
             //Textview
@@ -134,9 +133,11 @@ public class RestaurantActivity extends AppCompatActivity {
                 criticalText.setText("Number of critical issues: " + numCritical);
                 nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-
-
+            }else{
+                criticalText.setText("No inspections available");
+                hazardRating.setVisibility(view.INVISIBLE);
             }
+
             return itemView;
         }
 
@@ -147,19 +148,24 @@ public class RestaurantActivity extends AppCompatActivity {
         Intent intent = getIntent();
         restaurantIndex = intent.getIntExtra("restaurant index", 0);
         restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
+//        restaurantName = intent.getStringExtra(EXTRA_RESTAURANTNAME);
+//        restaurantAddr = intent.getStringExtra(EXTRA_RESTAURANTADDR);
+//        restaurantLat = intent.getStringExtra(EXTRA_RESTAURANTLAT);
+//        restaurantLon = intent.getStringExtra(EXTRA_RESTAURANTLON);
+//        restaurantTN = intent.getStringExtra(EXTRA_RESTAURANTTN);
     }
 
 
     private void updateTextView() {
         TextView restaurantNameView = findViewById(R.id.restaurantnameid);
-        restaurantNameView.setText(restaurant.getName());
+        restaurantNameView.setText("Name: " + restaurantManager.getRestaurantList().get(restaurantIndex).getName());
 
         TextView restaurantAddrView = findViewById(R.id.restaurantaddrid);
-        restaurantAddrView.setText("Address: " + restaurant.getAddress());
+        restaurantAddrView.setText("Address: " + restaurantManager.getRestaurantList().get(restaurantIndex).getAddress());
 
         TextView restaurantGPSView = findViewById(R.id.restaurantgpsid);
-        restaurantGPSView.setText("GPS Coordinates: (" + restaurant.getLatitude() + ", "
-                + restaurant.getLongitude() + ")");
+        restaurantGPSView.setText("GPS Coordinates: (" + restaurantManager.getRestaurantList().get(restaurantIndex).getLatitude() + ", "
+                + restaurantManager.getRestaurantList().get(restaurantIndex).getLongitude() + ")");
     }
 
 
@@ -171,7 +177,7 @@ public class RestaurantActivity extends AppCompatActivity {
 
     private String formatDateInspection(Date inspectionDate){
 
-        String result;
+        String result = "";
 
         Date dateToday = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -183,25 +189,26 @@ public class RestaurantActivity extends AppCompatActivity {
             result = Long.toString(dateDifference);
         } else if (dateDifference > 30 && dateDifference < 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
-        } else {
+        } else if(dateDifference > 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
+//            Log.wtf("DATE:", dateDifference + " ");
+//            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
         }
 
         return result;
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void determineHazardLevel(Button button, String hazardLevel){
         button.setPadding(25, 0, 25, 0);
         if(hazardLevel.equalsIgnoreCase("LOW")){
-            button.setText(R.string.low);
+            button.setText("Low");
             button.setBackgroundColor(Color.rgb(75, 194, 54));
         } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
-            button.setText(R.string.moderate);
+            button.setText("Moderate");
             button.setBackgroundColor(Color.rgb(245, 158, 66));
         } else if(hazardLevel.equalsIgnoreCase("HIGH")){
-            button.setText(R.string.high);
+            button.setText("High");
             button.setBackgroundColor(Color.rgb(245, 66, 66));
         }
     }
