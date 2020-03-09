@@ -58,9 +58,19 @@ public class RestaurantActivity extends AppCompatActivity {
 
 
         loadInspections();
+
+        checkEmptyInspections();
         registerClickBack();
 
     }
+
+    private void checkEmptyInspections() {
+        if (restaurant.getRestaurantInspectionList().size() == 0){
+            TextView noInspectionsText = findViewById(R.id.noinspectionsview);
+            noInspectionsText.setText("No inspections available");
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -133,9 +143,6 @@ public class RestaurantActivity extends AppCompatActivity {
                 criticalText.setText("Number of critical issues: " + numCritical);
                 nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-            }else{
-                criticalText.setText("No inspections available");
-                hazardRating.setVisibility(view.INVISIBLE);
             }
 
             return itemView;
