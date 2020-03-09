@@ -3,6 +3,7 @@ package com.example.restaurantinspection;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -52,10 +54,23 @@ public class SingleInspectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_inspection);
         getFromExtra();
         updateTextUI();
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 //        buildViolationManager();
         loadViolations();
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return true;
     }
 
 /*    private void buildViolationManager() {
@@ -176,21 +191,29 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
             Violation violation = restaurantInspection.getViolationsList().get(position);
             //TODO use violation data to create listview
+
             int id_num = violation.getViolation_id();
 
             if(id_num >= 100 && id_num < 200){
                 imageView.setImageResource(R.drawable.food);
+                briefMessage_view.setText("No qualified permit or illegal construction.");
             }else if(id_num >= 200 && id_num < 300){
-
+                imageView.setImageResource(R.drawable.food);
+                briefMessage_view.setText("Food or cooking methods or food storage is not safe.");
             }else if (id_num >= 300 && id_num < 400){
-
+                imageView.setImageResource(R.drawable.food);
+                briefMessage_view.setText("Poor equipment and work environment");
             }else if(id_num >= 400 && id_num < 500){
-
+                imageView.setImageResource(R.drawable.food);
+                briefMessage_view.setText("Staff have poor hygiene habits or conditions.");
             }else if(id_num >= 500 && id_num < 600){
-
+                imageView.setImageResource(R.drawable.food);
+                briefMessage_view.setText("Insufficient FOODSAFE LEVEL for the operator or watchkeeper.");
             }
+            String id_string = Integer.toString(id_num);
 
             severityMessage_view.setText(violation.getStatus());
+            //briefMessage_view.setText(id_string);
 
 
             return itemview;
