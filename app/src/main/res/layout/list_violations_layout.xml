@@ -4,10 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
+
     <ImageView
         android:id="@+id/violationIcon"
-        android:layout_width="wrap_content"
-        android:layout_height="110dp"
+        android:maxWidth="78dp"
+        android:layout_width="78dp"
+        android:maxHeight="84dp"
+        android:layout_height="84dp"
         android:paddingTop="8dp"
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
@@ -16,20 +19,23 @@
     <TextView
         android:id="@+id/violationDescription"
         android:layout_width="wrap_content"
-        android:layout_height="20dp"
+        android:layout_height="40dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="5dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@+id/violationIcon"
         android:layout_toRightOf="@+id/violationIcon"
         android:gravity="center_vertical"
         android:text="TextView"
-        android:textColor="#000000" />
+        android:textColor="#000000"
+        android:singleLine="false"
+        android:maxLines="2"/>
+
 
     <TextView
         android:id="@+id/hazardLevelmsg"
@@ -45,7 +51,7 @@
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@+id/violationIcon"
         android:layout_toRightOf="@+id/violationIcon"
-        android:text="Hazard Rating:" />
+        android:text="@string/violation_severity" />
 
     <ImageView
         android:id="@+id/hazardColor"
@@ -60,7 +66,7 @@
         app:srcCompat="@color/colorAccent" />
 
     <TextView
-        android:id="@+id/hazardLeveltxt"
+        android:id="@+id/violationSeverityTxt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/hazardLevelmsg"
