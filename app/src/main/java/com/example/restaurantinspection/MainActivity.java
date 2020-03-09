@@ -125,7 +125,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (dateDifference > 30 && dateDifference < 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
         } else {
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
+//            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
+            Log.wtf("DATE:", dateDifference + " ");
+            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
         }
 
         return result;
