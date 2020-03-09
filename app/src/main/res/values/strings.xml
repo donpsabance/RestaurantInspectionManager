@@ -4,4 +4,8 @@
     <string name="todo">TODO</string>
     <string name="critical_issues">Critical issues:</string>
     <string name="hazard_rating">Hazard rating:</string>
+    <string name="address">Address: </string>
+    <string name="low">Low</string>
+    <string name="moderate">Moderate</string>
+    <string name="high">High</string>
 </resources>

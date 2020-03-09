@@ -1,6 +1,7 @@
 package com.example.restaurantinspection;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -50,10 +52,24 @@ public class RestaurantActivity extends AppCompatActivity {
         setContentView(R.layout.activity_restaurant);
         extractDatafromIntent();
         updateTextView();
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         loadInspections();
         registerClickBack();
 
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return true;
     }
 
     private void registerClickBack() {
@@ -89,7 +105,6 @@ public class RestaurantActivity extends AppCompatActivity {
             }
 
 
-
             RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
 
             //Textview
@@ -107,23 +122,21 @@ public class RestaurantActivity extends AppCompatActivity {
                 int numNonCritical = restaurantInspection.getNumNonCritical();
 
                 //How long ago the inspection occurred
-//                DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
-//                try {
-//                    Date formatDate = format.parse(restaurantInspection.getInspectionDate());
-//                    String inspectionDate = formatDateInspection(formatDate);
-//                    timeText.setText("Inspection date: " + inspectionDate);
-//                } catch (ParseException e) {
-//                    e.printStackTrace();
-//                }
+                DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
+                try {
+                    Date formatDate = format.parse(restaurantInspection.getInspectionDate());
+                    String inspectionDate = formatDateInspection(formatDate);
+                    timeText.setText("Inspection date: " + inspectionDate);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
 
                 criticalText.setText("Number of critical issues: " + numCritical);
                 nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-            }else{
-                criticalText.setText("No inspections available");
-                hazardRating.setVisibility(view.INVISIBLE);
-            }
 
+
+            }
             return itemView;
         }
 
@@ -134,24 +147,19 @@ public class RestaurantActivity extends AppCompatActivity {
         Intent intent = getIntent();
         restaurantIndex = intent.getIntExtra("restaurant index", 0);
         restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
-//        restaurantName = intent.getStringExtra(EXTRA_RESTAURANTNAME);
-//        restaurantAddr = intent.getStringExtra(EXTRA_RESTAURANTADDR);
-//        restaurantLat = intent.getStringExtra(EXTRA_RESTAURANTLAT);
-//        restaurantLon = intent.getStringExtra(EXTRA_RESTAURANTLON);
-//        restaurantTN = intent.getStringExtra(EXTRA_RESTAURANTTN);
     }
 
 
     private void updateTextView() {
         TextView restaurantNameView = findViewById(R.id.restaurantnameid);
-        restaurantNameView.setText("Name: " + restaurantManager.getRestaurantList().get(restaurantIndex).getName());
+        restaurantNameView.setText(restaurant.getName());
 
         TextView restaurantAddrView = findViewById(R.id.restaurantaddrid);
-        restaurantAddrView.setText("Address: " + restaurantManager.getRestaurantList().get(restaurantIndex).getAddress());
+        restaurantAddrView.setText("Address: " + restaurant.getAddress());
 
         TextView restaurantGPSView = findViewById(R.id.restaurantgpsid);
-        restaurantGPSView.setText("GPS Coordinates: (" + restaurantManager.getRestaurantList().get(restaurantIndex).getLatitude() + ", "
-                + restaurantManager.getRestaurantList().get(restaurantIndex).getLongitude() + ")");
+        restaurantGPSView.setText("GPS Coordinates: (" + restaurant.getLatitude() + ", "
+                + restaurant.getLongitude() + ")");
     }
 
 
@@ -163,7 +171,7 @@ public class RestaurantActivity extends AppCompatActivity {
 
     private String formatDateInspection(Date inspectionDate){
 
-        String result = "";
+        String result;
 
         Date dateToday = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -174,27 +182,26 @@ public class RestaurantActivity extends AppCompatActivity {
         if(dateDifference < 30){
             result = Long.toString(dateDifference);
         } else if (dateDifference > 30 && dateDifference < 365){
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.DAY_OF_MONTH);
-        } else if(dateDifference > 365){
-//            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " + calendar.get(Calendar.YEAR);
-            Log.wtf("DATE:", dateDifference + " ");
-            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
+        } else {
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
         }
 
         return result;
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void determineHazardLevel(Button button, String hazardLevel){
         button.setPadding(25, 0, 25, 0);
         if(hazardLevel.equalsIgnoreCase("LOW")){
-            button.setText("Low");
+            button.setText(R.string.low);
             button.setBackgroundColor(Color.rgb(75, 194, 54));
         } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
-            button.setText("Moderate");
+            button.setText(R.string.moderate);
             button.setBackgroundColor(Color.rgb(245, 158, 66));
         } else if(hazardLevel.equalsIgnoreCase("HIGH")){
-            button.setText("High");
+            button.setText(R.string.high);
             button.setBackgroundColor(Color.rgb(245, 66, 66));
         }
     }
