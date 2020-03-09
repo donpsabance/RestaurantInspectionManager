@@ -1,5 +1,6 @@
 package com.example.restaurantinspection.model;
 
+import android.media.audiofx.DynamicsProcessing;
 import android.util.Log;
 
 import java.lang.reflect.Array;
@@ -44,11 +45,14 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
             //if s == "No violations" do not add to list
             if(!violationdump.equalsIgnoreCase("No violations")){
                 // TODO: for each string s, parse the violation # and Critical/NonCritical
-
+                String [] arr2 = s.split("!");
+                //Log.d("Head",arr2[0]+' '+arr2[1]+' '+arr2[2]+' '+arr2[3]);
+                int violationnum = Integer.parseInt(arr2[0]);
+                Violation violation = new Violation(violationnum,arr2[1],arr2[2]+arr2[3]);
 
                 //create new violation here
 
-                violationsList.add(violation);
+               violationsList.add(violation);
             }
         }
     }
