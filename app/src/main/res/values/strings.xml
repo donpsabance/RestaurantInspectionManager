@@ -4,6 +4,12 @@
     <string name="todo">TODO</string>
     <string name="critical_issues">Critical issues:</string>
     <string name="hazard_rating">Hazard rating:</string>
+    <string name="violation_severity">Violation Severity:</string>
+    <string name="violation_100_199">No qualified permit or illegal construction.</string>
+    <string name="violation_200_299">Food or cooking methods or food storage is not safe.</string>
+    <string name="violation_300_399">Poor equipment and work environment</string>
+    <string name="violation_400_499">Staff have poor hygiene habits or conditions.</string>
+    <string name="violation_500_599">Insufficient FOODSAFE LEVEL for the operator or watchkeeper.</string>
     <string name="address">Address: </string>
     <string name="low">Low</string>
     <string name="moderate">Moderate</string>

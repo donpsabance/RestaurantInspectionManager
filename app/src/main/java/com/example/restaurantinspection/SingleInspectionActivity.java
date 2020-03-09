@@ -3,6 +3,7 @@ package com.example.restaurantinspection;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
@@ -12,17 +13,23 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.restaurantinspection.model.RestaurantInspection;
+import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Violation;
 import com.example.restaurantinspection.model.ViolationsManager;
+
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -34,22 +41,13 @@ import java.util.Locale;
 
 public class SingleInspectionActivity extends AppCompatActivity {
 
-    public static final String EXTRA_DATE = "com.example.restaurantinspection: date";
-    public static final String EXTRA_NONCRITICAL = "com.example.restaurantinspection: nonCritical";
-    public static final String EXTRA_CRITICAL = "com.example.restaurantinspection critical";
-    public static final String EXTRA_HZDRATING = "com.example.restaurantinspection: hazardLVL";
-    public static final String EXTRA_INSPECTION_TYPE = "com.example.restaurantinspection: inspection_type";
-    public static final String EXTRA_VIOLATION_DUMP = "com.example.restaurantinspection: violationDump";
+    public static final String EXTRA_RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
+    public static final String EXTRA_INSPECTION_INDEX = "com.example.restaurantinspection - inspection index";
+    private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private RestaurantInspection restaurantInspection;
+
 
     private ViolationsManager violationsManager = new ViolationsManager();
-
-    private String inspectionDate;
-    private String violations;
-    private String inspectiontype;
-    private String trackingNumber;
-    private String hazardLVL;
-    private int numNonCritical;
-    private int numCritical;
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -58,54 +56,68 @@ public class SingleInspectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_single_inspection);
         getFromExtra();
         updateTextUI();
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
-        buildViolationManager();
+//        buildViolationManager();
         loadViolations();
+        registerClickCallback();
 
     }
 
-    private void buildViolationManager() {
-        String [] arr = violations.split("\\|");
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return true;
+    }
+
+
+/*    private void buildViolationManager() {
+        String [] arr = restaurantInspection.getViolations().split("\\|");
         for(String s : arr){
             Log.d("TAG",s);
             Violation violation = new Violation(s);
             violationsManager.add(violation);
         }
-    }
-
+    }*/
     private void getFromExtra() {
         Intent intent = getIntent();
-        inspectionDate = intent.getStringExtra(EXTRA_DATE);
-        inspectiontype = intent.getStringExtra(EXTRA_INSPECTION_TYPE);
-        hazardLVL = intent.getStringExtra(EXTRA_HZDRATING);
-        violations = intent.getStringExtra(EXTRA_VIOLATION_DUMP);
-        numNonCritical = intent.getIntExtra(EXTRA_NONCRITICAL,0);
-        numCritical = intent.getIntExtra(EXTRA_CRITICAL,0);
+        int restaurant_index = intent.getIntExtra(EXTRA_RESTAURANT_INDEX, 0);
+        int inspection_index = intent.getIntExtra(EXTRA_INSPECTION_INDEX, 0);
 
+        restaurantInspection = restaurantManager.getRestaurantList()
+                .get(restaurant_index)
+                .getRestaurantInspectionList().get(inspection_index);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void updateTextUI() {
 
         TextView inspectionTypeView = findViewById(R.id.inspectionType);
-        inspectionTypeView.setText("Inspection type: " + inspectiontype);
+        inspectionTypeView.setText("Inspection type: " + restaurantInspection.getInspectionType());
 
         TextView inspectionDateView = findViewById(R.id.inspectionDate);
-        inspectionDateView.setText("Date: " + formatDate(inspectionDate));
+        inspectionDateView.setText("Date: " + formatDate(restaurantInspection.getInspectionDate()));
 
         TextView hazardResultView = findViewById(R.id.HazardResult);
-        hazardResultView.setText(hazardLVL);
+        hazardResultView.setText(restaurantInspection.getHazardRating());
 
         TextView numCriticalView = findViewById(R.id.numCriticalmsg);
-        numCriticalView.setText("Critical issues: " + numCritical);
+        numCriticalView.setText("Critical issues: " + restaurantInspection.getNumCritical());
 
         TextView numNonCriticalView = findViewById(R.id.numNonCriticalmsg);
-        numNonCriticalView.setText("Non critical issues: " + numNonCritical);
+        numNonCriticalView.setText("Non critical issues: " + restaurantInspection.getNumNonCritical());
 
         ProgressBar progressBar = findViewById(R.id.hazardBarSingle);
         TextView hazardMessageView = findViewById(R.id.HazardResult);
-        determineHazardLevel(progressBar,hazardLVL,hazardMessageView);
-        hazardMessageView.setText(hazardLVL);
+        determineHazardLevel(progressBar,restaurantInspection.getHazardRating(),hazardMessageView);
+        hazardMessageView.setText(restaurantInspection.getHazardRating());
 
 
     }
@@ -129,9 +141,9 @@ public class SingleInspectionActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(formatDate);
 
-        result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " +
-                                                    calendar.get(Calendar.DAY_OF_MONTH) +
-                                                    ", " + calendar.get(Calendar.YEAR);
+        result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " +
+                calendar.get(Calendar.DAY_OF_MONTH) +
+                ", " + calendar.get(Calendar.YEAR);
 
         return result;
     }
@@ -165,10 +177,10 @@ public class SingleInspectionActivity extends AppCompatActivity {
     }
 
     private class CustomListAdapter extends ArrayAdapter<Violation>{
-        public CustomListAdapter(){
-            super(SingleInspectionActivity.this,R.layout.list_violations_layout,violationsManager.getViolationList());
-        }
 
+        public CustomListAdapter(){
+            super(SingleInspectionActivity.this,R.layout.list_violations_layout,restaurantInspection.getViolationsList());
+        }
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
 
@@ -176,19 +188,65 @@ public class SingleInspectionActivity extends AppCompatActivity {
             if(itemview == null){
                 itemview = getLayoutInflater().inflate(R.layout.list_violations_layout,viewGroup,false);
             }
-            //TODO use violation data to create listview
             ImageView imageView = itemview.findViewById(R.id.violationIcon);
-            imageView.setImageResource(R.drawable.food);
+            TextView briefMessage_view = itemview.findViewById(R.id.violationDescription);
+            TextView severityMessage_view = itemview.findViewById(R.id.violationSeverityTxt);
+            ImageView colorBlock_imageview = itemview.findViewById(R.id.hazardColor);
+
+
+            Violation violation = restaurantInspection.getViolationsList().get(position);
+            //TODO use violation data to create listview
+
+            int id_num = violation.getViolation_id();
+
+            if(id_num >= 100 && id_num < 200){
+                imageView.setImageResource(R.drawable.permits);
+                briefMessage_view.setText(R.string.violation_100_199);
+            }else if(id_num >= 200 && id_num < 300){
+                imageView.setImageResource(R.drawable.food_safety);
+                briefMessage_view.setText(R.string.violation_200_299);
+            }else if (id_num >= 300 && id_num < 400){
+                imageView.setImageResource(R.drawable.equipment_cleanliness);
+                briefMessage_view.setText(R.string.violation_300_399);
+            }else if(id_num >= 400 && id_num < 500){
+                imageView.setImageResource(R.drawable.wash_hands);
+                briefMessage_view.setText(R.string.violation_400_499);
+            }else if(id_num >= 500 && id_num < 600){
+                imageView.setImageResource(R.drawable.food_safe);
+                briefMessage_view.setText(R.string.violation_500_599);
+            }
+
+            if(violation.getStatus().equalsIgnoreCase("Critical")){
+                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.colorAccent));
+            }else{
+                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.yellow));
+            }
+            severityMessage_view.setText(violation.getStatus());
+            //briefMessage_view.setText(id_string);
+
 
             return itemview;
 //            return super.getView(position, convertView, parent);
         }
+
     }
 
+    private void registerClickCallback() {
+        ListView listView = findViewById(R.id.inspectionListView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Violation violation = restaurantInspection.getViolationsList().get(position);
+                Toast.makeText(SingleInspectionActivity.this,violation.getViolationDump(),Toast.LENGTH_LONG).show();
+            }
+        });
+    }
     //called by Restaurant Activity
 
     public static Intent makeIntent(Context context, int restaurantIndex, int inspectionIndex) {
         Intent intent = new Intent (context, SingleInspectionActivity.class);
+        intent.putExtra(EXTRA_RESTAURANT_INDEX,restaurantIndex);
+        intent.putExtra(EXTRA_INSPECTION_INDEX,inspectionIndex);
         return intent;
     }
 
