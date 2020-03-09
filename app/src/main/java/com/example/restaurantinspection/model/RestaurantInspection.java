@@ -48,7 +48,7 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
                 String [] arr2 = s.split("!");
                 //Log.d("Head",arr2[0]+' '+arr2[1]+' '+arr2[2]+' '+arr2[3]);
                 int violationnum = Integer.parseInt(arr2[0]);
-                Violation violation = new Violation(violationnum,arr2[1],arr2[2]+arr2[3]);
+                Violation violation = new Violation(violationnum,arr2[1],s);
 
                 //create new violation here
 

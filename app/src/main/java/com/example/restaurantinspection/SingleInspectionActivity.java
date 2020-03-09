@@ -16,11 +16,13 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
@@ -60,8 +62,10 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
 //        buildViolationManager();
         loadViolations();
+        registerClickCallback();
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -73,6 +77,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
         return true;
     }
 
+
 /*    private void buildViolationManager() {
         String [] arr = restaurantInspection.getViolations().split("\\|");
         for(String s : arr){
@@ -81,7 +86,6 @@ public class SingleInspectionActivity extends AppCompatActivity {
             violationsManager.add(violation);
         }
     }*/
-
     private void getFromExtra() {
         Intent intent = getIntent();
         int restaurant_index = intent.getIntExtra(EXTRA_RESTAURANT_INDEX, 0);
@@ -137,7 +141,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(formatDate);
 
-        result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH) - 1] + " " +
+        result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " +
                 calendar.get(Calendar.DAY_OF_MONTH) +
                 ", " + calendar.get(Calendar.YEAR);
 
@@ -173,10 +177,10 @@ public class SingleInspectionActivity extends AppCompatActivity {
     }
 
     private class CustomListAdapter extends ArrayAdapter<Violation>{
+
         public CustomListAdapter(){
             super(SingleInspectionActivity.this,R.layout.list_violations_layout,restaurantInspection.getViolationsList());
         }
-
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
 
@@ -187,6 +191,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
             ImageView imageView = itemview.findViewById(R.id.violationIcon);
             TextView briefMessage_view = itemview.findViewById(R.id.violationDescription);
             TextView severityMessage_view = itemview.findViewById(R.id.violationSeverityTxt);
+            ImageView colorBlock_imageview = itemview.findViewById(R.id.hazardColor);
 
 
             Violation violation = restaurantInspection.getViolationsList().get(position);
@@ -195,23 +200,27 @@ public class SingleInspectionActivity extends AppCompatActivity {
             int id_num = violation.getViolation_id();
 
             if(id_num >= 100 && id_num < 200){
-                imageView.setImageResource(R.drawable.food);
-                briefMessage_view.setText("No qualified permit or illegal construction.");
+                imageView.setImageResource(R.drawable.permits);
+                briefMessage_view.setText(R.string.violation_100_199);
             }else if(id_num >= 200 && id_num < 300){
-                imageView.setImageResource(R.drawable.food);
-                briefMessage_view.setText("Food or cooking methods or food storage is not safe.");
+                imageView.setImageResource(R.drawable.food_safety);
+                briefMessage_view.setText(R.string.violation_200_299);
             }else if (id_num >= 300 && id_num < 400){
-                imageView.setImageResource(R.drawable.food);
-                briefMessage_view.setText("Poor equipment and work environment");
+                imageView.setImageResource(R.drawable.equipment_cleanliness);
+                briefMessage_view.setText(R.string.violation_300_399);
             }else if(id_num >= 400 && id_num < 500){
-                imageView.setImageResource(R.drawable.food);
-                briefMessage_view.setText("Staff have poor hygiene habits or conditions.");
+                imageView.setImageResource(R.drawable.wash_hands);
+                briefMessage_view.setText(R.string.violation_400_499);
             }else if(id_num >= 500 && id_num < 600){
-                imageView.setImageResource(R.drawable.food);
-                briefMessage_view.setText("Insufficient FOODSAFE LEVEL for the operator or watchkeeper.");
+                imageView.setImageResource(R.drawable.food_safe);
+                briefMessage_view.setText(R.string.violation_500_599);
             }
-            String id_string = Integer.toString(id_num);
 
+            if(violation.getStatus().equalsIgnoreCase("Critical")){
+                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.colorAccent));
+            }else{
+                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.yellow));
+            }
             severityMessage_view.setText(violation.getStatus());
             //briefMessage_view.setText(id_string);
 
@@ -219,8 +228,19 @@ public class SingleInspectionActivity extends AppCompatActivity {
             return itemview;
 //            return super.getView(position, convertView, parent);
         }
+
     }
 
+    private void registerClickCallback() {
+        ListView listView = findViewById(R.id.inspectionListView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Violation violation = restaurantInspection.getViolationsList().get(position);
+                Toast.makeText(SingleInspectionActivity.this,violation.getViolationDump(),Toast.LENGTH_LONG).show();
+            }
+        });
+    }
     //called by Restaurant Activity
 
     public static Intent makeIntent(Context context, int restaurantIndex, int inspectionIndex) {

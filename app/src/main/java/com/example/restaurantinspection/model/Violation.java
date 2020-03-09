@@ -15,6 +15,14 @@ public class Violation {
         this.violationDump = violationDump;
     }
 
+    public String getViolationDump() {
+        return violationDump;
+    }
+
+    public void setViolationDump(String violationDump) {
+        this.violationDump = violationDump;
+    }
+
     public int getViolation_id() {
         return violation_id;
     }
