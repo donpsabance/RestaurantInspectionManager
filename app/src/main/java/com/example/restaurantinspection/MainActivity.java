@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -99,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
 
             } else {
 
-                reportText.setText("No available reports");
+                reportText.setText(R.string.noavailablereports);
                 hazardRating.setVisibility(View.INVISIBLE);
 
             }
@@ -125,9 +126,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (dateDifference > 30 && dateDifference < 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
         } else {
-//            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
-            Log.wtf("DATE:", dateDifference + " ");
-            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
+            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
+//            Log.wtf("DATE:", dateDifference + " ");
+//            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
         }
 
         return result;
@@ -160,11 +161,9 @@ public class MainActivity extends AppCompatActivity {
         readRestaurantData();
         readInspectionData();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-            for(Restaurant restaurant : restaurantManager){
-                Collections.sort(restaurant.getRestaurantInspectionList(),new InspectionComparator());
-            }
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for(Restaurant restaurant : restaurantManager){
+            Collections.sort(restaurant.getRestaurantInspectionList(),new InspectionComparator());
         }
 
 
@@ -194,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
     private void readRestaurantData() {
         InputStream is = getResources().openRawResource(R.raw.restaurants);
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName("UTF-8"))
+                new InputStreamReader(is, StandardCharsets.UTF_8)
         );
 
         String line = "";
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
     private void readInspectionData() {
         InputStream is = getResources().openRawResource(R.raw.inspectionsdata);
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName("UTF-8"))
+                new InputStreamReader(is, StandardCharsets.UTF_8)
         );
         String line = "";
         try {
