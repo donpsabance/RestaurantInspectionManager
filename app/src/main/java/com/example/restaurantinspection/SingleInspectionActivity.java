@@ -27,7 +27,6 @@ import android.widget.Toast;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Violation;
-import com.example.restaurantinspection.model.ViolationsManager;
 
 import org.w3c.dom.Text;
 
@@ -46,8 +45,6 @@ public class SingleInspectionActivity extends AppCompatActivity {
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private RestaurantInspection restaurantInspection;
 
-
-    private ViolationsManager violationsManager = new ViolationsManager();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
