@@ -46,7 +46,6 @@ public class SingleInspectionActivity extends AppCompatActivity {
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private RestaurantInspection restaurantInspection;
 
-
     private ViolationsManager violationsManager = new ViolationsManager();
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
