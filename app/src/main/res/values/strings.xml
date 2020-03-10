@@ -6,10 +6,10 @@
     <string name="hazard_rating">Hazard rating:</string>
     <string name="violation_severity">Violation Severity:</string>
     <string name="violation_100_199">No qualified permit or illegal construction.</string>
-    <string name="violation_200_299">Food or cooking methods or food storage is not safe.</string>
+    <string name="violation_200_299">Unsafe food storage/packaging.</string>
     <string name="violation_300_399">Poor equipment and work environment</string>
-    <string name="violation_400_499">Staff have poor hygiene habits or conditions.</string>
-    <string name="violation_500_599">Insufficient FOODSAFE LEVEL for the operator or watchkeeper.</string>
+    <string name="violation_400_499">Staff have poor hygiene habits or conditions</string>
+    <string name="violation_500_599">Insufficient FOODSAFE LEVEL</string>
     <string name="address">Address: </string>
     <string name="low">Low</string>
     <string name="moderate">Moderate</string>
@@ -17,7 +17,11 @@
     <string name="number_of_critical_issues">Number of critical issues:</string>
     <string name="number_of_non_critical_issues">Number of non-critical issues:</string>
     <string name="inspection_date">Inspection date:</string>
+    <string name="date">Date:</string>
     <string name="gps_coordinates">GPS Coordinates:</string>
     <string name="noinspections">No inspections available</string>
     <string name="noavailablereports">No available reports</string>
+    <string name="no_violations_message"><![CDATA[<No violations>]]></string>
+    <string name="inspection_type">Inspection type:</string>
+    <string name="non_crit_issuesmessage">Non critical issues:</string>
 </resources>
