@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
@@ -64,8 +65,8 @@ public class RestaurantActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item){
+
         super.onOptionsItemSelected(item);
         if (item.getItemId() == android.R.id.home) {
             finish();
@@ -82,9 +83,7 @@ public class RestaurantActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                     RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
-//                    Toast.makeText(RestaurantActivity.this, "You are inspecting report from " + restaurantInspection.getInspectionDate(), Toast.LENGTH_SHORT).show();
-                    Log.d("MAKE",restaurantInspection.getViolations());
-                    //run intent
+
                     Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantIndex, position);
                     startActivity(intent);
                 }
@@ -128,7 +127,7 @@ public class RestaurantActivity extends AppCompatActivity {
                 DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
                 try {
                     Date formatDate = format.parse(restaurantInspection.getInspectionDate());
-                    String inspectionDate = formatDateInspection(formatDate);
+                    String inspectionDate = DateManager.formatDateInspection(formatDate);
                     timeText.setText(inspectionDate);
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -169,30 +168,6 @@ public class RestaurantActivity extends AppCompatActivity {
         ArrayAdapter<RestaurantInspection> arrayAdapter = new RestaurantActivity.CustomListAdapter();
         ListView listView = findViewById(R.id.inspectionList);
         listView.setAdapter(arrayAdapter);
-    }
-
-    private String formatDateInspection(Date inspectionDate){
-
-        String result = "";
-
-        Date dateToday = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(inspectionDate);
-
-        long dateDifference = TimeUnit.DAYS.convert(dateToday.getTime() - inspectionDate.getTime(), TimeUnit.MILLISECONDS);
-
-        if(dateDifference < 30){
-            result = Long.toString(dateDifference);
-        } else if (dateDifference > 30 && dateDifference < 365){
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
-        } else if(dateDifference > 365){
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
-//            Log.wtf("DATE:", dateDifference + " ");
-//            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
-        }
-
-        return result;
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
