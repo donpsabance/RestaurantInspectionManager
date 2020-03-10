@@ -50,9 +50,19 @@ public class RestaurantActivity extends AppCompatActivity {
 
 
         loadInspections();
+
+        checkEmptyInspections();
         registerClickBack();
 
     }
+
+    private void checkEmptyInspections() {
+        if (restaurant.getRestaurantInspectionList().size() == 0){
+            TextView noInspectionsText = findViewById(R.id.noinspectionsview);
+            noInspectionsText.setText(R.string.noinspections);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -96,7 +106,6 @@ public class RestaurantActivity extends AppCompatActivity {
                 itemView = getLayoutInflater().inflate(R.layout.restaurant_inspections_list, viewGroup, false);
             }
 
-
             RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
 
             //Textview
@@ -128,9 +137,9 @@ public class RestaurantActivity extends AppCompatActivity {
                 criticalText.setText(numCriticalstr);
                 nonCriticalText.setText(numNonCriticalstr);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-
-
             }
+
+
             return itemView;
         }
 
@@ -164,7 +173,7 @@ public class RestaurantActivity extends AppCompatActivity {
 
     private String formatDateInspection(Date inspectionDate){
 
-        String result;
+        String result = "";
 
         Date dateToday = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -176,8 +185,10 @@ public class RestaurantActivity extends AppCompatActivity {
             result = Long.toString(dateDifference);
         } else if (dateDifference > 30 && dateDifference < 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
-        } else {
+        } else if(dateDifference > 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
+//            Log.wtf("DATE:", dateDifference + " ");
+//            Log.wtf("DATE:", "  " + calendar.get(Calendar.MONTH) + " ");
         }
 
         return result;

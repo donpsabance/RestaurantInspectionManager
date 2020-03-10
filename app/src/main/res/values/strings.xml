@@ -18,4 +18,6 @@
     <string name="number_of_non_critical_issues">Number of non-critical issues:</string>
     <string name="inspection_date">Inspection date:</string>
     <string name="gps_coordinates">GPS Coordinates:</string>
+    <string name="noinspections">No inspections available</string>
+    <string name="noavailablereports">No available reports</string>
 </resources>
