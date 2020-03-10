@@ -2,6 +2,10 @@ package com.example.restaurantinspection.model;
 
 import java.util.Comparator;
 
+/**
+ * Compare restaurant inspection's inspection date
+ */
+
 public class InspectionComparator implements Comparator<RestaurantInspection> {
 
     @Override

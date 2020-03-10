@@ -1,5 +1,11 @@
 package com.example.restaurantinspection.model;
 
+/**
+ * Violation class models the information about a
+ * violation. Data includes id, status and violation dump (description).
+ */
+
+
 public class Violation {
     private int violation_id;
     private String status;
@@ -19,23 +25,11 @@ public class Violation {
         return violationDump;
     }
 
-    public void setViolationDump(String violationDump) {
-        this.violationDump = violationDump;
-    }
-
     public int getViolation_id() {
         return violation_id;
     }
 
-    public void setViolation_id(int violation_id) {
-        this.violation_id = violation_id;
-    }
-
     public String getStatus() {
         return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

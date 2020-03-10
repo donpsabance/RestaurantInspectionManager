@@ -1,8 +1,5 @@
 package com.example.restaurantinspection;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -19,9 +16,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
@@ -32,19 +31,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
-    private InspectionManager inspectionManager = InspectionManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         readInspectionData();
 
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        for(Restaurant restaurant : restaurantManager){
+        for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
 
@@ -64,16 +59,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
-        public CustomListAdapter(){
+        public CustomListAdapter() {
             super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
-        public View getView(int position, View view, ViewGroup viewGroup){
+        public View getView(int position, View view, ViewGroup viewGroup) {
 
             View itemView = view;
-            if(itemView == null){
+            if (itemView == null) {
                 itemView = getLayoutInflater().inflate(R.layout.restaurantlistlayout, viewGroup, false);
             }
 
@@ -81,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
             ImageView imageView = itemView.findViewById(R.id.restaurantIcon);
             TextView addressText = itemView.findViewById(R.id.restaurantLocation);
-            TextView descriptionText =  itemView.findViewById(R.id.restaurantDescription);
+            TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
 
@@ -90,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             descriptionText.setText(restaurant.getName());
 
             //make sure they have an inspection report available
-            if(restaurant.getRestaurantInspectionList().size() > 0){
+            if (restaurant.getRestaurantInspectionList().size() > 0) {
 
                 RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(0);
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -124,28 +119,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, int totalViolations){
+    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, int totalViolations) {
 
-        if(hazardLevel.equalsIgnoreCase("LOW")){
-
-//            progressBar.setProgress(10 * totalViolations);
+        if (hazardLevel.equalsIgnoreCase("LOW")) {
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(75, 194, 54)));
 
-        } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
-
-
+        } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 158, 66)));
 
-        } else if(hazardLevel.equalsIgnoreCase("HIGH")){
-
-//            progressBar.setProgress(90);
+        } else if (hazardLevel.equalsIgnoreCase("HIGH")) {
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 66, 66)));
         }
         progressBar.setMax(100);
-        progressBar.setProgress( 5 + 10 * totalViolations);
+        progressBar.setProgress(5 + 10 * totalViolations);
     }
 
-    private void registerClickFeedback(){
+    private void registerClickFeedback() {
 
         ListView listView = findViewById(R.id.restaurantListView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -155,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
                 Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
-                //run intent
+                //start restaurant activity
                 Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
                 startActivity(intent);
             }
@@ -172,19 +161,20 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Step over headers
             reader.readLine();
-            while( (line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 // Split line by ','
-                String [] tokens = line.split(",");
-                Restaurant sample = new Restaurant(tokens[0],tokens[1],
+                String[] tokens = line.split(",");
+                Restaurant sample = new Restaurant(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
-                        tokens[5],tokens[6]);
+                        tokens[5], tokens[6]);
 
                 restaurantManager.add(sample);
             }
-        }catch (IOException e){
-            Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
+        } catch (IOException e) {
+            Log.wtf(MAIN_ACTIVITY_TAG, "Error reading data file on line" + line, e);
         }
     }
+
     private void readInspectionData() {
         InputStream is = getResources().openRawResource(R.raw.inspectionsdata);
         BufferedReader reader = new BufferedReader(
@@ -194,33 +184,32 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Step over headers
             reader.readLine();
-            while( (line = reader.readLine()) != null){
+            while ((line = reader.readLine()) != null) {
                 // Split line by ','
-                String [] tokens = line.split(",");
+                String[] tokens = line.split(",");
                 String var_token6;
-                if(tokens.length >= 7 && tokens[6].length() > 0){
+                if (tokens.length >= 7 && tokens[6].length() > 0) {
                     var_token6 = tokens[6];
-                }else{
+                } else {
                     var_token6 = "No violations";
                 }
 
-                RestaurantInspection sample = new RestaurantInspection(tokens[0],tokens[1],
-                                            tokens[2], tokens[3], tokens[4],
-                                            tokens[5],var_token6);
-                Log.d("MY_ACTIVITY",sample.getTrackingNumber()+ " "+sample.getInspectionDate());
-                inspectionManager.add(sample);
-                for(Restaurant restaurant : restaurantManager){
-                    if(sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())){
+                RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
+                        tokens[2], tokens[3], tokens[4],
+                        tokens[5], var_token6);
+                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
+                for (Restaurant restaurant : restaurantManager) {
+                    if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
                     }
                 }
             }
-        }catch (IOException e){
-            Log.wtf(MAIN_ACTIVITY_TAG,"Error reading data file on line" + line, e);
+        } catch (IOException e) {
+            Log.wtf(MAIN_ACTIVITY_TAG, "Error reading data file on line" + line, e);
         }
     }
 
-    public void loadRestaurants(){
+    public void loadRestaurants() {
 
         ArrayAdapter<Restaurant> arrayAdapter = new CustomListAdapter();
         ListView listView = findViewById(R.id.restaurantListView);
