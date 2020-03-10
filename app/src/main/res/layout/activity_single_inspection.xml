@@ -7,15 +7,17 @@
     tools:context=".SingleInspectionActivity">
 
     <ListView
-    android:id="@+id/inspectionListView"
-    android:layout_width="0dp"
-    android:layout_height="0dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.0"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="@+id/guideline"
-    app:layout_constraintVertical_bias="1.0" />
+        android:id="@+id/inspectionListView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline"
+        app:layout_constraintVertical_bias="1.0"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="5dp"/>
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
