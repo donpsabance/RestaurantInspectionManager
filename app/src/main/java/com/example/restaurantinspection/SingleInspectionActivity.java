@@ -1,10 +1,9 @@
 package com.example.restaurantinspection;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +26,6 @@ import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Violation;
 
-import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -57,8 +54,8 @@ public class SingleInspectionActivity extends AppCompatActivity {
         assert actionBar != null;
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-//        buildViolationManager();
         loadViolations();
+        checkEmptyViolations();
         registerClickCallback();
 
     }
@@ -75,14 +72,6 @@ public class SingleInspectionActivity extends AppCompatActivity {
     }
 
 
-/*    private void buildViolationManager() {
-        String [] arr = restaurantInspection.getViolations().split("\\|");
-        for(String s : arr){
-            Log.d("TAG",s);
-            Violation violation = new Violation(s);
-            violationsManager.add(violation);
-        }
-    }*/
     private void getFromExtra() {
         Intent intent = getIntent();
         int restaurant_index = intent.getIntExtra(EXTRA_RESTAURANT_INDEX, 0);
@@ -95,26 +84,33 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void updateTextUI() {
+        String message;
 
         TextView inspectionTypeView = findViewById(R.id.inspectionType);
-        inspectionTypeView.setText("Inspection type: " + restaurantInspection.getInspectionType());
+        message = getString(R.string.inspection_type) + " " + restaurantInspection.getInspectionType();
+        inspectionTypeView.setText(message);
 
         TextView inspectionDateView = findViewById(R.id.inspectionDate);
-        inspectionDateView.setText("Date: " + formatDate(restaurantInspection.getInspectionDate()));
+        message = getString(R.string.date) + formatDate(restaurantInspection.getInspectionDate());
+        inspectionDateView.setText(message);
+
+
+        TextView numCriticalView = findViewById(R.id.numCriticalmsg);
+        message = getString(R.string.critical_issues);
+        message = message + " " + restaurantInspection.getNumCritical();
+        numCriticalView.setText(message);
+
+        TextView numNonCriticalView = findViewById(R.id.numNonCriticalmsg);
+        message = getString(R.string.non_crit_issuesmessage) + restaurantInspection.getNumNonCritical();
+        numNonCriticalView.setText(message);
+
 
         TextView hazardResultView = findViewById(R.id.HazardResult);
         hazardResultView.setText(restaurantInspection.getHazardRating());
 
-        TextView numCriticalView = findViewById(R.id.numCriticalmsg);
-        numCriticalView.setText("Critical issues: " + restaurantInspection.getNumCritical());
-
-        TextView numNonCriticalView = findViewById(R.id.numNonCriticalmsg);
-        numNonCriticalView.setText("Non critical issues: " + restaurantInspection.getNumNonCritical());
-
         ProgressBar progressBar = findViewById(R.id.hazardBarSingle);
-        TextView hazardMessageView = findViewById(R.id.HazardResult);
-        determineHazardLevel(progressBar,restaurantInspection.getHazardRating(),hazardMessageView);
-        hazardMessageView.setText(restaurantInspection.getHazardRating());
+        determineHazardLevel(progressBar,restaurantInspection.getHazardRating(),hazardResultView);
+        hazardResultView.setText(restaurantInspection.getHazardRating());
 
 
     }
@@ -178,6 +174,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
         public CustomListAdapter(){
             super(SingleInspectionActivity.this,R.layout.list_violations_layout,restaurantInspection.getViolationsList());
         }
+
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
 
@@ -214,18 +211,29 @@ public class SingleInspectionActivity extends AppCompatActivity {
             }
 
             if(violation.getStatus().equalsIgnoreCase("Critical")){
-                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.colorAccent));
+//                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.colorAccent));
+                colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this,R.color.colorAccent));
+
             }else{
-                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.yellow));
+//                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.yellow));
+                colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this,R.color.yellow));
             }
             severityMessage_view.setText(violation.getStatus());
-            //briefMessage_view.setText(id_string);
 
 
             return itemview;
-//            return super.getView(position, convertView, parent);
         }
 
+    }
+    private void checkEmptyViolations() {
+        TextView textView = findViewById(R.id.violation_emptyMessage);
+        if(restaurantInspection.getViolationsList().size() == 0){
+            textView.setText(R.string.no_violations_message);
+            textView.setVisibility(View.VISIBLE);
+        }
+        else{
+            textView.setVisibility(View.INVISIBLE);
+        }
     }
 
     private void registerClickCallback() {
@@ -234,7 +242,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Violation violation = restaurantInspection.getViolationsList().get(position);
-                Toast.makeText(SingleInspectionActivity.this,violation.getViolationDump(),Toast.LENGTH_LONG).show();
+                Toast.makeText(SingleInspectionActivity.this,violation.getViolationDump(),Toast.LENGTH_SHORT).show();
             }
         });
     }

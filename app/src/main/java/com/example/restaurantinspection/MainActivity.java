@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
@@ -30,7 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -44,6 +45,23 @@ public class MainActivity extends AppCompatActivity {
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private InspectionManager inspectionManager = InspectionManager.getInstance();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        readRestaurantData();
+        readInspectionData();
+
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for(Restaurant restaurant : restaurantManager){
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
+
+        loadRestaurants();
+        registerClickFeedback();
+    }
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter(){
@@ -78,8 +96,6 @@ public class MainActivity extends AppCompatActivity {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
                 Date inspectionDate = null;
 
-                determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-
                 try {
                     inspectionDate = simpleDateFormat.parse(restaurantInspection.getInspectionDate());
                 } catch (ParseException e) {
@@ -88,7 +104,9 @@ public class MainActivity extends AppCompatActivity {
 
                 int issuesFound = restaurantInspection.getNumCritical() + restaurantInspection.getNumNonCritical();
 
-                String formattedInspectionDate = formatDateInspection(inspectionDate);
+                determineHazardLevel(hazardRating, restaurantInspection.getHazardRating(), issuesFound);
+
+                String formattedInspectionDate = DateManager.formatDateInspection(inspectionDate);
                 String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
                 reportMsg += issuesFound + " issues found";
 
@@ -96,80 +114,35 @@ public class MainActivity extends AppCompatActivity {
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
 
-
             } else {
 
-                reportText.setText("No available reports");
+                reportText.setText(R.string.noavailablereports);
                 hazardRating.setVisibility(View.INVISIBLE);
-
             }
-
             return itemView;
-
         }
-    }
-
-
-    private String formatDateInspection(Date inspectionDate){
-
-        String result = "";
-
-        Date dateToday = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(inspectionDate);
-
-        long dateDifference = TimeUnit.DAYS.convert(dateToday.getTime() - inspectionDate.getTime(), TimeUnit.MILLISECONDS);
-
-        if(dateDifference < 30){
-            result = Long.toString(dateDifference);
-        } else if (dateDifference > 30 && dateDifference < 365){
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
-        } else {
-            result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.YEAR);
-        }
-
-        return result;
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel){
+    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, int totalViolations){
 
         if(hazardLevel.equalsIgnoreCase("LOW")){
-            progressBar.setProgress(30);
+
+//            progressBar.setProgress(10 * totalViolations);
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(75, 194, 54)));
 
         } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
 
-            progressBar.setProgress(60);
+
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 158, 66)));
 
         } else if(hazardLevel.equalsIgnoreCase("HIGH")){
 
-            progressBar.setProgress(90);
+//            progressBar.setProgress(90);
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 66, 66)));
         }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        readRestaurantData();
-        readInspectionData();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-            for(Restaurant restaurant : restaurantManager){
-                Collections.sort(restaurant.getRestaurantInspectionList(),new InspectionComparator());
-            }
-        }
-
-
-        Log.d("MY_ACTIVITY", "Size: " + inspectionManager.getInspectionList().size());
-        loadRestaurants();
-        registerClickFeedback();
-
+        progressBar.setMax(100);
+        progressBar.setProgress( 5 + 10 * totalViolations);
     }
 
     private void registerClickFeedback(){
@@ -192,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
     private void readRestaurantData() {
         InputStream is = getResources().openRawResource(R.raw.restaurants);
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName("UTF-8"))
+                new InputStreamReader(is, StandardCharsets.UTF_8)
         );
 
         String line = "";
@@ -215,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
     private void readInspectionData() {
         InputStream is = getResources().openRawResource(R.raw.inspectionsdata);
         BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, Charset.forName("UTF-8"))
+                new InputStreamReader(is, StandardCharsets.UTF_8)
         );
         String line = "";
         try {
