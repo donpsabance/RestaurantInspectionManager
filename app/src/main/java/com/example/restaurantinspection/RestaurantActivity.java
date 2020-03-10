@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,12 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.InspectionManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
@@ -32,11 +27,8 @@ import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -108,31 +100,33 @@ public class RestaurantActivity extends AppCompatActivity {
             RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
 
             //Textview
-            TextView criticalText = itemView.findViewById(R.id.inspectionNumNonCritical);
-            TextView nonCriticalText = itemView.findViewById(R.id.inspectionNumCritical);
-            TextView timeText = itemView.findViewById(R.id.timeSinceInspection);
+            TextView criticalText = itemView.findViewById(R.id.numNonCritical);
+            TextView nonCriticalText = itemView.findViewById(R.id.numCritical);
+            TextView timeText = itemView.findViewById(R.id.inspectionDate);
             Button hazardRating = itemView.findViewById(R.id.button);
 
             if (restaurant.getRestaurantInspectionList().size() != 0) {
 
                 //# critical issues found
                 int numCritical = restaurantInspection.getNumCritical();
+                String numCriticalstr = Integer.toString(numCritical);
 
                 //# non-critical issues found
                 int numNonCritical = restaurantInspection.getNumNonCritical();
+                String numNonCriticalstr = Integer.toString(numNonCritical);
 
                 //How long ago the inspection occurred
                 DateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH);
                 try {
                     Date formatDate = format.parse(restaurantInspection.getInspectionDate());
                     String inspectionDate = formatDateInspection(formatDate);
-                    timeText.setText("Inspection date: " + inspectionDate);
+                    timeText.setText(inspectionDate);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
 
-                criticalText.setText("Number of critical issues: " + numCritical);
-                nonCriticalText.setText("Number of noncritical issues: " + numNonCritical);
+                criticalText.setText(numCriticalstr);
+                nonCriticalText.setText(numNonCriticalstr);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
 
 
@@ -155,11 +149,10 @@ public class RestaurantActivity extends AppCompatActivity {
         restaurantNameView.setText(restaurant.getName());
 
         TextView restaurantAddrView = findViewById(R.id.restaurantaddrid);
-        restaurantAddrView.setText("Address: " + restaurant.getAddress());
+        restaurantAddrView.setText(restaurant.getAddress());
 
         TextView restaurantGPSView = findViewById(R.id.restaurantgpsid);
-        restaurantGPSView.setText("GPS Coordinates: (" + restaurant.getLatitude() + ", "
-                + restaurant.getLongitude() + ")");
+        restaurantGPSView.setText("(" + restaurant.getLatitude() + ", " + restaurant.getLongitude() + ")");
     }
 
 

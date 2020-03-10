@@ -5,37 +5,77 @@
 
     <TextView
         android:id="@+id/inspectionNumNonCritical"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_width="165dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="14dp"
+        android:layout_marginEnd="225dp"
         android:layout_marginRight="20dp"
-        android:textColor="#000000"/>
+        android:text="@string/number_of_critical_issues"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+
+    <TextView
+        android:id="@+id/numNonCritical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="217dp"
+        android:layout_marginRight="20dp"
+        android:textColor="#000000" />
 
     <TextView
         android:id="@+id/inspectionNumCritical"
-        android:layout_width="377dp"
-        android:layout_height="34dp"
+        android:layout_width="192dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/inspectionNumNonCritical"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="16dp"
-        android:textColor="#000000"/>
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="198dp"
+        android:text="@string/number_of_non_critical_issues"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/numCritical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/inspectionNumNonCritical"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="194dp"
+        android:textColor="#000000" />
 
     <TextView
         android:id="@+id/timeSinceInspection"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_width="116dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/inspectionNumCritical"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginEnd="18dp"
-        android:textColor="#000000"/>
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="274dp"
+        android:text="@string/inspection_date"
+        android:textColor="#000000"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/inspectionDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/inspectionNumCritical"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="110dp"
+        android:layout_marginTop="2dp"
+        android:textColor="#000000" />
 
     <Button
         android:id="@+id/button"
@@ -44,11 +84,12 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="42dp"
-        android:layout_marginEnd="53dp"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="33dp"
         android:focusable="false"
         android:gravity="center_vertical"
         android:textColor="#000000"
-        android:textSize="12sp"/>
+        android:textSize="12sp" />
+
 
 </RelativeLayout>

@@ -14,4 +14,8 @@
     <string name="low">Low</string>
     <string name="moderate">Moderate</string>
     <string name="high">High</string>
+    <string name="number_of_critical_issues">Number of critical issues:</string>
+    <string name="number_of_non_critical_issues">Number of non-critical issues:</string>
+    <string name="inspection_date">Inspection date:</string>
+    <string name="gps_coordinates">GPS Coordinates:</string>
 </resources>
