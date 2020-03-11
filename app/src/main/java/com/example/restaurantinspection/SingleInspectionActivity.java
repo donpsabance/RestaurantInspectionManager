@@ -129,7 +129,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
     }
 
     private String formatDateInspection(Date formatDate) {
-        String result = "";
+        String result;
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(formatDate);
@@ -211,11 +211,9 @@ public class SingleInspectionActivity extends AppCompatActivity {
             }
 
             if(violation.getStatus().equalsIgnoreCase("Critical")){
-//                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.colorAccent));
                 colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this,R.color.colorAccent));
 
             }else{
-//                colorBlock_imageview.setColorFilter(getContext().getResources().getColor(R.color.yellow));
                 colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this,R.color.yellow));
             }
             severityMessage_view.setText(violation.getStatus());
@@ -246,8 +244,8 @@ public class SingleInspectionActivity extends AppCompatActivity {
             }
         });
     }
-    //called by Restaurant Activity
 
+    //called by Restaurant Activity
     public static Intent makeIntent(Context context, int restaurantIndex, int inspectionIndex) {
         Intent intent = new Intent (context, SingleInspectionActivity.class);
         intent.putExtra(EXTRA_RESTAURANT_INDEX,restaurantIndex);
