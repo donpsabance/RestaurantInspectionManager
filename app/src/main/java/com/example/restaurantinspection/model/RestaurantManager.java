@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Data model: Store a collection of restaurants.
+ */
+
 public class RestaurantManager implements Iterable<Restaurant> {
     private List<Restaurant> restaurantList = new ArrayList<>();
     private static RestaurantManager instance;

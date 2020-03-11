@@ -5,11 +5,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Class for date format
+ */
+
 public class DateManager {
 
     public static String formatDateInspection(Date inspectionDate){
 
-        String result = "";
+        String result;
 
         Date dateToday = new Date();
         Calendar calendar = Calendar.getInstance();

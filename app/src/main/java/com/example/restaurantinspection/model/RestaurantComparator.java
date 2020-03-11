@@ -2,8 +2,11 @@ package com.example.restaurantinspection.model;
 
 import java.util.Comparator;
 
-public class RestaurantComparator implements Comparator<Restaurant> {
+/**
+ * Compare restaurant's name
+ */
 
+public class RestaurantComparator implements Comparator<Restaurant> {
 
     @Override
     public int compare(Restaurant restaurant, Restaurant otherRestaurant) {

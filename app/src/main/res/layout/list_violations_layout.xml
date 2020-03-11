@@ -9,8 +9,8 @@
         android:id="@+id/violationIcon"
         android:maxWidth="78dp"
         android:layout_width="78dp"
-        android:maxHeight="84dp"
-        android:layout_height="84dp"
+        android:maxHeight="95dp"
+        android:layout_height="95dp"
         android:paddingTop="8dp"
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
@@ -19,13 +19,13 @@
     <TextView
         android:id="@+id/violationDescription"
         android:layout_width="wrap_content"
-        android:layout_height="40dp"
+        android:layout_height="20dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="5dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@+id/violationIcon"
@@ -46,7 +46,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@+id/violationIcon"
@@ -77,6 +77,12 @@
         android:layout_toRightOf="@+id/hazardColor"
         android:textAllCaps="true"
         android:text="hazardLeveltxt" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" />
 
 
 </RelativeLayout>
