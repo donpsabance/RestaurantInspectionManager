@@ -1,0 +1,6 @@
+Zinc project iteration 2 roles:
+
+Product owner: Jack
+Scrum master: Alden
+Repository manager: Melody
+Team member: Don
