@@ -1,8 +1,11 @@
 package com.example.restaurantinspection;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -16,6 +19,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -45,13 +51,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        final HashMap<Marker, Integer> mHashMap = new HashMap<Marker, Integer>();
 
         //display pegs showing the location of each restaurant we have data for.
-        for (Restaurant r : restaurantManager
+        int i = 0;
+        for (final Restaurant r : restaurantManager
         ) {
             double latitude = Double.parseDouble(r.getLatitude());
             double longitude = Double.parseDouble(r.getLongitude());
-            LatLng restaurant = new LatLng(latitude, longitude);
+            final LatLng restaurant = new LatLng(latitude, longitude);
             String restaruantName = r.getName();
             String addr = r.getAddress();
 
@@ -61,23 +69,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //set peg color to hazard level
                 String hazardLevel = r.getRestaurantInspectionList().get(0).getHazardRating();
                 if (hazardLevel.equalsIgnoreCase("LOW")) {
-                    mMap.addMarker(new MarkerOptions()
+                    Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(restaurant)
                             .title(restaruantName)
                             .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+                    mHashMap.put(marker, i);
                 } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
-                    mMap.addMarker(new MarkerOptions()
+                    Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(restaurant)
                             .title(restaruantName)
                             .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+                    mHashMap.put(marker, i);
                 } else {
-                    mMap.addMarker(new MarkerOptions()
+                    Marker marker = mMap.addMarker(new MarkerOptions()
                             .position(restaurant)
                             .title(restaruantName)
                             .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    mHashMap.put(marker, i);
                 }
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(restaurant));
 
@@ -100,9 +111,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         return view;
                     }
                 });
+
+                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                    @Override
+                    public void onInfoWindowClick(Marker marker) {
+
+                        Toast.makeText(MapsActivity.this, "You clicked " + marker.getTitle(), Toast.LENGTH_SHORT).show();
+                        int pos = mHashMap.get(marker);
+
+//                        start restaurant activity
+                        Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
+                        startActivity(intent);
+                    }
+                });
             }
-
-
+            i++;
         }
     }
 
