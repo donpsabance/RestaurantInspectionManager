@@ -1,6 +1,8 @@
 package com.example.restaurantinspection;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -12,6 +14,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -50,6 +53,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             double longitude = Double.parseDouble(r.getLongitude());
             LatLng restaurant = new LatLng(latitude, longitude);
             String restaruantName = r.getName();
+            String addr = r.getAddress();
 
             //get most recent inspection
             if (r.getRestaurantInspectionList().size() != 0) {
@@ -60,23 +64,47 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mMap.addMarker(new MarkerOptions()
                             .position(restaurant)
                             .title(restaruantName)
+                            .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
                 } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
                     mMap.addMarker(new MarkerOptions()
                             .position(restaurant)
                             .title(restaruantName)
+                            .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
                 } else {
                     mMap.addMarker(new MarkerOptions()
                             .position(restaurant)
                             .title(restaruantName)
+                            .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                 }
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(restaurant));
+
+                mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                    @Override
+                    public View getInfoWindow(Marker marker) {
+                        return null;
+                    }
+
+                    @Override
+                    public View getInfoContents(Marker marker) {
+                        View view = getLayoutInflater().inflate(R.layout.custom_info_window, null);
+
+                        TextView restaurantName = view.findViewById(R.id.restName);
+                        TextView restaurantAddr = view.findViewById(R.id.restSnippet);
+
+                        restaurantName.setText(marker.getTitle());
+                        restaurantAddr.setText(marker.getSnippet());
+
+                        return view;
+                    }
+                });
             }
 
 
         }
     }
+
 
 }
