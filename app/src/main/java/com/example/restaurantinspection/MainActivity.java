@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-
-        startActivity(new Intent(this, MapsActivity.class));
+        //TODO not really working right now for me
+        //startActivity(new Intent(this, MapsActivity.class));
 
         loadRestaurants();
         registerClickFeedback();
