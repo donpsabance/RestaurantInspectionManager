@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
 
+        startActivity(new Intent(this, MapsActivity.class));
+
         loadRestaurants();
         registerClickFeedback();
     }
