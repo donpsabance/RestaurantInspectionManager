@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
                 Log.e(MAIN_ACTIVITY_TAG, "something went wrong " + t.getMessage());
