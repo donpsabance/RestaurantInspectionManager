@@ -45,7 +45,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ///////////////////////////////////
+        // TODO: testing work on using retrofit
+        // PRE: nothing    POST: i want to extract the url from
 
+        ///////////////////////////////////
         readRestaurantData();
         readInspectionData();
 
