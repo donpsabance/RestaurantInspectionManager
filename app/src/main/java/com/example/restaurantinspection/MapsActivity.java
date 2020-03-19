@@ -91,7 +91,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                     mHashMap.put(marker, i);
                 }
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(restaurant));
+
+                //Zoom map for view
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurant, 10f));
 
                 mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                     @Override

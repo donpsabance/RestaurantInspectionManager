@@ -13,7 +13,7 @@
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
         android:textColor="#2B2B2B"
-        android:textStyle="bold"
+        android:textStyle="bold|italic"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -22,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
+        android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/restName" />
 
