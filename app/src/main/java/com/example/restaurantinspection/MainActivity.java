@@ -107,7 +107,9 @@ public class MainActivity extends AppCompatActivity {
                 String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
                 reportMsg += issuesFound + " issues found";
 
-                imageView.setImageResource(R.drawable.food);
+                int icon = determineIcon(restaurant.getName());
+
+                imageView.setImageResource(icon);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
 
@@ -134,6 +136,33 @@ public class MainActivity extends AppCompatActivity {
         }
         progressBar.setMax(100);
         progressBar.setProgress(5 + 10 * totalViolations);
+    }
+
+    private int determineIcon(String restaurantName){
+
+        if(restaurantName.toLowerCase().contains("pizza")){
+            return R.drawable.pizza;
+        } else if (restaurantName.toLowerCase().contains("burger") ||
+                    restaurantName.toLowerCase().contains("a&w")){
+            return R.drawable.burger;
+        } else if(restaurantName.toLowerCase().contains("sushi")){
+            return R.drawable.sushi;
+        } else if(restaurantName.toLowerCase().contains("subway") ||
+                    restaurantName.toLowerCase().contains("sandwich")){
+            return R.drawable.sandwich;
+        } else if(restaurantName.toLowerCase().contains("coffee") ||
+                    restaurantName.toLowerCase().contains("tim hortons") ||
+                    restaurantName.toLowerCase().contains("startbucks")){
+            return R.drawable.coffee;
+        } else if(restaurantName.toLowerCase().contains("chicken")){
+            return R.drawable.chicken;
+        } else if(restaurantName.toLowerCase().contains("seafood")){
+            return R.drawable.lobster;
+        }
+
+        //default
+        return R.drawable.food;
+
     }
 
     private void registerClickFeedback() {
