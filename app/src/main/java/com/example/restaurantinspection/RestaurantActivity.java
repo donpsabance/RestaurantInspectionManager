@@ -56,6 +56,8 @@ public class RestaurantActivity extends AppCompatActivity {
     }
 
     private void registerClickGPS() {
+
+        //Start MapActivity upon clicking gps textview
         TextView textView = findViewById(R.id.restaurantgpsid);
         textView.setOnClickListener(new View.OnClickListener() {
             @Override

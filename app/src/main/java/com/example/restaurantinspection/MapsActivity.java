@@ -95,6 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 //Zoom map for view
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurant, 10f));
 
+                //Create customized info window view
                 mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                     @Override
                     public View getInfoWindow(Marker marker) {
@@ -115,6 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
 
+                //Start Restaurant Activity upon clicking info window
                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
@@ -135,12 +137,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         displayInfoWindow();
     }
 
+    //get selected restaurant from Restaurant Activity
     private void extractDatafromIntent() {
         Intent intent = getIntent();
-        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
+        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, Integer.MAX_VALUE);
     }
 
-
+    //display selected restaurant's info window
     private void displayInfoWindow() {
         for (Marker m : mHashMap.keySet()
         ) {

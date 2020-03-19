@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setUpMapButton() {
+
+        //start MapActivity
         FloatingActionButton fab = findViewById(R.id.mapButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
