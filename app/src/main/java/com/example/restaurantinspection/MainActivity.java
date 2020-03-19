@@ -20,7 +20,9 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.restaurantinspection.model.DateManager;
+import com.example.restaurantinspection.model.retrofitdetails.Feed;
 import com.example.restaurantinspection.model.InspectionComparator;
+import com.example.restaurantinspection.model.retrofitdetails.Resource;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
@@ -33,10 +35,23 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
 public class MainActivity extends AppCompatActivity {
+
+    private static final String BASE_URL = "http://data.surrey.ca/";
+    private static final String ID_RESTAURANTS = "restaurants";
+    private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
+    public static final String WHAT_IS_GOING_ON = "WHAT IS GOING ON";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
@@ -47,8 +62,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ///////////////////////////////////
         // TODO: testing work on using retrofit
-        // PRE: nothing    POST: i want to extract the url from
-
+        // PRE: current data    POST: i want to extract the url from
+        //checkForUpdates();
         ///////////////////////////////////
         readRestaurantData();
         readInspectionData();
@@ -63,6 +78,88 @@ public class MainActivity extends AppCompatActivity {
         loadRestaurants();
         registerClickFeedback();
     }
+
+    private void checkForUpdates() {
+        if(true/*place some condition here*/){
+            
+            fetchPackages(ID_RESTAURANTS);
+            fetchPackages(ID_INSPECTIONS);
+        }
+    }
+
+    private void fetchPackages(String type) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        Surrey_Data_API restaurantDataAPI = retrofit.create(Surrey_Data_API.class);
+        Call<Feed> call = restaurantDataAPI.getData(type);
+
+        call.enqueue(new Callback<Feed>() {
+            @Override
+            public void onResponse(Call<Feed> call, Response<Feed> response) {
+                Log.d(MAIN_ACTIVITY_TAG, "onResponse: Server Response" + response.toString());
+                Log.d(MAIN_ACTIVITY_TAG, "onResponse: received information: " + response.body().toString());
+
+                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
+                // UI STUFF
+                String format = ResourceList.get(0).getFormat();
+                String url = ResourceList.get(0).getUrl();
+                String date_last_modified = ResourceList.get(0).getDate_last_modified();
+
+                String content = "";
+                content += "format: " + format + "\n";
+                content += "url: " + url + "\n";
+                content += "date_last_modified: " + date_last_modified + "\n\n";
+
+//                metaData.append(content);
+
+                Log.d(MAIN_ACTIVITY_TAG, "onResponse : \n" +
+                        "format : " + format + "\n" +
+                        "url : " + url + "\n" +
+                        "last_modified : " + date_last_modified + "\n" +
+                        "------------------------------------------------------------------ \n\n");
+                // END OF UI STUFF
+                //TODO: DOWNLOAD THE URL DATA
+
+                downloadFile(url);
+
+            }
+
+
+            @Override
+            public void onFailure(Call<Feed> call, Throwable t) {
+                Log.e(MAIN_ACTIVITY_TAG, "something went wrong " + t.getMessage());
+                Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void downloadFile(String url) {
+        // create Retrofit instance
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL).build();
+        // todo get client call object for the request
+        FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
+
+        Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
+        Log.d(WHAT_IS_GOING_ON,"url = " + url);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Toast.makeText(MainActivity.this,"Yeah! woot :) ",Toast.LENGTH_LONG).show();
+                // WriteResponseBodytoDisk(response.body());
+                // ToDo: holdup what do i even do?
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(MainActivity.this,"download didn't work :( " + t.getMessage(),Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter() {
