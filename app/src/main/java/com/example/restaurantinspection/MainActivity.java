@@ -173,6 +173,14 @@ public class MainActivity extends AppCompatActivity {
             return R.drawable.chicken;
         } else if(restaurantName.toLowerCase().contains("seafood")){
             return R.drawable.lobster;
+        } else if(restaurantName.toLowerCase().contains("mcdonalds")){
+            return R.drawable.mcdonalds;
+        } else if(restaurantName.toLowerCase().contains("taco")){
+            return R.drawable.taco;
+        } else if(restaurantName.toLowerCase().contains("noodles") ||
+                    restaurantName.toLowerCase().contains("ramen") ||
+                        restaurantName.toLowerCase().contains("pho")){
+            return R.drawable.noodles;
         }
 
         //default
