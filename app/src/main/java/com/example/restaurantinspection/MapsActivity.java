@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.LocationSource;
@@ -43,17 +45,22 @@ import java.util.HashMap;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
-    private GoogleMap mMap;
+    private final String LOG_TAG = "RESTAURANT INSPECTION: ";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private int restaurantIndex;
-    final HashMap<Marker, Integer> mHashMap = new HashMap<>();
 
-    private static final int LOCATION_PERMISSION_CODE = 1234;
-    private float DEFAULT_ZOOM = 15f;
-    private boolean locationPermission = false;
+    private GoogleMap mMap;
+    private final HashMap<Marker, Integer> mHashMap = new HashMap<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
+
+    private static final int LOCATION_PERMISSION_CODE = 1234;
+    private final float DEFAULT_ZOOM = 12f;
+    private final long MIN_TIME = 1000;
+    private final float MIN_DISTANCE = 1f;
+
+    private boolean locationPermission = false;
 
     //called by Restaurant Activity
     public static Intent makeIntent(Context context, int restaurantIndex) {
@@ -69,22 +76,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void startLocationUpdates() {
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest,
-                locationCallback,
-                Looper.myLooper());
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
 
         locationRequest = new LocationRequest();
-        locationRequest.setInterval(1000);
-        locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-
+        locationRequest.setSmallestDisplacement(MIN_DISTANCE);
+        locationRequest.setInterval(MIN_TIME);
 
         locationCallback = new LocationCallback() {
             @Override
@@ -98,6 +94,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             };
         };
 
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
+                Looper.myLooper());
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_maps);
+
+        //make sure we have permission to do anything with location first
         getPermissions();
     }
 
@@ -116,7 +122,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
 
         if(locationPermission){
-            getDeviceLocation();
 
             if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
@@ -125,6 +130,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
             mMap.setMyLocationEnabled(true);
+            //update map to user's current location
+            getDeviceLocation();
             startLocationUpdates();
         }
 
@@ -210,6 +217,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         displayInfoWindow();
     }
 
+    public void loadMap(){
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+    }
+
     //Followed video tutorials
     //https://www.youtube.com/watch?v=Vt6H9TOmsuo&list=PLgCYzUzKIBE-vInwQhGSdnbyJ62nixHCt&index=4
     private void getPermissions(){
@@ -220,22 +233,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
                     Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
 
+                //they already have permissions, load the map
                 locationPermission = true;
-                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-                mapFragment.getMapAsync(this);
+                loadMap();
 
-                locationCallback = new LocationCallback() {
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        if (locationResult == null) {
-                            return;
-                        }
-                        for (Location location : locationResult.getLocations()) {
-                            moveMapFocus(new LatLng(location.getLatitude(), location.getLongitude()), DEFAULT_ZOOM);
-                        }
-                    };
-                };
-
+                //other wise, lets ask for permission to access their location
             } else {
                 ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_CODE);
             }
@@ -258,9 +260,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             return;
                         }
                     }
+
+                    //they accepted permissions, load map
                     locationPermission = true;
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-                    mapFragment.getMapAsync(this);
+                    loadMap();
                 }
             }
         }
@@ -288,16 +291,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
             }
         } catch(SecurityException securityException){
-            //handle
+
+            Log.wtf(LOG_TAG, "ERROR: " + securityException.getStackTrace());
         }
     }
 
-
     private void moveMapFocus(LatLng latLng, float zoom){
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
-    }
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        mMap.animateCamera(cameraUpdate);
 
+    }
 
     //display selected restaurant's info window
     private void displayInfoWindow() {
@@ -307,5 +311,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
     }
-
 }
