@@ -3,6 +3,7 @@ package com.example.restaurantinspection;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,9 +30,12 @@ import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    public static final String WHAT_IS_GOING_ON = "WHAT IS GOING ON";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
@@ -72,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-        //TODO not really working right now for me
-        //startActivity(new Intent(this, MapsActivity.class));
+
+//        startActivity(new Intent(this, MapsActivity.class));
 
         loadRestaurants();
         registerClickFeedback();
@@ -83,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         if(true/*place some condition here*/){
             
             fetchPackages(ID_RESTAURANTS);
-//            fetchPackages(ID_INSPECTIONS);
+            //fetchPackages(ID_INSPECTIONS);
         }
     }
 
@@ -98,31 +101,15 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<Feed>() {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(MAIN_ACTIVITY_TAG, "onResponse: Server Response" + response.toString());
-                Log.d(MAIN_ACTIVITY_TAG, "onResponse: received information: " + response.body().toString());
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
                 String format = ResourceList.get(0).getFormat();
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
-                String content = "";
-                content += "format: " + format + "\n";
-                content += "url: " + url + "\n";
-                content += "date_last_modified: " + date_last_modified + "\n\n";
 
-//                metaData.append(content);
-
-                Log.d(MAIN_ACTIVITY_TAG, "onResponse : \n" +
-                        "format : " + format + "\n" +
-                        "url : " + url + "\n" +
-                        "last_modified : " + date_last_modified + "\n" +
-                        "------------------------------------------------------------------ \n\n");
-                // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA
-
-//                downloadFile(url);
+                downloadFile(url);
 
             }
 
@@ -140,17 +127,20 @@ public class MainActivity extends AppCompatActivity {
         // create Retrofit instance
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL).build();
-        // todo get client call object for the request
         FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
 
         Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
-        Log.d(WHAT_IS_GOING_ON,"url = " + url);
+        Log.d(MAIN_ACTIVITY_TAG,"url = " + url);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                Toast.makeText(MainActivity.this,"Yeah! woot :) ",Toast.LENGTH_LONG).show();
-                // WriteResponseBodytoDisk(response.body());
-                // ToDo: holdup what do i even do?
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        //boolean success = writeResponseBodyToDisk(response.body());
+                        return null;
+                    }
+                }.execute();
             }
 
             @Override
@@ -158,6 +148,57 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"download didn't work :( " + t.getMessage(),Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private boolean writeResponseBodyToDisk(ResponseBody body) {
+        try {
+            File futureStudioIconFile = new File(getExternalFilesDir(null) + File.separator + "restaurant.csv");
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+
+            try {
+                byte[] fileReader = new byte[4096];
+
+                long fileSize = body.contentLength();
+                long fileSizeDownloaded = 0;
+
+                inputStream = body.byteStream();
+                Log.d(MAIN_ACTIVITY_TAG, "FILESIZE IS" + fileSize);
+
+                outputStream = new FileOutputStream(futureStudioIconFile);
+
+                while (true) {
+                    int read = inputStream.read(fileReader);
+
+                    if (read == -1) {
+                        break;
+                    }
+
+                    outputStream.write(fileReader, 0, read);
+
+                    fileSizeDownloaded += read;
+
+                    Log.d(MAIN_ACTIVITY_TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
+                }
+
+                outputStream.flush();
+
+                return true;
+            } catch (IOException e) {
+                return false;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        } catch (IOException e) {
+            return false;
+        }
     }
 
 
