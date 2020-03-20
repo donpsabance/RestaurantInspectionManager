@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
         ///////////////////////////////////
         // TODO: testing work on using retrofit
         // PRE: current data    POST: i want to extract the url from
-        //checkForUpdates();
+        checkForUpdates();
         ///////////////////////////////////
         readRestaurantData();
         readInspectionData();
@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         if(true/*place some condition here*/){
             
             fetchPackages(ID_RESTAURANTS);
-            fetchPackages(ID_INSPECTIONS);
+            //fetchPackages(ID_INSPECTIONS);
         }
     }
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
                 // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA
 
-                downloadFile(url);
+                //downloadFile(url);
 
             }
 
