@@ -1,8 +1,8 @@
 package com.example.restaurantinspection;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,13 +20,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
     private GoogleMap mMap;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private int restaurantIndex;
+    final HashMap<Marker, Integer> mHashMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        final HashMap<Marker, Integer> mHashMap = new HashMap<Marker, Integer>();
 
         //display pegs showing the location of each restaurant we have data for.
         int i = 0;
@@ -90,8 +91,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                     mHashMap.put(marker, i);
                 }
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(restaurant));
 
+                //Zoom map for view
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurant, 10f));
+
+                //Create customized info window view
                 mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                     @Override
                     public View getInfoWindow(Marker marker) {
@@ -112,6 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
 
+                //Start Restaurant Activity upon clicking info window
                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                     @Override
                     public void onInfoWindowClick(Marker marker) {
@@ -127,6 +132,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             i++;
         }
+
+        extractDatafromIntent();
+        displayInfoWindow();
+    }
+
+    //get selected restaurant from Restaurant Activity
+    private void extractDatafromIntent() {
+        Intent intent = getIntent();
+        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, Integer.MAX_VALUE);
+    }
+
+    //display selected restaurant's info window
+    private void displayInfoWindow() {
+        for (Marker m : mHashMap.keySet()
+        ) {
+            if (restaurantIndex == mHashMap.get(m)) {
+                m.showInfoWindow();
+            }
+        }
+    }
+
+    //called by Restaurant Activity
+    public static Intent makeIntent(Context context, int restaurantIndex) {
+        Intent intent = new Intent(context, MapsActivity.class);
+        intent.putExtra(RESTAURANT_INDEX, restaurantIndex);
+        return intent;
     }
 
 

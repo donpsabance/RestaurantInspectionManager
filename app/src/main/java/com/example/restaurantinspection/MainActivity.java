@@ -25,6 +25,7 @@ import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,7 +59,21 @@ public class MainActivity extends AppCompatActivity {
 
         loadRestaurants();
         registerClickFeedback();
+        setUpMapButton();
     }
+
+    private void setUpMapButton() {
+
+        //start MapActivity
+        FloatingActionButton fab = findViewById(R.id.mapButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MapsActivity.class));
+            }
+        });
+    }
+
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter() {
