@@ -1,12 +1,16 @@
 package com.example.restaurantinspection;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.example.restaurantinspection.model.Restaurant;
@@ -20,24 +24,40 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.security.Permission;
 import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
+    private static final int LOCATION_PERMISSION_CODE = 1234;
     private GoogleMap mMap;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private int restaurantIndex;
     final HashMap<Marker, Integer> mHashMap = new HashMap<>();
+
+    private boolean locationPermission = false;
+
+    //called by Restaurant Activity
+    public static Intent makeIntent(Context context, int restaurantIndex) {
+        Intent intent = new Intent(context, MapsActivity.class);
+        intent.putExtra(RESTAURANT_INDEX, restaurantIndex);
+        return intent;
+    }
+
+    //get selected restaurant from Restaurant Activity
+    private void extractDatafromIntent() {
+        Intent intent = getIntent();
+        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, Integer.MAX_VALUE);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+
+        getPermissions();
     }
 
 
@@ -56,8 +76,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //display pegs showing the location of each restaurant we have data for.
         int i = 0;
-        for (final Restaurant r : restaurantManager
-        ) {
+        for (final Restaurant r : restaurantManager) {
             double latitude = Double.parseDouble(r.getLatitude());
             double longitude = Double.parseDouble(r.getLongitude());
             final LatLng restaurant = new LatLng(latitude, longitude);
@@ -137,28 +156,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         displayInfoWindow();
     }
 
-    //get selected restaurant from Restaurant Activity
-    private void extractDatafromIntent() {
-        Intent intent = getIntent();
-        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, Integer.MAX_VALUE);
+    //Followed video tutorials
+    //https://www.youtube.com/watch?v=Vt6H9TOmsuo&list=PLgCYzUzKIBE-vInwQhGSdnbyJ62nixHCt&index=4
+    private void getPermissions(){
+        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+
+        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+
+                locationPermission = true;
+                SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+                mapFragment.getMapAsync(this);
+
+            } else {
+                ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_CODE);
+            }
+        }
+        else {
+            ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_CODE);
+        }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results){
+
+        locationPermission = false;
+        switch (requestCode){
+            case LOCATION_PERMISSION_CODE: {
+
+                if(results.length > 0){
+                    for(int i : results){
+                        if(i != PackageManager.PERMISSION_GRANTED){
+                            return;
+                        }
+                    }
+                    locationPermission = true;
+                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+                    mapFragment.getMapAsync(this);
+                }
+            }
+        }
+    }
+
 
     //display selected restaurant's info window
     private void displayInfoWindow() {
-        for (Marker m : mHashMap.keySet()
-        ) {
+        for (Marker m : mHashMap.keySet()) {
             if (restaurantIndex == mHashMap.get(m)) {
                 m.showInfoWindow();
             }
         }
     }
-
-    //called by Restaurant Activity
-    public static Intent makeIntent(Context context, int restaurantIndex) {
-        Intent intent = new Intent(context, MapsActivity.class);
-        intent.putExtra(RESTAURANT_INDEX, restaurantIndex);
-        return intent;
-    }
-
 
 }
