@@ -29,6 +29,7 @@ import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.example.restaurantinspection.model.Service.ServiceGenerator;
 import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
@@ -74,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         ///////////////////////////////////
         // TODO: testing work on using retrofit
         // PRE: current data    POST: i want to extract the url from
-//        checkForUpdates();
+        checkForUpdates();
 //        loadFileData();
         ///////////////////////////////////
 //        startActivity(RequireDownloadActivity.makeIntent(this));
@@ -88,15 +89,30 @@ public class MainActivity extends AppCompatActivity {
 
         loadRestaurants();
         registerClickFeedback();
+        setUpMapButton();
     }
+
+    private void setUpMapButton() {
+
+        //start MapActivity
+        FloatingActionButton fab = findViewById(R.id.mapButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, MapsActivity.class));
+            }
+        });
+    }
+
 
     private void loadFileData() {
         Log.d("HELP","Begin loading...");
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 loadFile(RESTAURANTS_FILE_NAME);
-//                loadFile(INSPECTIONS_FILE_NAME);
+                loadFile(INSPECTIONS_FILE_NAME);
                 return null;
             }
         }.execute();
@@ -178,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     downloadFile(url, RESTAURANTS_FILE_NAME);
                 }
-                // url_txt.setText(url);
             }
 
 
@@ -298,7 +313,9 @@ public class MainActivity extends AppCompatActivity {
                 String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
                 reportMsg += issuesFound + " issues found";
 
-                imageView.setImageResource(R.drawable.food);
+                int icon = determineIcon(restaurant.getName());
+
+                imageView.setImageResource(icon);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
 
@@ -325,6 +342,41 @@ public class MainActivity extends AppCompatActivity {
         }
         progressBar.setMax(100);
         progressBar.setProgress(5 + 10 * totalViolations);
+    }
+
+    private int determineIcon(String restaurantName){
+
+        if(restaurantName.toLowerCase().contains("pizza")){
+            return R.drawable.pizza;
+        } else if (restaurantName.toLowerCase().contains("burger") ||
+                    restaurantName.toLowerCase().contains("a&w")){
+            return R.drawable.burger;
+        } else if(restaurantName.toLowerCase().contains("sushi")){
+            return R.drawable.sushi;
+        } else if(restaurantName.toLowerCase().contains("subway") ||
+                    restaurantName.toLowerCase().contains("sandwich")){
+            return R.drawable.sandwich;
+        } else if(restaurantName.toLowerCase().contains("coffee") ||
+                    restaurantName.toLowerCase().contains("tim hortons") ||
+                    restaurantName.toLowerCase().contains("startbucks")){
+            return R.drawable.coffee;
+        } else if(restaurantName.toLowerCase().contains("chicken")){
+            return R.drawable.chicken;
+        } else if(restaurantName.toLowerCase().contains("seafood")){
+            return R.drawable.lobster;
+        } else if(restaurantName.toLowerCase().contains("mcdonalds")){
+            return R.drawable.mcdonalds;
+        } else if(restaurantName.toLowerCase().contains("taco")){
+            return R.drawable.taco;
+        } else if(restaurantName.toLowerCase().contains("noodles") ||
+                    restaurantName.toLowerCase().contains("ramen") ||
+                        restaurantName.toLowerCase().contains("pho")){
+            return R.drawable.noodles;
+        }
+
+        //default
+        return R.drawable.food;
+
     }
 
     private void registerClickFeedback() {

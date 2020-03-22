@@ -51,7 +51,21 @@ public class RestaurantActivity extends AppCompatActivity {
         loadInspections();
         checkEmptyInspections();
         registerClickBack();
+        registerClickGPS();
 
+    }
+
+    private void registerClickGPS() {
+
+        //Start MapActivity upon clicking gps textview
+        TextView textView = findViewById(R.id.restaurantgpsid);
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
+                startActivity(intent);
+            }
+        });
     }
 
     private void checkEmptyInspections() {
@@ -79,13 +93,13 @@ public class RestaurantActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(position);
-
                 Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantIndex, position);
                 startActivity(intent);
             }
         });
     }
+
+
 
     private class CustomListAdapter extends ArrayAdapter<RestaurantInspection> {
         public CustomListAdapter() {
