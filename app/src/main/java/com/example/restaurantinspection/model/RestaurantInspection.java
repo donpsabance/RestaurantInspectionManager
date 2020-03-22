@@ -28,7 +28,7 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
 
     public RestaurantInspection(String trackingNumber, String inspectionDate,
                                 String inspectionType, String numCritical, String numNonCritical,
-                                String hazardRating, String violations) {
+                                String violations, String hazardRating) {
         this.trackingNumber = trackingNumber;
         this.inspectionDate = inspectionDate;
         this.inspectionType = inspectionType;

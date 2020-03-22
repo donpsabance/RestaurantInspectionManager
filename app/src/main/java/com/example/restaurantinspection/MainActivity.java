@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -34,6 +35,7 @@ import com.example.restaurantinspection.model.Service.ServiceGenerator;
 import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -65,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private ArrayAdapter<Restaurant> arrayAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,24 +76,45 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         readRestaurantData();
         readInspectionData();
+
         ///////////////////////////////////
         // TODO: testing work on using retrofit
-        // PRE: current data    POST: i want to extract the url from
-        checkForUpdates();
-        loadFileData();
+        File file_restaurant = getBaseContext().getFileStreamPath(RESTAURANTS_FILE_NAME);
+        File file_inspections = getBaseContext().getFileStreamPath(INSPECTIONS_FILE_NAME);
+//        if(file_restaurant.exists() && file_inspections.exists()){
+//            Log.d("TEST", "ALREADY EXISITS");
+//            loadFileData();
+//        }else{
+//            checkForUpdates();
+//        }
+//        loadFileData();
         ///////////////////////////////////
 //        startActivity(RequireDownloadActivity.makeIntent(this));
 
-//        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-//        for (Restaurant restaurant : restaurantManager) {
-//            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-//        }
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for (Restaurant restaurant : restaurantManager) {
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
 
 //        startActivity(new Intent(this, MapsActivity.class));
 
-//        loadRestaurants();
-//        registerClickFeedback();
-//        setUpMapButton();
+        loadRestaurants();
+        registerClickFeedback();
+        setupMagicButton();
+        setUpMapButton();
+        // does the downloading
+        checkForUpdates();
+    }
+
+    private void setupMagicButton() {
+        Button btn = findViewById(R.id.btn_makeDownload);
+        btn.setOnClickListener(v -> {
+            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+            for (Restaurant restaurant : restaurantManager) {
+                Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+                loadRestaurants();
+            }
+        });
     }
 
     private void setUpMapButton() {
@@ -106,13 +131,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void loadFileData() {
-        Log.d("HELP","Begin loading...");
 
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
                 loadFile(RESTAURANTS_FILE_NAME);
-                //loadFile(INSPECTIONS_FILE_NAME);
+                loadFile(INSPECTIONS_FILE_NAME);
                 return null;
             }
         }.execute();
@@ -128,9 +152,12 @@ public class MainActivity extends AppCompatActivity {
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, Charset.forName("UTF-8"));
             BufferedReader reader = new BufferedReader(inputStreamReader);
             String line = "";
+            lines_read = 0;
+
+            reader.readLine();
 
             while ((line = reader.readLine()) != null) {
-                Log.d("LOAD", "IM IN LOAD HOLDUP");
+                lines_read++;
 
                 String[] tokens = line.split(",");
                 Restaurant sample = new Restaurant(tokens[0], tokens[1],
@@ -138,8 +165,17 @@ public class MainActivity extends AppCompatActivity {
                         tokens[5], tokens[6]);
 
                 restaurantManager.add(sample);
+                Log.d("NEW MANAGER : ", sample.toString());
+
                 Log.d("LOAD", line);
             }
+            int count = 0;
+            for(Restaurant restaurant: restaurantManager){
+                count++;
+                Log.d("LISTING", restaurant.toString());
+            }
+            Log.d("LISTING","final count: "+count);
+
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -159,9 +195,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkForUpdates() {
-        if (true/*place some condition here*/) {
-            fetchPackages(ID_RESTAURANTS, ID_INSPECTIONS);
-        }
+        File file_restaurant = getBaseContext().getFileStreamPath(RESTAURANTS_FILE_NAME);
+        File file_inspections = getBaseContext().getFileStreamPath(INSPECTIONS_FILE_NAME);
+        fetchPackages(ID_RESTAURANTS, ID_INSPECTIONS);
+
     }
 
     private void fetchPackages(String restaurantType, String inspectionType) {
@@ -171,9 +208,7 @@ public class MainActivity extends AppCompatActivity {
         Call<Feed> callInspections = surrey_data_api.getData(inspectionType);
 
         ExtractInfo(callRestaurants, restaurantType);
-        ExtractInfo(callInspections, inspectionType);
-
-
+        //ExtractInfo(callInspections, inspectionType);
     }
 
     private void ExtractInfo(Call<Feed> Filetype, String type) {
@@ -189,14 +224,15 @@ public class MainActivity extends AppCompatActivity {
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
-                // END OF UI STUFF
+                startActivity(RequireDownloadActivity.makeIntent(MainActivity.this,url));
+/*                // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
                 Log.d(TAG, "I got the url : " + url);
                 if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
                     downloadFile(url, INSPECTIONS_FILE_NAME);
                 } else {
                     downloadFile(url, RESTAURANTS_FILE_NAME);
-                }
+                }*/
             }
 
 
@@ -206,67 +242,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void downloadFile(String url, String filename) {
-        // create Retrofit instance
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL).build();
-
-        FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
-        Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                //write the binary file to the disk
-                writeToFile(response.body(), filename);
-                Toast.makeText(MainActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failed :(", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-    }
-
-    private boolean writeToFile(ResponseBody body, String filename) {
-        InputStream inputStream = null;
-        FileOutputStream fileOutputStream = null;
-
-        try {
-            fileOutputStream = openFileOutput(filename, MODE_PRIVATE);
-
-            byte[] fileReader = new byte[4096];
-
-            inputStream = body.byteStream();
-
-            while (true) {
-                int read = inputStream.read(fileReader);
-                if (read == -1) {
-                    break;
-                }
-                fileOutputStream.write(fileReader, 0, read);
-            }
-            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
-            fileOutputStream.flush();
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fileOutputStream != null) {
-                try {
-                    fileOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return true;
     }
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
@@ -424,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readInspectionData() {
-        InputStream is = getResources().openRawResource(R.raw.inspectionsdata);
+        InputStream is = getResources().openRawResource(R.raw.new_inspections);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8)
         );
@@ -434,17 +409,19 @@ public class MainActivity extends AppCompatActivity {
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 // Split line by ','
+                Log.d("TEST", line);
+
                 String[] tokens = line.split(",");
-                String var_token6;
-                if (tokens.length >= 7 && tokens[6].length() > 0) {
-                    var_token6 = tokens[6];
+                String var_token5;
+                if (tokens.length >= 7 && tokens[5].length() > 0) {
+                    var_token5 = tokens[5];
                 } else {
-                    var_token6 = "No violations";
+                    var_token5 = "No violations";
                 }
 
                 RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
-                        tokens[5], var_token6);
+                        var_token5, tokens[6]);
                 Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
                 for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
@@ -458,8 +435,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadRestaurants() {
-
-        ArrayAdapter<Restaurant> arrayAdapter = new CustomListAdapter();
+        arrayAdapter = new CustomListAdapter();
         ListView listView = findViewById(R.id.restaurantListView);
         listView.setAdapter(arrayAdapter);
     }
@@ -467,5 +443,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        arrayAdapter.notifyDataSetChanged();
+//        restaurantManager = RestaurantManager.getInstance();;
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for (Restaurant restaurant : restaurantManager) {
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
     }
 }
