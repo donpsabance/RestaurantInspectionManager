@@ -76,20 +76,20 @@ public class MainActivity extends AppCompatActivity {
         // TODO: testing work on using retrofit
         // PRE: current data    POST: i want to extract the url from
         checkForUpdates();
-//        loadFileData();
+        loadFileData();
         ///////////////////////////////////
 //        startActivity(RequireDownloadActivity.makeIntent(this));
 
-        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        for (Restaurant restaurant : restaurantManager) {
-            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-        }
+//        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+//        for (Restaurant restaurant : restaurantManager) {
+//            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+//        }
 
 //        startActivity(new Intent(this, MapsActivity.class));
 
-        loadRestaurants();
-        registerClickFeedback();
-        setUpMapButton();
+//        loadRestaurants();
+//        registerClickFeedback();
+//        setUpMapButton();
     }
 
     private void setUpMapButton() {
@@ -112,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... voids) {
                 loadFile(RESTAURANTS_FILE_NAME);
-                loadFile(INSPECTIONS_FILE_NAME);
+                //loadFile(INSPECTIONS_FILE_NAME);
                 return null;
             }
         }.execute();
@@ -130,12 +130,15 @@ public class MainActivity extends AppCompatActivity {
             String line = "";
 
             while ((line = reader.readLine()) != null) {
+                Log.d("LOAD", "IM IN LOAD HOLDUP");
+
                 String[] tokens = line.split(",");
                 Restaurant sample = new Restaurant(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
                         tokens[5], tokens[6]);
 
                 restaurantManager.add(sample);
+                Log.d("LOAD", line);
             }
 
         } catch (FileNotFoundException e) {
