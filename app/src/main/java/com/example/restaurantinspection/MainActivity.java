@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
 //        checkForUpdates();
 //        loadFileData();
         ///////////////////////////////////
-        startActivity(RequireDownloadActivity.makeIntent(this));
+//        startActivity(RequireDownloadActivity.makeIntent(this));
 
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
