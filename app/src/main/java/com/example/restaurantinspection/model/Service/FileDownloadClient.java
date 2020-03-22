@@ -1,4 +1,4 @@
-package com.example.restaurantinspection;
+package com.example.restaurantinspection.model.Service;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

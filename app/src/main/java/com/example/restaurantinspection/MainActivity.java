@@ -21,21 +21,25 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.restaurantinspection.model.DateManager;
-import com.example.restaurantinspection.model.retrofitdetails.Feed;
+import com.example.restaurantinspection.model.Service.Feed;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.retrofitdetails.Resource;
+import com.example.restaurantinspection.model.Service.FileDownloadClient;
+import com.example.restaurantinspection.model.Service.Resource;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Service.ServiceGenerator;
+import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,13 +52,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
+    public static final String TAG = "MainActivity";
+    private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
+    private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
@@ -63,13 +69,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        readRestaurantData();
+        readInspectionData();
         ///////////////////////////////////
         // TODO: testing work on using retrofit
         // PRE: current data    POST: i want to extract the url from
-        checkForUpdates();
+//        checkForUpdates();
+//        loadFileData();
         ///////////////////////////////////
-        readRestaurantData();
-        readInspectionData();
+        startActivity(RequireDownloadActivity.makeIntent(this));
 
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
@@ -82,125 +90,166 @@ public class MainActivity extends AppCompatActivity {
         registerClickFeedback();
     }
 
-    private void checkForUpdates() {
-        if(true/*place some condition here*/){
-            
-            fetchPackages(ID_RESTAURANTS);
-            //fetchPackages(ID_INSPECTIONS);
+    private void loadFileData() {
+        Log.d("HELP","Begin loading...");
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                loadFile(RESTAURANTS_FILE_NAME);
+//                loadFile(INSPECTIONS_FILE_NAME);
+                return null;
+            }
+        }.execute();
+    }
+
+    private void loadFile(String filename) {
+        FileInputStream fileInputStream = null;
+
+
+        int lines_read = 0;
+        try {
+            fileInputStream = openFileInput(filename);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, Charset.forName("UTF-8"));
+            BufferedReader reader = new BufferedReader(inputStreamReader);
+            String line = "";
+
+            while ((line = reader.readLine()) != null) {
+                String[] tokens = line.split(",");
+                Restaurant sample = new Restaurant(tokens[0], tokens[1],
+                        tokens[2], tokens[3], tokens[4],
+                        tokens[5], tokens[6]);
+
+                restaurantManager.add(sample);
+            }
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            Log.d("RESULT: ", "finally null, lines read: " + lines_read);
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    private void fetchPackages(String type) {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        Surrey_Data_API restaurantDataAPI = retrofit.create(Surrey_Data_API.class);
-        Call<Feed> call = restaurantDataAPI.getData(type);
 
-        call.enqueue(new Callback<Feed>() {
+    private void checkForUpdates() {
+        if (true/*place some condition here*/) {
+            fetchPackages(ID_RESTAURANTS, ID_INSPECTIONS);
+        }
+    }
+
+    private void fetchPackages(String restaurantType, String inspectionType) {
+
+        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
+        Call<Feed> callRestaurants = surrey_data_api.getData(restaurantType);
+        Call<Feed> callInspections = surrey_data_api.getData(inspectionType);
+
+        ExtractInfo(callRestaurants, restaurantType);
+        ExtractInfo(callInspections, inspectionType);
+
+
+    }
+
+    private void ExtractInfo(Call<Feed> Filetype, String type) {
+        Filetype.enqueue(new Callback<Feed>() {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
+                Log.d(TAG, "onResponse: Server Response" + response.toString());
+                Log.d(TAG, "onResponse: received information: " + response.body().toString());
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
+                // UI STUFF
                 String format = ResourceList.get(0).getFormat();
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
-
-                //TODO: DOWNLOAD THE URL DATA
-                downloadFile(url);
-
+                // END OF UI STUFF
+                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
+                Log.d(TAG, "I got the url : " + url);
+                if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
+                    downloadFile(url, INSPECTIONS_FILE_NAME);
+                } else {
+                    downloadFile(url, RESTAURANTS_FILE_NAME);
+                }
+                // url_txt.setText(url);
             }
 
 
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(MAIN_ACTIVITY_TAG, "something went wrong " + t.getMessage());
+                Log.e(TAG, "something went wrong " + t.getMessage());
                 Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
-    private void downloadFile(String url) {
+    private void downloadFile(String url, String filename) {
         // create Retrofit instance
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL).build();
-        FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
 
+        FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
         Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
-        Log.d(MAIN_ACTIVITY_TAG,"url = " + url);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        //boolean success = writeResponseBodyToDisk(response.body());
-                        return null;
-                    }
-                }.execute();
+                //write the binary file to the disk
+                writeToFile(response.body(), filename);
+                Toast.makeText(MainActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(MainActivity.this,"download didn't work :( " + t.getMessage(),Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "Failed :(", Toast.LENGTH_SHORT).show();
+
             }
         });
+
     }
 
-    private boolean writeResponseBodyToDisk(ResponseBody body) {
+    private boolean writeToFile(ResponseBody body, String filename) {
+        InputStream inputStream = null;
+        FileOutputStream fileOutputStream = null;
+
         try {
-            File futureStudioIconFile = new File(getExternalFilesDir(null) + File.separator + "restaurant.csv");
+            fileOutputStream = openFileOutput(filename, MODE_PRIVATE);
 
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
+            byte[] fileReader = new byte[4096];
 
-            try {
-                byte[] fileReader = new byte[4096];
+            inputStream = body.byteStream();
 
-                long fileSize = body.contentLength();
-                long fileSizeDownloaded = 0;
-
-                inputStream = body.byteStream();
-                Log.d(MAIN_ACTIVITY_TAG, "FILESIZE IS" + fileSize);
-
-                outputStream = new FileOutputStream(futureStudioIconFile);
-
-                while (true) {
-                    int read = inputStream.read(fileReader);
-
-                    if (read == -1) {
-                        break;
-                    }
-
-                    outputStream.write(fileReader, 0, read);
-
-                    fileSizeDownloaded += read;
-
-                    Log.d(MAIN_ACTIVITY_TAG, "file download: " + fileSizeDownloaded + " of " + fileSize);
+            while (true) {
+                int read = inputStream.read(fileReader);
+                if (read == -1) {
+                    break;
                 }
-
-                outputStream.flush();
-
-                return true;
-            } catch (IOException e) {
-                return false;
-            } finally {
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-
-                if (outputStream != null) {
-                    outputStream.close();
+                fileOutputStream.write(fileReader, 0, read);
+            }
+            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
+            fileOutputStream.flush();
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            return false;
         }
+        return true;
     }
-
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter() {
@@ -358,5 +407,10 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<Restaurant> arrayAdapter = new CustomListAdapter();
         ListView listView = findViewById(R.id.restaurantListView);
         listView.setAdapter(arrayAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 }

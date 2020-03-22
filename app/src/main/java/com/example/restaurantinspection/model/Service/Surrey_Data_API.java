@@ -1,6 +1,6 @@
-package com.example.restaurantinspection;
+package com.example.restaurantinspection.model.Service;
 
-import com.example.restaurantinspection.model.retrofitdetails.Feed;
+import com.example.restaurantinspection.model.Service.Feed;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

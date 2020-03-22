@@ -1,4 +1,4 @@
-package com.example.restaurantinspection.model.retrofitdetails;
+package com.example.restaurantinspection.model.Service;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
