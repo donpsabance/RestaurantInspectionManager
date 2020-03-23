@@ -48,6 +48,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -118,21 +119,12 @@ public class MainActivity extends AppCompatActivity {
     }
     public boolean CompareTime()
     {
-        SharedPreferences LastModifiedTimeFile = getSharedPreferences("user", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
-        String LastModifiedTime = LastModifiedTimeFile.getString("Last_Modified_time",DefaultTime);
-        Log.d("Time",LastModifiedTime);
-        String CurrentTime = "2020-03-18T08:18:00.000000";
-        if(!LastModifiedTime.equals(CurrentTime))
-        {
-            SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-            editor.putString("Last_Modified_time",CurrentTime);
-            editor.apply();
-            LastModifiedTime = LastModifiedTimeFile.getString("Last_Modified_time",DefaultTime);
-            Log.d("Time",LastModifiedTime+" has changed");
-            return true;
-        }
-        return false;
+        String UserLastModifiedTime = ReadUserTime();
+        Log.d("Time",UserLastModifiedTime);
+        String CurrentTime = ReadWebTime();
+        UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
+        CurrentTime = TakeDataTime(CurrentTime);
+        return GetHourDifference(CurrentTime, UserLastModifiedTime) > 200000;
 
     }
 
@@ -230,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("NEW MANAGER : ", sample.toString());
 
                 Log.d("LOAD", line);
+
             }
             int count = 0;
             for(Restaurant restaurant: restaurantManager){
@@ -287,6 +280,7 @@ public class MainActivity extends AppCompatActivity {
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
                 startActivity(RequireDownloadActivity.makeIntent(MainActivity.this,url));
+                WriteWebTime(date_last_modified);
 /*                // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
                 Log.d(TAG, "I got the url : " + url);
@@ -449,6 +443,14 @@ public class MainActivity extends AppCompatActivity {
             while ((line = reader.readLine()) != null) {
                 // Split line by ','
                 String[] tokens = line.split(",");
+                if(tokens.length > 7)
+                {
+                    tokens[1]=tokens[1]+','+tokens[2];
+                    for(int i = 2;i<7;i++)
+                    {
+                        tokens[i]=tokens[i+1];
+                    }
+                }
                 Restaurant sample = new Restaurant(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
                         tokens[5], tokens[6]);
@@ -516,5 +518,48 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
+    }
+
+    private String ReadUserTime(){
+            SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+            String DefaultTime = getResources().getString(R.string.default_time);
+        return LastModifiedTimeFile.getString("User_Last_Modified_time",DefaultTime);
+    }
+
+    private String ReadWebTime(){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        return LastModifiedTimeFile.getString("Web_Last_Modified_time",DefaultTime);
+    }
+
+    private void WriteUserTime(String date){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
+        editor.putString("User_Last_Modified_time",date);
+        editor.apply();
+    }
+
+    private void WriteWebTime(String date){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
+        editor.putString("Web_Last_Modified_time",date);
+        editor.apply();
+    }
+
+    private String TakeDataTime(String date){
+        if(date != null)
+        {
+            date = date.replaceAll("[^0-9]","").trim();
+            date = date.substring(0,14);
+        }
+        return date;
+    }
+
+    private double GetHourDifference(String date1, String date2) {
+        BigDecimal Date1 = new BigDecimal(date1);
+        BigDecimal Date2 = new BigDecimal(date2);
+        return (Date1.subtract(Date2).doubleValue()+1.0);
     }
 }
