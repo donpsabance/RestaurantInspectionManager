@@ -194,9 +194,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
 
-    public static Intent makeIntent(Context context,String url) {
+    public static Intent makeIntent(Context context) {
         Intent intent = new Intent (context, RequireDownloadActivity.class);
-        intent.putExtra("RESTAURANT EXTRA",url);
         return intent;
     }
 }

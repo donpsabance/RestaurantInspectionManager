@@ -101,10 +101,10 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-        if(CompareTime())
-        {
-            ShowUpdateDialog();
-        }
+//        if(CompareTime())
+//        {
+//            ShowUpdateDialog();
+//        }
         //startActivity(new Intent(this, MapsActivity.class));
 
 //        startActivity(new Intent(this, MapsActivity.class));
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         setupMagicButton();
         setUpMapButton();
         // does the downloading
-//        checkForUpdates();
+        checkForUpdates();
     }
     public boolean CompareTime()
     {
@@ -258,9 +258,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void checkForUpdates() {
         fetchPackages(ID_RESTAURANTS);
-        fetchPackages(ID_INSPECTIONS);
-        Log.d("RACE", "CHECK CAME FIRST");
-
     }
 
     private void fetchPackages(String typeID) {
@@ -285,9 +282,18 @@ public class MainActivity extends AppCompatActivity {
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
                 if(type.equalsIgnoreCase(ID_RESTAURANTS)){
-                    //startActivity(RequireDownloadActivity.makeIntent(MainActivity.this,url));
+                    // Todo check time here;
+                    if(true){
+                        //startActivity(RequireDownloadActivity.makeIntent(MainActivity.this));
+                    }
+                    fetchPackages(ID_INSPECTIONS);
+                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)){
+                    // Todo check time here;
+                    if(true){
+                        startActivity(RequireDownloadActivity.makeIntent(MainActivity.this));
+                    }
                 }
-                Log.d("RACE", "RESPONSE CAME FIRST");
+                // if it reaches here load whatever is in local storage
 /*                // END OF UI STUFF
                 Log.d(TAG, "I got the url : " + url);
                 if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
@@ -304,6 +310,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
+
+
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter() {
