@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         setupMagicButton();
         setUpMapButton();
         // does the downloading
-        checkForUpdates();
+//        checkForUpdates();
     }
 
     private void setupMagicButton() {
@@ -195,20 +195,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkForUpdates() {
-        File file_restaurant = getBaseContext().getFileStreamPath(RESTAURANTS_FILE_NAME);
-        File file_inspections = getBaseContext().getFileStreamPath(INSPECTIONS_FILE_NAME);
-        fetchPackages(ID_RESTAURANTS, ID_INSPECTIONS);
+        fetchPackages(ID_RESTAURANTS);
+        fetchPackages(ID_INSPECTIONS);
+        Log.d("RACE", "CHECK CAME FIRST");
 
     }
 
-    private void fetchPackages(String restaurantType, String inspectionType) {
+    private void fetchPackages(String typeID) {
 
         Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
-        Call<Feed> callRestaurants = surrey_data_api.getData(restaurantType);
-        Call<Feed> callInspections = surrey_data_api.getData(inspectionType);
+        Call<Feed> call = surrey_data_api.getData(typeID);
+        ExtractInfo(call, typeID);
 
-        ExtractInfo(callRestaurants, restaurantType);
-        //ExtractInfo(callInspections, inspectionType);
     }
 
     private void ExtractInfo(Call<Feed> Filetype, String type) {
@@ -223,10 +221,12 @@ public class MainActivity extends AppCompatActivity {
                 String format = ResourceList.get(0).getFormat();
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
-
-                startActivity(RequireDownloadActivity.makeIntent(MainActivity.this,url));
-/*                // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
+                if(type.equalsIgnoreCase(ID_RESTAURANTS)){
+                    //startActivity(RequireDownloadActivity.makeIntent(MainActivity.this,url));
+                }
+                Log.d("RACE", "RESPONSE CAME FIRST");
+/*                // END OF UI STUFF
                 Log.d(TAG, "I got the url : " + url);
                 if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
                     downloadFile(url, INSPECTIONS_FILE_NAME);
@@ -234,7 +234,6 @@ public class MainActivity extends AppCompatActivity {
                     downloadFile(url, RESTAURANTS_FILE_NAME);
                 }*/
             }
-
 
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
