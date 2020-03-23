@@ -1,6 +1,11 @@
 package com.example.restaurantinspection;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
@@ -10,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -19,6 +25,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
@@ -29,6 +36,7 @@ import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,16 +48,23 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String BASE_URL = "http://data.surrey.ca/";
+    private static final String ID_RESTAURANTS = "restaurants";
+    private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
+    private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
+    private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
+
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
+    private ArrayAdapter<Restaurant> arrayAdapter;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         readRestaurantData();
         readInspectionData();
 
@@ -57,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
+//        if(CompareTime())
+//        {
+//            ShowUpdateDialog();
+//        }
+//        startActivity(new Intent(this, MapsActivity.class));
 
         startActivity(new Intent(this, MapsActivity.class));
 
@@ -64,6 +84,56 @@ public class MainActivity extends AppCompatActivity {
         registerClickFeedback();
         setUpMapButton();
     }
+    public boolean CompareTime()
+    {
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("user", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        String LastModifiedTime = LastModifiedTimeFile.getString("Last_Modified_time",DefaultTime);
+        Log.d("Time",LastModifiedTime);
+        String CurrentTime = "2020-03-18T08:18:00.000000";
+        if(!LastModifiedTime.equals(CurrentTime))
+        {
+            SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
+            editor.putString("Last_Modified_time",CurrentTime);
+            editor.apply();
+            LastModifiedTime = LastModifiedTimeFile.getString("Last_Modified_time",DefaultTime);
+            Log.d("Time",LastModifiedTime+" has changed");
+            return true;
+        }
+        return false;
+
+    }
+
+    public static class UpdateDialog extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder UpdateDialog = new AlertDialog.Builder(getActivity());
+            UpdateDialog.setMessage(R.string.Update).setPositiveButton(R.string.Yes, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    Log.d("TAG", "onClick: update the information");
+                }
+            })
+            .setNegativeButton(R.string.No, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.d("TAG", "onClick: did nothing");
+                }
+            });
+            return UpdateDialog.create();
+        }
+    }
+
+    public void ShowUpdateDialog()
+    {
+        DialogFragment showUpdateDialog = new UpdateDialog();
+        showUpdateDialog.show(getSupportFragmentManager(),"update");
+    }
+
 
     private void setUpMapButton() {
 
@@ -83,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         finish();
     }
+
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter() {
@@ -239,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readInspectionData() {
-        InputStream is = getResources().openRawResource(R.raw.inspectionsdata);
+        InputStream is = getResources().openRawResource(R.raw.new_inspections);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8)
         );
@@ -249,18 +320,21 @@ public class MainActivity extends AppCompatActivity {
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 // Split line by ','
+                Log.d("TEST", line);
+
                 String[] tokens = line.split(",");
-                String var_token6;
-                if (tokens.length >= 7 && tokens[6].length() > 0) {
-                    var_token6 = tokens[6];
+                String var_token5;
+                if (tokens.length >= 7 && tokens[5].length() > 0) {
+                    var_token5 = tokens[5];
                 } else {
-                    var_token6 = "No violations";
+                    var_token5 = "No violations";
                 }
 
                 RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
-                        tokens[5], var_token6);
+                        var_token5, tokens[6]);
                 Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
+
                 for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
@@ -273,9 +347,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadRestaurants() {
-
-        ArrayAdapter<Restaurant> arrayAdapter = new CustomListAdapter();
+        arrayAdapter = new CustomListAdapter();
         ListView listView = findViewById(R.id.restaurantListView);
         listView.setAdapter(arrayAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        arrayAdapter.notifyDataSetChanged();
+//        restaurantManager = RestaurantManager.getInstance();;
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for (Restaurant restaurant : restaurantManager) {
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
     }
 }

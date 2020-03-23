@@ -28,7 +28,7 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
 
     public RestaurantInspection(String trackingNumber, String inspectionDate,
                                 String inspectionType, String numCritical, String numNonCritical,
-                                String hazardRating, String violations) {
+                                String violations, String hazardRating) {
         this.trackingNumber = trackingNumber;
         this.inspectionDate = inspectionDate;
         this.inspectionType = inspectionType;
@@ -42,7 +42,7 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
     private void parseViolations(String violationdump) {
         String[] arr = violations.split("\\|");
         for (String s : arr) {
-            Log.d("TAG", s);
+            Log.d("parseViolations_TAG","in parseViolations : " + s);
 
             //if s == "No violations" do not add to list
             if (!violationdump.equalsIgnoreCase("No violations")) {
