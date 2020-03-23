@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
-    public static final String TAG = "MainActivity";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
@@ -109,8 +108,7 @@ public class MainActivity extends AppCompatActivity {
         registerClickFeedback();
         setupMagicButton();
         setUpMapButton();
-        // does the downloading
-//        checkForUpdates();
+
     }
     public boolean CompareTime()
     {
@@ -186,130 +184,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
-    private void loadFileData() {
-
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                loadFile(RESTAURANTS_FILE_NAME);
-                loadFile(INSPECTIONS_FILE_NAME);
-                return null;
-            }
-        }.execute();
-    }
-
-    private void loadFile(String filename) {
-        FileInputStream fileInputStream = null;
-
-
-        int lines_read = 0;
-        try {
-            fileInputStream = openFileInput(filename);
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, Charset.forName("UTF-8"));
-            BufferedReader reader = new BufferedReader(inputStreamReader);
-            String line = "";
-            lines_read = 0;
-
-            reader.readLine();
-
-            while ((line = reader.readLine()) != null) {
-                lines_read++;
-
-                String[] tokens = line.split(",");
-                Restaurant sample = new Restaurant(tokens[0], tokens[1],
-                        tokens[2], tokens[3], tokens[4],
-                        tokens[5], tokens[6]);
-
-                restaurantManager.add(sample);
-                Log.d("NEW MANAGER : ", sample.toString());
-
-                Log.d("LOAD", line);
-            }
-            int count = 0;
-            for(Restaurant restaurant: restaurantManager){
-                count++;
-                Log.d("LISTING", restaurant.toString());
-            }
-            Log.d("LISTING","final count: "+count);
-
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            Log.d("RESULT: ", "finally null, lines read: " + lines_read);
-            if (fileInputStream != null) {
-                try {
-                    fileInputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-
-    private void checkForUpdates() {
-        fetchPackages(ID_RESTAURANTS);
-    }
-
-    private void fetchPackages(String typeID) {
-
-        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
-        Call<Feed> call = surrey_data_api.getData(typeID);
-        ExtractInfo(call, typeID);
-
-    }
-
-    private void ExtractInfo(Call<Feed> Filetype, String type) {
-        Filetype.enqueue(new Callback<Feed>() {
-            @Override
-            public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(TAG, "onResponse: Server Response" + response.toString());
-                Log.d(TAG, "onResponse: received information: " + response.body().toString());
-
-                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
-                String url = ResourceList.get(0).getUrl();
-                String date_last_modified = ResourceList.get(0).getDate_last_modified();
-                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                if(type.equalsIgnoreCase(ID_RESTAURANTS)){
-                    // Todo check time here;
-                    if(true){
-                        //startActivity(RequireDownloadActivity.makeIntent(MainActivity.this));
-                    }
-                    fetchPackages(ID_INSPECTIONS);
-                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)){
-                    // Todo check time here;
-                    if(true){
-                        startActivity(RequireDownloadActivity.makeIntent(MainActivity.this));
-                    }
-                }
-                // if it reaches here load whatever is in local storage
-/*                // END OF UI STUFF
-                Log.d(TAG, "I got the url : " + url);
-                if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    downloadFile(url, INSPECTIONS_FILE_NAME);
-                } else {
-                    downloadFile(url, RESTAURANTS_FILE_NAME);
-                }*/
-            }
-
-            @Override
-            public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(TAG, "something went wrong " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-
-
 
 
 

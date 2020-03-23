@@ -263,7 +263,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             reader.readLine();
             while ((!(line = reader.readLine()).equals(",,,,,,")) || ((line = reader.readLine()) != null)) {
                 // Split line by ','
-                //Log.d("TEST", line);
+                Log.d("TEST", line);
                 String[] parts = line.split("\"");
                 String[] tokens = parts[0].split(",");
                 String var_token5;
