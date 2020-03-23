@@ -1,6 +1,11 @@
 package com.example.restaurantinspection;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -20,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.Service.Feed;
@@ -95,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
+        if(CompareTime())
+        {
+            ShowUpdateDialog();
+        }
+        //startActivity(new Intent(this, MapsActivity.class));
 
 //        startActivity(new Intent(this, MapsActivity.class));
 
@@ -105,6 +116,57 @@ public class MainActivity extends AppCompatActivity {
         // does the downloading
         checkForUpdates();
     }
+    public boolean CompareTime()
+    {
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("user", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        String LastModifiedTime = LastModifiedTimeFile.getString("Last_Modified_time",DefaultTime);
+        Log.d("Time",LastModifiedTime);
+        String CurrentTime = "2020-03-18T08:18:00.000000";
+        if(!LastModifiedTime.equals(CurrentTime))
+        {
+            SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
+            editor.putString("Last_Modified_time",CurrentTime);
+            editor.apply();
+            LastModifiedTime = LastModifiedTimeFile.getString("Last_Modified_time",DefaultTime);
+            Log.d("Time",LastModifiedTime+" has changed");
+            return true;
+        }
+        return false;
+
+    }
+
+    public static class UpdateDialog extends DialogFragment
+    {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState)
+        {
+            AlertDialog.Builder UpdateDialog = new AlertDialog.Builder(getActivity());
+            UpdateDialog.setMessage(R.string.Update).setPositiveButton(R.string.Yes, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    Log.d("TAG", "onClick: update the information");
+                }
+            })
+            .setNegativeButton(R.string.No, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Log.d("TAG", "onClick: did nothing");
+                }
+            });
+            return UpdateDialog.create();
+        }
+    }
+
+    public void ShowUpdateDialog()
+    {
+        DialogFragment showUpdateDialog = new UpdateDialog();
+        showUpdateDialog.show(getSupportFragmentManager(),"update");
+    }
+
+
 
     private void setupMagicButton() {
         Button btn = findViewById(R.id.btn_makeDownload);
