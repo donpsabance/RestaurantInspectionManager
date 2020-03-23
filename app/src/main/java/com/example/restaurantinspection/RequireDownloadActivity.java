@@ -204,6 +204,13 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 lines_read++;
 
                 String[] tokens = line.split(",");
+                if(tokens.length == 8){
+                    tokens[1] = tokens[1]+", "+tokens[2];
+                    for (int i = 2; i < 7; i++)
+                    {
+                        tokens[i]=tokens[i+1];
+                    }
+                }
                 Restaurant sample = new Restaurant(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
                         tokens[5], tokens[6]);
