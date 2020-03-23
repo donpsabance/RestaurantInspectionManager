@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,35 +27,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
-import com.example.restaurantinspection.model.Service.Feed;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.Service.Resource;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.example.restaurantinspection.model.Service.ServiceGenerator;
-import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,21 +63,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         readRestaurantData();
-//        readDownloadedInspectionData();
-
-        ///////////////////////////////////
-        // TODO: testing work on using retrofit
-        File file_restaurant = getBaseContext().getFileStreamPath(RESTAURANTS_FILE_NAME);
-        File file_inspections = getBaseContext().getFileStreamPath(INSPECTIONS_FILE_NAME);
-//        if(file_restaurant.exists() && file_inspections.exists()){
-//            Log.d("TEST", "ALREADY EXISITS");
-//            loadFileData();
-//        }else{
-//            checkForUpdates();
-//        }
-//        loadFileData();
-        ///////////////////////////////////
-//        startActivity(RequireDownloadActivity.makeIntent(this));
+        readInspectionData();
 
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
@@ -106,9 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadRestaurants();
         registerClickFeedback();
-        setupMagicButton();
         setUpMapButton();
-
     }
     public boolean CompareTime()
     {
@@ -160,18 +131,6 @@ public class MainActivity extends AppCompatActivity {
         showUpdateDialog.show(getSupportFragmentManager(),"update");
     }
 
-
-
-    private void setupMagicButton() {
-        Button btn = findViewById(R.id.btn_makeDownload);
-        btn.setOnClickListener(v -> {
-            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-            for (Restaurant restaurant : restaurantManager) {
-                Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-                loadRestaurants();
-            }
-        });
-    }
 
     private void setUpMapButton() {
 
@@ -341,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void readDownloadedInspectionData() {
-        InputStream is = getResources().openRawResource(R.raw.fraserhealthrestaurantinspectionreports);
+    private void readInspectionData() {
+        InputStream is = getResources().openRawResource(R.raw.new_inspections);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8)
         );
@@ -350,27 +309,23 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Step over headers
             reader.readLine();
-            while ((!(line = reader.readLine()).equals(",,,,,,"))||((line = reader.readLine()) != null)) {
+            while ((line = reader.readLine()) != null) {
                 // Split line by ','
                 Log.d("TEST", line);
-                String[] parts = line.split("\"");
-                String[] tokens = parts[0].split(",");
+
+                String[] tokens = line.split(",");
                 String var_token5;
-                String var_token6 = "Low";
-                String ViolationDump;
-                if (parts.length==3) {
-                    ViolationDump = parts[1].replace(",","!");
-                    var_token5 = ViolationDump;
-                    var_token6 = parts[2].replace(","," ").trim();
+                if (tokens.length >= 7 && tokens[5].length() > 0) {
+                    var_token5 = tokens[5];
                 } else {
                     var_token5 = "No violations";
                 }
 
-
                 RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
-                        var_token5, var_token6);
-                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate()+" "+sample.getHazardRating());
+                        var_token5, tokens[6]);
+                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
+
                 for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
