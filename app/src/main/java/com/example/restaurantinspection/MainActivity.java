@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
@@ -54,8 +55,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
+    private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private ArrayAdapter<Restaurant> arrayAdapter;
+
 
 
     @Override
@@ -139,11 +142,17 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, MapsActivity.class));
+                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                startActivityForResult(intent, ACTIVITY_RESULT_FINISH);
             }
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        finish();
+    }
 
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
@@ -224,33 +233,33 @@ public class MainActivity extends AppCompatActivity {
         progressBar.setProgress(5 + 10 * totalViolations);
     }
 
-    private int determineIcon(String restaurantName){
+    private int determineIcon(String restaurantName) {
 
-        if(restaurantName.toLowerCase().contains("pizza")){
+        if (restaurantName.toLowerCase().contains("pizza")) {
             return R.drawable.pizza;
         } else if (restaurantName.toLowerCase().contains("burger") ||
-                    restaurantName.toLowerCase().contains("a&w")){
+                restaurantName.toLowerCase().contains("a&w")) {
             return R.drawable.burger;
-        } else if(restaurantName.toLowerCase().contains("sushi")){
+        } else if (restaurantName.toLowerCase().contains("sushi")) {
             return R.drawable.sushi;
-        } else if(restaurantName.toLowerCase().contains("subway") ||
-                    restaurantName.toLowerCase().contains("sandwich")){
+        } else if (restaurantName.toLowerCase().contains("subway") ||
+                restaurantName.toLowerCase().contains("sandwich")) {
             return R.drawable.sandwich;
-        } else if(restaurantName.toLowerCase().contains("coffee") ||
-                    restaurantName.toLowerCase().contains("tim hortons") ||
-                    restaurantName.toLowerCase().contains("startbucks")){
+        } else if (restaurantName.toLowerCase().contains("coffee") ||
+                restaurantName.toLowerCase().contains("tim hortons") ||
+                restaurantName.toLowerCase().contains("startbucks")) {
             return R.drawable.coffee;
-        } else if(restaurantName.toLowerCase().contains("chicken")){
+        } else if (restaurantName.toLowerCase().contains("chicken")) {
             return R.drawable.chicken;
-        } else if(restaurantName.toLowerCase().contains("seafood")){
+        } else if (restaurantName.toLowerCase().contains("seafood")) {
             return R.drawable.lobster;
-        } else if(restaurantName.toLowerCase().contains("mcdonalds")){
+        } else if (restaurantName.toLowerCase().contains("mcdonalds")) {
             return R.drawable.mcdonalds;
-        } else if(restaurantName.toLowerCase().contains("taco")){
+        } else if (restaurantName.toLowerCase().contains("taco")) {
             return R.drawable.taco;
-        } else if(restaurantName.toLowerCase().contains("noodles") ||
-                    restaurantName.toLowerCase().contains("ramen") ||
-                        restaurantName.toLowerCase().contains("pho")){
+        } else if (restaurantName.toLowerCase().contains("noodles") ||
+                restaurantName.toLowerCase().contains("ramen") ||
+                restaurantName.toLowerCase().contains("pho")) {
             return R.drawable.noodles;
         }
 
