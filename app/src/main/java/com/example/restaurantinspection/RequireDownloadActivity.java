@@ -174,17 +174,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }.execute();
     }
 
-/*    private void loadFileData() {
-        Log.d("LOG","Begin loading...");
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                loadFile(RESTAURANTS_FILE_NAME);
-//                loadFile(INSPECTIONS_FILE_NAME);
-                return null;
-            }
-        }.execute();
-    }*/
 
     private void loadFile(String filename) {
         if (filename.equalsIgnoreCase(RESTAURANTS_FILE_NAME)) {

@@ -367,14 +367,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
                     }
                 }
+                // Todo:
                 // if it reaches here load whatever is in local storage
-/*                // END OF UI STUFF
-                Log.d(TAG, "I got the url : " + url);
-                if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    downloadFile(url, INSPECTIONS_FILE_NAME);
-                } else {
-                    downloadFile(url, RESTAURANTS_FILE_NAME);
-                }*/
+
             }
 
             @Override
