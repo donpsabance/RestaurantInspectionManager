@@ -12,8 +12,13 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Service.Feed;
 import com.example.restaurantinspection.model.Service.FileDownloadClient;
+import com.example.restaurantinspection.model.Service.Resource;
+import com.example.restaurantinspection.model.Service.ServiceGenerator;
+import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -23,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
@@ -55,12 +62,122 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private void registerClickCallback() {
         Button btn = findViewById(R.id.btn_load);
         btn.setOnClickListener(v -> {
-            downloadFile(given_url,RESTAURANTS_FILE_NAME);
+            fetchPackages(ID_RESTAURANTS);
         });
     }
 
+    private void fetchPackages(String typeID) {
 
-    private void loadFileData() {
+        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
+        Call<Feed> call = surrey_data_api.getData(typeID);
+        ExtractInfo(call, typeID);
+
+    }
+
+    private void ExtractInfo(Call<Feed> Filetype, String type) {
+        Filetype.enqueue(new Callback<Feed>() {
+            @Override
+            public void onResponse(Call<Feed> call, Response<Feed> response) {
+                Log.d(TAG, "onResponse: Server Response" + response.toString());
+                Log.d(TAG, "onResponse: received information: " + response.body().toString());
+
+                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
+                // UI STUFF
+                String format = ResourceList.get(0).getFormat();
+                String url = ResourceList.get(0).getUrl();
+                String date_last_modified = ResourceList.get(0).getDate_last_modified();
+
+                // END OF UI STUFF
+                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
+                Log.d(TAG, "I got the url : " + url);
+                if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
+                    downloadFile(url, RESTAURANTS_FILE_NAME);
+                    fetchPackages(ID_INSPECTIONS);
+                } else {
+                    downloadFile(url, INSPECTIONS_FILE_NAME);
+                }
+                // url_txt.setText(url);
+            }
+            @Override
+            public void onFailure(Call<Feed> call, Throwable t) {
+                Log.e(TAG, "something went wrong " + t.getMessage());
+                Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void downloadFile(String url, String filename) {
+        // create Retrofit instance
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BASE_URL).build();
+
+        FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
+        Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                //write the binary file to the disk
+                writeToFile(response.body(), filename);
+                Toast.makeText(RequireDownloadActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Toast.makeText(RequireDownloadActivity.this, "Failed :(", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+    }
+
+    private boolean writeToFile(ResponseBody body, String filename) {
+
+        InputStream inputStream = null;
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            fileOutputStream = openFileOutput(filename, MODE_PRIVATE);
+
+            byte[] fileReader = new byte[4096];
+
+            inputStream = body.byteStream();
+
+            while (true) {
+                int read = inputStream.read(fileReader);
+                if (read == -1) {
+                    break;
+                }
+                fileOutputStream.write(fileReader, 0, read);
+            }
+            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
+            fileOutputStream.flush();
+            startLoading(filename);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return true;
+    }
+
+    private void startLoading(String filname) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                loadFile(filname);
+                return null;
+            }
+        }.execute();
+    }
+
+/*    private void loadFileData() {
         Log.d("LOG","Begin loading...");
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -70,11 +187,19 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 return null;
             }
         }.execute();
-    }
+    }*/
 
     private void loadFile(String filename) {
+        if(filename.equalsIgnoreCase(RESTAURANTS_FILE_NAME)){
+            file_read_FromDownloadedRestaurants(filename);
+        }else if (filename.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
+            file_read_FromDownloadedInspections(filename);
+        }
+    }
+
+    private void file_read_FromDownloadedRestaurants(String filename) {
         FileInputStream fileInputStream = null;
-        HashMap<String,Restaurant> hmap = new HashMap<>();
+        HashMap<String, Restaurant> hmap = new HashMap<>();
         for(Restaurant restaurant : restaurantManager){
             hmap.put(restaurant.getTrackingNumber(),restaurant);
         }
@@ -129,68 +254,46 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
-    private void downloadFile(String url, String filename) {
-        // create Retrofit instance
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL).build();
+    private void file_read_FromDownloadedInspections(String filename) {
+        FileInputStream fileInputStream = null;
 
-        FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
-        Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                //write the binary file to the disk
-                writeToFile(response.body(), filename);
-                Toast.makeText(RequireDownloadActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(RequireDownloadActivity.this, "Failed :(", Toast.LENGTH_SHORT).show();
-
-            }
-        });
-
-    }
-
-    private boolean writeToFile(ResponseBody body, String filename) {
-        InputStream inputStream = null;
-        FileOutputStream fileOutputStream = null;
-
+        String line = "";
         try {
-            fileOutputStream = openFileOutput(filename, MODE_PRIVATE);
-
-
-
-            byte[] fileReader = new byte[4096];
-            inputStream = body.byteStream();
-
-
-            while (true) {
-                int read = inputStream.read(fileReader);
-                if (read == -1) {
-                    break;
+            fileInputStream = openFileInput(filename);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, Charset.forName("UTF-8"));
+            BufferedReader reader = new BufferedReader(inputStreamReader);
+            // Step over headers
+            reader.readLine();
+            while ((!(line = reader.readLine()).equals(",,,,,,"))||((line = reader.readLine()) != null)) {
+                // Split line by ','
+                Log.d("TEST", line);
+                String[] parts = line.split("\"");
+                String[] tokens = parts[0].split(",");
+                String var_token5;
+                String var_token6 = "Low";
+                String ViolationDump;
+                if (parts.length==3) {
+                    ViolationDump = parts[1].replace(",","!");
+                    var_token5 = ViolationDump;
+                    var_token6 = parts[2].replace(","," ").trim();
+                } else {
+                    var_token5 = "No violations";
                 }
-                fileOutputStream.write(fileReader, 0, read);
+
+                RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
+                        tokens[2], tokens[3], tokens[4],
+                        var_token5, var_token6);
+
+                Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate()+" "+sample.getHazardRating());
+                for (Restaurant restaurant : restaurantManager) {
+                    if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
+                        restaurant.getRestaurantInspectionList().add(sample);
+                    }
+                }
             }
-            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
-            fileOutputStream.flush();
-            loadFileData();
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fileOutputStream != null) {
-                try {
-                    fileOutputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            Log.wtf("RESULT", "Error reading data file on line" + line, e);
         }
-        return true;
     }
 
 

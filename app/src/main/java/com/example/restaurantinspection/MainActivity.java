@@ -30,7 +30,6 @@ import androidx.fragment.app.DialogFragment;
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.Service.Feed;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.Service.FileDownloadClient;
 import com.example.restaurantinspection.model.Service.Resource;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
@@ -44,7 +43,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -56,11 +54,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         readRestaurantData();
-        readInspectionData();
+//        readDownloadedInspectionData();
 
         ///////////////////////////////////
         // TODO: testing work on using retrofit
@@ -105,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 //        {
 //            ShowUpdateDialog();
 //        }
-        //startActivity(new Intent(this, MapsActivity.class));
+//        startActivity(new Intent(this, MapsActivity.class));
 
 //        startActivity(new Intent(this, MapsActivity.class));
 
@@ -471,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void readInspectionData() {
+    private void readDownloadedInspectionData() {
         InputStream is = getResources().openRawResource(R.raw.fraserhealthrestaurantinspectionreports);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8)
