@@ -41,7 +41,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    public static final String FLOOFLOO = "MainActivity";
+    public static final String TAG_CHECK = "MainActivity";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
     private RestaurantManager restaurantManager;
@@ -75,8 +75,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
         Filetype.enqueue(new Callback<Feed>() {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(FLOOFLOO, "onResponse: Server Response" + response.toString());
-                Log.d(FLOOFLOO, "onResponse: received information: " + response.body().toString());
+                Log.d(TAG_CHECK, "onResponse: Server Response" + response.toString());
+                Log.d(TAG_CHECK, "onResponse: received information: " + response.body().toString());
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
                 // UI STUFF
@@ -86,7 +86,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
                 // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                Log.d(FLOOFLOO, "I got the url : " + url);
+                Log.d(TAG_CHECK, "I got the url : " + url);
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
                     downloadFile(url, RESTAURANTS_FILE_NAME);
                     fetchPackages(ID_INSPECTIONS);
@@ -98,7 +98,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(FLOOFLOO, "something went wrong " + t.getMessage());
+                Log.e(TAG_CHECK, "something went wrong " + t.getMessage());
                 Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });

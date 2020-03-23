@@ -22,7 +22,7 @@ public class DateManager {
         long dateDifference = TimeUnit.DAYS.convert(dateToday.getTime() - inspectionDate.getTime(), TimeUnit.MILLISECONDS);
 
         if(dateDifference < 30){
-            result = Long.toString(dateDifference);
+            result = Long.toString(dateDifference) + " days ago.";
         } else if (dateDifference > 30 && dateDifference < 365){
             result = new DateFormatSymbols().getMonths()[calendar.get(Calendar.MONTH)] + " " + calendar.get(Calendar.DAY_OF_MONTH);
         } else {
