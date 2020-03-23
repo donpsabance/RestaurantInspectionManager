@@ -63,9 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    public static final String TAG = "MainActivity";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
+    public static final String TAG = "MainActivity";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
@@ -103,14 +103,14 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //        startActivity(new Intent(this, MapsActivity.class));
 
-//        startActivity(new Intent(this, MapsActivity.class));
+        startActivity(new Intent(this, MapsActivity.class));
 
         loadRestaurants();
         registerClickFeedback();
         setupMagicButton();
         setUpMapButton();
         // does the downloading
-        checkForUpdates();
+//        checkForUpdates();
     }
     public boolean CompareTime()
     {

@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -28,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -43,19 +41,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    public static final String TAG = "MainActivity";
+    public static final String FLOOFLOO = "MainActivity";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
     private RestaurantManager restaurantManager;
-    private String given_url;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_require_download);
-         restaurantManager = RestaurantManager.getInstance();
-        Intent intent = getIntent();
-        given_url = intent.getStringExtra("RESTAURANT EXTRA");
+        restaurantManager = RestaurantManager.getInstance();
         registerClickCallback();
     }
 
@@ -78,8 +74,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
         Filetype.enqueue(new Callback<Feed>() {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(TAG, "onResponse: Server Response" + response.toString());
-                Log.d(TAG, "onResponse: received information: " + response.body().toString());
+                Log.d(FLOOFLOO, "onResponse: Server Response" + response.toString());
+                Log.d(FLOOFLOO, "onResponse: received information: " + response.body().toString());
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
                 // UI STUFF
@@ -89,7 +85,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
                 // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                Log.d(TAG, "I got the url : " + url);
+                Log.d(FLOOFLOO, "I got the url : " + url);
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
                     downloadFile(url, RESTAURANTS_FILE_NAME);
                     fetchPackages(ID_INSPECTIONS);
@@ -98,9 +94,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 }
                 // url_txt.setText(url);
             }
+
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(TAG, "something went wrong " + t.getMessage());
+                Log.e(FLOOFLOO, "something went wrong " + t.getMessage());
                 Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
@@ -190,9 +187,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }*/
 
     private void loadFile(String filename) {
-        if(filename.equalsIgnoreCase(RESTAURANTS_FILE_NAME)){
+        if (filename.equalsIgnoreCase(RESTAURANTS_FILE_NAME)) {
             file_read_FromDownloadedRestaurants(filename);
-        }else if (filename.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
+        } else if (filename.equalsIgnoreCase(INSPECTIONS_FILE_NAME)) {
             file_read_FromDownloadedInspections(filename);
         }
     }
@@ -200,8 +197,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private void file_read_FromDownloadedRestaurants(String filename) {
         FileInputStream fileInputStream = null;
         HashMap<String, Restaurant> hmap = new HashMap<>();
-        for(Restaurant restaurant : restaurantManager){
-            hmap.put(restaurant.getTrackingNumber(),restaurant);
+        for (Restaurant restaurant : restaurantManager) {
+            hmap.put(restaurant.getTrackingNumber(), restaurant);
         }
 
         int lines_read = 0;
@@ -222,7 +219,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         tokens[2], tokens[3], tokens[4],
                         tokens[5], tokens[6]);
 
-                if(!hmap.containsKey(tokens[0])){
+                if (!hmap.containsKey(tokens[0])) {
                     restaurantManager.add(sample);
                 }
 
@@ -231,11 +228,11 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 Log.d("LOAD", line);
             }
             int count = 0;
-            for(Restaurant restaurant: restaurantManager){
+            for (Restaurant restaurant : restaurantManager) {
                 count++;
                 Log.d("LISTING", restaurant.toString());
             }
-            Log.d("LISTING","final count: "+count);
+            Log.d("LISTING", "final count: " + count);
 
 
         } catch (FileNotFoundException e) {
@@ -264,18 +261,18 @@ public class RequireDownloadActivity extends AppCompatActivity {
             BufferedReader reader = new BufferedReader(inputStreamReader);
             // Step over headers
             reader.readLine();
-            while ((!(line = reader.readLine()).equals(",,,,,,"))||((line = reader.readLine()) != null)) {
+            while ((!(line = reader.readLine()).equals(",,,,,,")) || ((line = reader.readLine()) != null)) {
                 // Split line by ','
-                Log.d("TEST", line);
+                //Log.d("TEST", line);
                 String[] parts = line.split("\"");
                 String[] tokens = parts[0].split(",");
                 String var_token5;
                 String var_token6 = "Low";
                 String ViolationDump;
-                if (parts.length==3) {
-                    ViolationDump = parts[1].replace(",","!");
+                if (parts.length == 3) {
+                    ViolationDump = parts[1].replace(",", "!");
                     var_token5 = ViolationDump;
-                    var_token6 = parts[2].replace(","," ").trim();
+                    var_token6 = parts[2].replace(",", " ").trim();
                 } else {
                     var_token5 = "No violations";
                 }
@@ -284,7 +281,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         tokens[2], tokens[3], tokens[4],
                         var_token5, var_token6);
 
-                Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate()+" "+sample.getHazardRating());
+                Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
                 for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
@@ -298,7 +295,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
 
     public static Intent makeIntent(Context context) {
-        Intent intent = new Intent (context, RequireDownloadActivity.class);
+        Intent intent = new Intent(context, RequireDownloadActivity.class);
         return intent;
     }
 }

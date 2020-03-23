@@ -21,6 +21,10 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Service.Feed;
+import com.example.restaurantinspection.model.Service.Resource;
+import com.example.restaurantinspection.model.Service.ServiceGenerator;
+import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -40,9 +44,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    private static final String BASE_URL = "http://data.surrey.ca/";
+    private static final String ID_RESTAURANTS = "restaurants";
+    private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
+    private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
+    private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
+    private static final String SERVER_TAG = "SERVER UPDATE: ";
 
     public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
     private final String LOG_TAG = "RESTAURANT INSPECTION: ";
@@ -105,6 +121,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //make sure we have permission to do anything with location first
         getPermissions();
+        // does the downloading
+        checkForUpdates();
     }
 
 
@@ -310,5 +328,60 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 m.showInfoWindow();
             }
         }
+    }
+
+    private void checkForUpdates() {
+        fetchPackages(ID_RESTAURANTS);
+    }
+
+    private void fetchPackages(String typeID) {
+
+        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
+        Call<Feed> call = surrey_data_api.getData(typeID);
+        ExtractInfo(call, typeID);
+
+    }
+
+    private void ExtractInfo(Call<Feed> Filetype, String type) {
+        Filetype.enqueue(new Callback<Feed>() {
+            @Override
+            public void onResponse(Call<Feed> call, Response<Feed> response) {
+                Log.d(SERVER_TAG, "onResponse: Server Response" + response.toString());
+                Log.d(SERVER_TAG, "onResponse: received information: " + response.body().toString());
+
+                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
+                // UI STUFF
+                String format = ResourceList.get(0).getFormat();
+                String url = ResourceList.get(0).getUrl();
+                String date_last_modified = ResourceList.get(0).getDate_last_modified();
+                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
+                if(type.equalsIgnoreCase(ID_RESTAURANTS)){
+                    // Todo check time here;
+                    if(true){
+                        //startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
+                    }
+                    fetchPackages(ID_INSPECTIONS);
+                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)){
+                    // Todo check time here;
+                    if(true){
+                        startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
+                    }
+                }
+                // if it reaches here load whatever is in local storage
+/*                // END OF UI STUFF
+                Log.d(TAG, "I got the url : " + url);
+                if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
+                    downloadFile(url, INSPECTIONS_FILE_NAME);
+                } else {
+                    downloadFile(url, RESTAURANTS_FILE_NAME);
+                }*/
+            }
+
+            @Override
+            public void onFailure(Call<Feed> call, Throwable t) {
+                Log.e(SERVER_TAG, "something went wrong " + t.getMessage());
+                Toast.makeText(MapsActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
