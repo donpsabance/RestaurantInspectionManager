@@ -461,7 +461,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void readInspectionData() {
-        InputStream is = getResources().openRawResource(R.raw.new_inspections);
+        InputStream is = getResources().openRawResource(R.raw.fraserhealthrestaurantinspectionreports);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8)
         );
@@ -469,22 +469,27 @@ public class MainActivity extends AppCompatActivity {
         try {
             // Step over headers
             reader.readLine();
-            while ((line = reader.readLine()) != null) {
+            while ((!(line = reader.readLine()).equals(",,,,,,"))||((line = reader.readLine()) != null)) {
                 // Split line by ','
                 Log.d("TEST", line);
-
-                String[] tokens = line.split(",");
+                String[] parts = line.split("\"");
+                String[] tokens = parts[0].split(",");
                 String var_token5;
-                if (tokens.length >= 7 && tokens[5].length() > 0) {
-                    var_token5 = tokens[5];
+                String var_token6 = "Low";
+                String ViolationDump;
+                if (parts.length==3) {
+                    ViolationDump = parts[1].replace(",","!");
+                    var_token5 = ViolationDump;
+                    var_token6 = parts[2].replace(","," ").trim();
                 } else {
                     var_token5 = "No violations";
                 }
 
+
                 RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
-                        var_token5, tokens[6]);
-                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
+                        var_token5, var_token6);
+                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate()+" "+sample.getHazardRating());
                 for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
