@@ -13,6 +13,7 @@ import java.util.List;
 public class RestaurantManager implements Iterable<Restaurant> {
     private List<Restaurant> restaurantList = new ArrayList<>();
     private static RestaurantManager instance;
+    private boolean isExtraDataLoaded = false;
 
     //singleton model
     public static RestaurantManager getInstance(){
@@ -34,5 +35,13 @@ public class RestaurantManager implements Iterable<Restaurant> {
     @Override
     public Iterator<Restaurant> iterator() {
         return restaurantList.iterator();
+    }
+
+    public boolean isExtraDataLoaded() {
+        return isExtraDataLoaded;
+    }
+
+    public void setExtraDataLoaded(boolean extraDataLoaded) {
+        isExtraDataLoaded = extraDataLoaded;
     }
 }

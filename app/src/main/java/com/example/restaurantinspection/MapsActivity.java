@@ -331,7 +331,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void checkForUpdates() {
-        fetchPackages(ID_RESTAURANTS);
+        if(restaurantManager.isExtraDataLoaded()){
+            return;
+        } else{
+            fetchPackages(ID_RESTAURANTS);
+        }
     }
 
     private void fetchPackages(String typeID) {

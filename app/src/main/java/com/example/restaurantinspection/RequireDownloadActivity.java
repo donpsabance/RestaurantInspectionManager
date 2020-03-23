@@ -58,6 +58,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private void registerClickCallback() {
         Button btn = findViewById(R.id.btn_load);
         btn.setOnClickListener(v -> {
+            restaurantManager.setExtraDataLoaded(true);
             fetchPackages(ID_RESTAURANTS);
         });
     }
