@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
@@ -62,8 +63,12 @@ public class RestaurantActivity extends AppCompatActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
+                Toast.makeText(RestaurantActivity.this, "You clicked" + restaurantIndex, Toast.LENGTH_SHORT).show();
+
                 Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
-                startActivity(intent);
+                startActivityForResult(intent, 101);
             }
         });
     }
@@ -146,7 +151,7 @@ public class RestaurantActivity extends AppCompatActivity {
                 criticalText.setText(numCriticalstr);
                 nonCriticalText.setText(numNonCriticalstr);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-            }
+            } restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
             return itemView;
         }
 

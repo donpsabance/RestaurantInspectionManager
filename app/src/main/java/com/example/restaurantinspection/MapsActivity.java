@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -33,8 +34,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
@@ -60,6 +63,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final String LOG_TAG = "RESTAURANT INSPECTION: ";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private int restaurantIndex;
+    private Restaurant clickRestaurant;
 
     private GoogleMap mMap;
     private HashMap<Restaurant, Integer> mHashMap = new HashMap<>();
@@ -83,11 +87,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return intent;
     }
 
-    //get selected restaurant from Restaurant Activity
-    private void extractDatafromIntent() {
-        Intent intent = getIntent();
-        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, Integer.MAX_VALUE);
-    }
 
     private void startLocationUpdates() {
 
@@ -151,7 +150,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         setUpClusterManager();
+        setUpInfoWindows();
+    }
 
+    private void setUpInfoWindows() {
         //Create customized info window view
         mClusterManager.getMarkerCollection().setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override
@@ -185,10 +187,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 startActivity(intent);
             }
         });
-
-        extractDatafromIntent();
-        displayInfoWindow();
-
     }
 
     private void setUpClusterManager() {
@@ -227,6 +225,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         return restaurants;
     }
+
+
 
 
     public void loadMap() {
@@ -314,14 +314,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    //display selected restaurant's info window
-    private void displayInfoWindow() {
-        for (Marker m : mClusterManager.getMarkerCollection().getMarkers()) {
-            if (restaurantIndex == mHashMap.get(m)) {
-                m.showInfoWindow();
-            }
-        }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        extractDatafromIntent();
+        displayInfoWindow();
+
     }
+
+    //get selected restaurant from Restaurant Activity
+    private void extractDatafromIntent() {
+        Intent intent = getIntent();
+        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
+        clickRestaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
+    }
+
+    private void displayInfoWindow() {
+        //TODO: Display selected restaurant's info window
+    }
+
 
     private void checkForUpdates() {
         if (restaurantManager.isExtraDataLoaded()) {
