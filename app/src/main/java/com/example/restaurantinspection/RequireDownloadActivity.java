@@ -64,9 +64,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
         setViews();
         btnStartDownload = findViewById(R.id.btn_download_from_web);
         registerClickCallback();
-//        check_For_Updates(ID_RESTAURANTS);
+        check_For_Updates(ID_RESTAURANTS);
 
-        justLoadWhateverInStorage();
+//        justLoadWhateverInStorage();
     }
 
     private void justLoadWhateverInStorage() {
@@ -102,14 +102,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
 
-
-    private void fetchPackages(String typeID) {
-
-        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
-        Call<Feed> call = surrey_data_api.getData(typeID);
-        ExtractInfo(call, typeID);
-
-    }
 
     private void check_For_Updates(String typeID) {
 
@@ -160,6 +152,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
         });
     }
 
+    private void fetchPackages(String typeID) {
+
+        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
+        Call<Feed> call = surrey_data_api.getData(typeID);
+        ExtractInfo(call, typeID);
+
+    }
+
     private void ExtractInfo(Call<Feed> Filetype, String type) {
         Filetype.enqueue(new Callback<Feed>() {
             @Override
@@ -199,14 +199,20 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 //write the binary file to the disk
+/*                new AsyncTask<Void,Void,Void>(){
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        writeToFile(response.body(), filename);
+                        return null;
+                    }
+                }.execute();*/
                 writeToFile(response.body(), filename);
-                Toast.makeText(RequireDownloadActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(RequireDownloadActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Toast.makeText(RequireDownloadActivity.this, "Failed :(", Toast.LENGTH_SHORT).show();
-
             }
         });
 
@@ -231,7 +237,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 }
                 fileOutputStream.write(fileReader, 0, read);
             }
-            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
+//            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
             fileOutputStream.flush();
             startLoading(filename);
             return true;
@@ -255,6 +261,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected Void doInBackground(Void... voids) {
                 loadFile(filname);
                 return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                if(filname.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
+                    RequireDownloadActivity.this.finish();
+                }
             }
         }.execute();
     }
@@ -377,7 +391,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
                     }
                 }*/
             }
-            finish();
         } catch (IOException e) {
             Log.wtf("RESULT", "Error reading data file on line" + line, e);
         }
