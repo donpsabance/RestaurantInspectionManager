@@ -25,4 +25,9 @@
     <string name="inspection_type">Inspection type:</string>
     <string name="non_crit_issuesmessage">Non critical issues:</string>
     <string name="title_activity_maps">Map</string>
+    <string name="default_time">0000–00-00T00:00:00.000000</string>>
+    <string name="Last_Modified_time">The time is %1$s</string>>
+    <string name="Update">Do you want to update the new inspection?</string>>
+    <string name="Yes">Yes</string>>
+    <string name="No">No</string>>
 </resources>
