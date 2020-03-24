@@ -47,21 +47,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String BASE_URL = "http://data.surrey.ca/";
-    private static final String ID_RESTAURANTS = "restaurants";
-    private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
-    private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private ArrayAdapter<Restaurant> arrayAdapter;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,16 +78,6 @@ public class MainActivity extends AppCompatActivity {
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
-    }
-    public boolean CompareTime()
-    {
-        String UserLastModifiedTime = ReadUserTime();
-        Log.d("Time",UserLastModifiedTime);
-        String CurrentTime = ReadWebTime();
-        UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
-        CurrentTime = TakeDataTime(CurrentTime);
-        return GetHourDifference(CurrentTime, UserLastModifiedTime) > 200000;
-
     }
 
     public static class UpdateDialog extends DialogFragment
@@ -307,6 +290,11 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is, StandardCharsets.UTF_8)
         );
+        HashMap<String,Restaurant> hmap = new HashMap<>();
+        for(Restaurant r : restaurantManager){
+            hmap.put(r.getTrackingNumber(),r);
+        }
+
         String line = "";
         try {
             // Step over headers
@@ -327,12 +315,15 @@ public class MainActivity extends AppCompatActivity {
                         tokens[2], tokens[3], tokens[4],
                         var_token5, tokens[6]);
                 Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
+                if(hmap.containsKey(sample.getTrackingNumber())){
 
-                for (Restaurant restaurant : restaurantManager) {
+                    hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
+                }
+/*                for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
                     }
-                }
+                }*/
             }
         } catch (IOException e) {
             Log.wtf(MAIN_ACTIVITY_TAG, "Error reading data file on line" + line, e);
@@ -354,6 +345,15 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
+    }
+
+    public boolean CompareTime(String data_last_modified_web)
+    {
+        String UserLastModifiedTime = ReadUserTime();
+        Log.d("Time",UserLastModifiedTime);
+        UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
+        String WebLastModifiedTime = TakeDataTime(data_last_modified_web);
+        return GetHourDifference(WebLastModifiedTime, UserLastModifiedTime) > 200000;
     }
 
     private String ReadUserTime(){

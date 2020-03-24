@@ -4,10 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.restaurantinspection.model.Restaurant;
@@ -26,7 +29,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -46,22 +51,57 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
     private RestaurantManager restaurantManager;
 
+    private Button btnStartDownload;
+    private Button btnLoadFromStorage;
+    private TextView textview_want_downloadMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_require_download);
         restaurantManager = RestaurantManager.getInstance();
+        restaurantManager.setExtraDataLoaded(true);
+        setViews();
+        btnStartDownload = findViewById(R.id.btn_download_from_web);
         registerClickCallback();
+//        check_For_Updates(ID_RESTAURANTS);
+
+        justLoadWhateverInStorage();
     }
 
+    private void justLoadWhateverInStorage() {
+
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
+                file_read_FromDownloadedInspections(INSPECTIONS_FILE_NAME);
+                return null;
+            }
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                RequireDownloadActivity.this.finish();
+            }
+        }.execute();
+    }
+
+
+
     private void registerClickCallback() {
-        Button btn = findViewById(R.id.btn_load);
-        btn.setOnClickListener(v -> {
-            restaurantManager.setExtraDataLoaded(true);
+        btnStartDownload.setOnClickListener(v -> {
             fetchPackages(ID_RESTAURANTS);
         });
+
+        btnLoadFromStorage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                justLoadWhateverInStorage();
+            }
+        });
     }
+
+
 
     private void fetchPackages(String typeID) {
 
@@ -71,12 +111,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
     }
 
-    private void ExtractInfo(Call<Feed> Filetype, String type) {
+    private void check_For_Updates(String typeID) {
+
+        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
+        Call<Feed> call = surrey_data_api.getData(typeID);
+        ExtractInfo2_checkForUpdate(call, typeID);
+    }
+
+    private void ExtractInfo2_checkForUpdate(Call<Feed> Filetype, String type) {
         Filetype.enqueue(new Callback<Feed>() {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(TAG_CHECK, "onResponse: Server Response" + response.toString());
-                Log.d(TAG_CHECK, "onResponse: received information: " + response.body().toString());
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
                 // UI STUFF
@@ -86,14 +131,53 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
                 // END OF UI STUFF
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                Log.d(TAG_CHECK, "I got the url : " + url);
+                if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
+                    // Todo check time here;
+                    if (CompareTime(date_last_modified)) {
+                        Log.d("PRAY TO GOD", "IM WHERE I WANTED TO BE");
+//                        btnStartDownload.setVisibility(View.VISIBLE);
+                        setVisibilities(View.VISIBLE);
+                        return;
+                    }
+                    check_For_Updates(ID_INSPECTIONS);
+                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
+                    // Todo check time here;
+                    if (CompareTime(date_last_modified)) {
+                        setVisibilities(View.VISIBLE);
+                        return;
+                    }
+                }
+                // Todo:
+                // if it reaches here load whatever is in local storage
+                justLoadWhateverInStorage();
+
+            }
+            @Override
+            public void onFailure(Call<Feed> call, Throwable t) {
+                Log.e(TAG_CHECK, "something went wrong " + t.getMessage());
+                Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void ExtractInfo(Call<Feed> Filetype, String type) {
+        Filetype.enqueue(new Callback<Feed>() {
+            @Override
+            public void onResponse(Call<Feed> call, Response<Feed> response) {
+
+                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
+                // UI STUFF
+                String format = ResourceList.get(0).getFormat();
+                String url = ResourceList.get(0).getUrl();
+                String date_last_modified = ResourceList.get(0).getDate_last_modified();
+
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
                     downloadFile(url, RESTAURANTS_FILE_NAME);
                     fetchPackages(ID_INSPECTIONS);
                 } else {
                     downloadFile(url, INSPECTIONS_FILE_NAME);
+                    WriteUserTime(date_last_modified);
                 }
-                // url_txt.setText(url);
             }
 
             @Override
@@ -249,12 +333,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void file_read_FromDownloadedInspections(String filename) {
-        FileInputStream fileInputStream = null;
 
+        HashMap<String,Restaurant> hmap = new HashMap<>();
+        for(Restaurant r : restaurantManager){
+            hmap.put(r.getTrackingNumber(),r);
+        }
+
+        FileInputStream fileInputStream = null;
         String line = "";
         try {
             fileInputStream = openFileInput(filename);
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, Charset.forName("UTF-8"));
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream, StandardCharsets.UTF_8);
             BufferedReader reader = new BufferedReader(inputStreamReader);
             // Step over headers
             reader.readLine();
@@ -279,17 +368,83 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         var_token5, var_token6);
 
                 Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
-                for (Restaurant restaurant : restaurantManager) {
+                if(hmap.containsKey(sample.getTrackingNumber())){
+                    hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
+                }
+/*                for (Restaurant restaurant : restaurantManager) {
                     if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
                         restaurant.getRestaurantInspectionList().add(sample);
                     }
-                }
+                }*/
             }
+            finish();
         } catch (IOException e) {
             Log.wtf("RESULT", "Error reading data file on line" + line, e);
         }
     }
 
+    public boolean CompareTime(String data_last_modified_web)
+    {
+        String UserLastModifiedTime = ReadUserTime();
+        Log.d("Time",UserLastModifiedTime);
+        UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
+        String WebLastModifiedTime = TakeDataTime(data_last_modified_web);
+        return GetHourDifference(WebLastModifiedTime, UserLastModifiedTime) > 200000;
+    }
+
+    private String ReadUserTime(){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        return LastModifiedTimeFile.getString("User_Last_Modified_time",DefaultTime);
+    }
+
+    private String ReadWebTime(){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        return LastModifiedTimeFile.getString("Web_Last_Modified_time",DefaultTime);
+    }
+
+    private void WriteUserTime(String date){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
+        editor.putString("User_Last_Modified_time",date);
+        editor.apply();
+    }
+
+    private void WriteWebTime(String date){
+        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
+        String DefaultTime = getResources().getString(R.string.default_time);
+        SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
+        editor.putString("Web_Last_Modified_time",date);
+        editor.apply();
+    }
+
+    private String TakeDataTime(String date){
+        if(date != null)
+        {
+            date = date.replaceAll("[^0-9]","").trim();
+            date = date.substring(0,14);
+        }
+        return date;
+    }
+
+    private double GetHourDifference(String date1, String date2) {
+        BigDecimal Date1 = new BigDecimal(date1);
+        BigDecimal Date2 = new BigDecimal(date2);
+        return (Date1.subtract(Date2).doubleValue()+1.0);
+    }
+    private void setViews() {
+        btnStartDownload = findViewById(R.id.btn_download_from_web);
+        btnLoadFromStorage = findViewById(R.id.btn_load_from_storage);
+        textview_want_downloadMsg = findViewById(R.id.txt_newDownloadAvailable);
+    }
+    private void setVisibilities(int visibility){
+        btnStartDownload.setVisibility(visibility);
+        btnLoadFromStorage.setVisibility(visibility);
+        textview_want_downloadMsg.setVisibility(visibility);
+
+    }
 
     public static Intent makeIntent(Context context) {
         Intent intent = new Intent(context, RequireDownloadActivity.class);
