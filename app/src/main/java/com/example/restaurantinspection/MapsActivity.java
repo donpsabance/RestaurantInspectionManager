@@ -33,16 +33,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -63,8 +62,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int restaurantIndex;
 
     private GoogleMap mMap;
-    private final HashMap<Marker, Integer> mHashMap = new HashMap<>();
+    private HashMap<Restaurant, Integer> mHashMap = new HashMap<>();
     private ClusterManager<Restaurant> mClusterManager;
+    private List<Restaurant> restaurants = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
@@ -135,6 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+
         if (locationPermission) {
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
@@ -149,102 +150,84 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             startLocationUpdates();
         }
 
-        //create cluster
-        mClusterManager = new ClusterManager<>(this, mMap);
-        mMap.setOnCameraIdleListener(mClusterManager);
-        mMap.setOnMarkerClickListener(mClusterManager);
+        setUpClusterManager();
 
-
-        //display pegs showing the location of each restaurant we have data for.
-        int restaurantIndex = 0;
-        for (final Restaurant r : restaurantManager) {
-            double lat = Double.parseDouble(r.getLatitude());
-            double lon = Double.parseDouble(r.getLongitude());
-            LatLng restaurantPos = r.getPosition();
-            String restaruantName = r.getName();
-            String restSnippet = r.getSnippet();
-
-            //get most recent inspection
-            if (r.getRestaurantInspectionList().size() != 0) {
-
-                //set peg color to hazard level
-                String hazardLevel = r.getRestaurantInspectionList().get(0).getHazardRating();
-
-                if (hazardLevel.equalsIgnoreCase("LOW")) {
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(restaurantPos)
-                            .title(restaruantName)
-                            .snippet(restSnippet)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                    mHashMap.put(marker, restaurantIndex);
-
-                } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(restaurantPos)
-                            .title(restaruantName)
-                            .snippet(restSnippet)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                    mHashMap.put(marker, restaurantIndex);
-
-                } else {
-                    Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(restaurantPos)
-                            .title(restaruantName)
-                            .snippet(restSnippet)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                    mHashMap.put(marker, restaurantIndex);
-                }
-
-                //Zoom map for view
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurantPos, 10f));
-
-                //Create customized info window view
-                mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-                    @Override
-                    public View getInfoWindow(Marker marker) {
-                        return null;
-                    }
-
-                    @Override
-                    public View getInfoContents(Marker marker) {
-                        View view = getLayoutInflater().inflate(R.layout.custom_info_window, null);
-
-                        TextView restaurantName = view.findViewById(R.id.restName);
-                        TextView restaurantAddr = view.findViewById(R.id.restSnippet);
-
-                        restaurantName.setText(marker.getTitle());
-                        restaurantAddr.setText(marker.getSnippet());
-
-                        return view;
-                    }
-                });
-
-                //Start Restaurant Activity upon clicking info window
-                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                    @Override
-                    public void onInfoWindowClick(Marker marker) {
-
-                        Toast.makeText(MapsActivity.this, "You clicked " + marker.getTitle(), Toast.LENGTH_SHORT).show();
-                        int pos = mHashMap.get(marker);
-
-                        //start restaurant activity
-                        Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
-                        startActivity(intent);
-                    }
-                });
-
-                Restaurant markerItem = new Restaurant(lat, lon, r.getTitle(), r.getSnippet());
-                mClusterManager.addItem(markerItem);
+        //Create customized info window view
+        mClusterManager.getMarkerCollection().setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
             }
-            restaurantIndex++;
-        }
 
+            @Override
+            public View getInfoContents(Marker marker) {
+                View view = getLayoutInflater().inflate(R.layout.custom_info_window, null);
 
+                TextView restaurantName = view.findViewById(R.id.restName);
+                TextView restaurantAddr = view.findViewById(R.id.restSnippet);
+
+                restaurantName.setText(marker.getTitle());
+                restaurantAddr.setText(marker.getSnippet());
+
+                return view;
+            }
+        });
+
+        //Start Restaurant Activity upon clicking info window
+        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                Restaurant restaurant = (Restaurant) marker.getTag();
+                int pos = mHashMap.get(restaurant);
+
+                //start restaurant activity
+                Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
+                startActivity(intent);
+            }
+        });
 
         extractDatafromIntent();
         displayInfoWindow();
 
     }
+
+    private void setUpClusterManager() {
+        mClusterManager = new ClusterManager(this, mMap);
+        mClusterManager.setRenderer(new MarkerClusterRenderer(this, mMap, mClusterManager));
+        mMap.setOnCameraIdleListener(mClusterManager);
+        mMap.setOnMarkerClickListener(mClusterManager);
+        List<Restaurant> items = getRestaurants();
+        mClusterManager.addItems(items);
+        mClusterManager.cluster();
+    }
+
+
+    private List<Restaurant> getRestaurants() {
+
+        int resIndex = 0;
+        for (Restaurant r : restaurantManager
+        ) {
+            if (r.getRestaurantInspectionList().size() != 0) {
+                double lat = Double.parseDouble(r.getLatitude());
+                double lon = Double.parseDouble(r.getLongitude());
+                LatLng restaurantPos = new LatLng(lat, lon);
+                String restaurantTitle = r.getName();
+
+                String restHazard = r.getRestaurantInspectionList().get(0).getHazardRating();
+                String restaurantSnippet = r.getAddress() + "\n" + "Hazard Rating: " + restHazard;
+
+                Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet);
+                restaurants.add(restaurantItem);
+
+                mHashMap.put(restaurantItem, resIndex);
+
+            }
+
+            resIndex++;
+        }
+        return restaurants;
+    }
+
 
     public void loadMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -333,7 +316,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //display selected restaurant's info window
     private void displayInfoWindow() {
-        for (Marker m : mHashMap.keySet()) {
+        for (Marker m : mClusterManager.getMarkerCollection().getMarkers()) {
             if (restaurantIndex == mHashMap.get(m)) {
                 m.showInfoWindow();
             }
