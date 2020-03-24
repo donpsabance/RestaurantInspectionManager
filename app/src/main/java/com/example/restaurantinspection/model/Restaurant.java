@@ -1,5 +1,8 @@
 package com.example.restaurantinspection.model;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +14,7 @@ import java.util.List;
  * of associated inspections.
  */
 
-public class Restaurant {
+public class Restaurant implements ClusterItem {
 
     private List<RestaurantInspection> restaurantInspectionList = new ArrayList<>();
 
@@ -22,6 +25,9 @@ public class Restaurant {
     private String facilityType;
     private String latitude;
     private String longitude;
+    private LatLng mPosition;
+    private String mTitle;
+    private String mSnippet;
 
     public Restaurant(String trackingNumber, String name, String address, String city,
                       String facilityType, String latitude, String longitude) {
@@ -32,6 +38,12 @@ public class Restaurant {
         this.facilityType = facilityType;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public Restaurant(double lat, double lon, String title, String snippet){
+        mPosition = new LatLng(lat, lon);
+        mTitle = title;
+        mSnippet = snippet;
     }
 
     public List<RestaurantInspection> getRestaurantInspectionList() {
@@ -73,5 +85,24 @@ public class Restaurant {
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
                 '}';
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return mPosition;
+    }
+
+    @Override
+    public String getTitle() {
+        return getName();
+    }
+
+    @Override
+    public String getSnippet() {
+        if(this.getRestaurantInspectionList().size() != 0) {
+            return address + "\n" + "Hazard Rating: " + this.getRestaurantInspectionList().get(0).getHazardRating();
+        }else{
+            return null;
+        }
     }
 }

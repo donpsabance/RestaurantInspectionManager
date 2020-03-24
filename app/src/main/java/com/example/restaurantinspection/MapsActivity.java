@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -33,16 +31,15 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,6 +64,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private final HashMap<Marker, Integer> mHashMap = new HashMap<>();
+    private ClusterManager<Restaurant> mClusterManager;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
@@ -107,7 +105,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for (Location location : locationResult.getLocations()) {
                     moveMapFocus(new LatLng(location.getLatitude(), location.getLongitude()), DEFAULT_ZOOM);
                 }
-            };
+            }
+
+            ;
         };
 
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
@@ -129,21 +129,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * This is where we can add markers or lines, add listeners or move the camera.
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        if(locationPermission){
+        if (locationPermission) {
 
-            if(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED) {
 
                 return;
             }
@@ -153,45 +149,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             startLocationUpdates();
         }
 
+        //create cluster
+        mClusterManager = new ClusterManager<>(this, mMap);
+        mMap.setOnCameraIdleListener(mClusterManager);
+        mMap.setOnMarkerClickListener(mClusterManager);
+
+
         //display pegs showing the location of each restaurant we have data for.
-        int i = 0;
+        int restaurantIndex = 0;
         for (final Restaurant r : restaurantManager) {
-            double latitude = Double.parseDouble(r.getLatitude());
-            double longitude = Double.parseDouble(r.getLongitude());
-            final LatLng restaurant = new LatLng(latitude, longitude);
+            double lat = Double.parseDouble(r.getLatitude());
+            double lon = Double.parseDouble(r.getLongitude());
+            LatLng restaurantPos = r.getPosition();
             String restaruantName = r.getName();
-            String addr = r.getAddress();
+            String restSnippet = r.getSnippet();
 
             //get most recent inspection
             if (r.getRestaurantInspectionList().size() != 0) {
 
                 //set peg color to hazard level
                 String hazardLevel = r.getRestaurantInspectionList().get(0).getHazardRating();
+
                 if (hazardLevel.equalsIgnoreCase("LOW")) {
                     Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(restaurant)
+                            .position(restaurantPos)
                             .title(restaruantName)
-                            .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
+                            .snippet(restSnippet)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                    mHashMap.put(marker, i);
+                    mHashMap.put(marker, restaurantIndex);
+
                 } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
                     Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(restaurant)
+                            .position(restaurantPos)
                             .title(restaruantName)
-                            .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
+                            .snippet(restSnippet)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-                    mHashMap.put(marker, i);
+                    mHashMap.put(marker, restaurantIndex);
+
                 } else {
                     Marker marker = mMap.addMarker(new MarkerOptions()
-                            .position(restaurant)
+                            .position(restaurantPos)
                             .title(restaruantName)
-                            .snippet(addr + "\n" + "Hazard Rating: " + hazardLevel)
+                            .snippet(restSnippet)
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-                    mHashMap.put(marker, i);
+                    mHashMap.put(marker, restaurantIndex);
                 }
 
                 //Zoom map for view
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurant, 10f));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurantPos, 10f));
 
                 //Create customized info window view
                 mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -222,20 +227,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Toast.makeText(MapsActivity.this, "You clicked " + marker.getTitle(), Toast.LENGTH_SHORT).show();
                         int pos = mHashMap.get(marker);
 
-//                        start restaurant activity
+                        //start restaurant activity
                         Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
                         startActivity(intent);
                     }
                 });
+
+                Restaurant markerItem = new Restaurant(lat, lon, r.getTitle(), r.getSnippet());
+                mClusterManager.addItem(markerItem);
             }
-            i++;
+            restaurantIndex++;
         }
+
+
 
         extractDatafromIntent();
         displayInfoWindow();
+
     }
 
-    public void loadMap(){
+    public void loadMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
@@ -243,13 +254,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //Followed video tutorials
     //https://www.youtube.com/watch?v=Vt6H9TOmsuo&list=PLgCYzUzKIBE-vInwQhGSdnbyJ62nixHCt&index=4
-    private void getPermissions(){
+    private void getPermissions() {
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
 
-        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),
-                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
                 //they already have permissions, load the map
                 locationPermission = true;
@@ -259,22 +270,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } else {
                 ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_CODE);
             }
-        }
-        else {
+        } else {
             ActivityCompat.requestPermissions(this, permissions, LOCATION_PERMISSION_CODE);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results){
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
 
         locationPermission = false;
-        switch (requestCode){
+        switch (requestCode) {
             case LOCATION_PERMISSION_CODE: {
 
-                if(results.length > 0){
-                    for(int i : results){
-                        if(i != PackageManager.PERMISSION_GRANTED){
+                if (results.length > 0) {
+                    for (int i : results) {
+                        if (i != PackageManager.PERMISSION_GRANTED) {
                             return;
                         }
                     }
@@ -287,17 +297,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void getDeviceLocation(){
+    private void getDeviceLocation() {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        try{
+        try {
 
-            if(locationPermission){
+            if (locationPermission) {
                 final Task location = fusedLocationProviderClient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Location currentLocation = (Location) task.getResult();
 
                             moveMapFocus(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
@@ -308,13 +318,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
             }
-        } catch(SecurityException securityException){
+        } catch (SecurityException securityException) {
 
             Log.wtf(LOG_TAG, "ERROR: " + securityException.getStackTrace());
         }
     }
 
-    private void moveMapFocus(LatLng latLng, float zoom){
+    private void moveMapFocus(LatLng latLng, float zoom) {
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
         mMap.animateCamera(cameraUpdate);
@@ -331,9 +341,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void checkForUpdates() {
-        if(restaurantManager.isExtraDataLoaded()){
+        if (restaurantManager.isExtraDataLoaded()) {
             return;
-        } else{
+        } else {
             fetchPackages(ID_RESTAURANTS);
         }
     }
@@ -359,15 +369,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
                 //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                if(type.equalsIgnoreCase(ID_RESTAURANTS)){
+                if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
                     // Todo check time here;
-                    if(true){
+                    if (true) {
                         //startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
                     }
                     fetchPackages(ID_INSPECTIONS);
-                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)){
+                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
                     // Todo check time here;
-                    if(true){
+                    if (true) {
                         startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
                     }
                 }
