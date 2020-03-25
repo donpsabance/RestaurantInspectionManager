@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Service.CheckInternet;
 import com.example.restaurantinspection.model.Service.Feed;
 import com.example.restaurantinspection.model.Service.FileDownloadClient;
 import com.example.restaurantinspection.model.Service.Resource;
@@ -68,9 +70,13 @@ public class RequireDownloadActivity extends AppCompatActivity {
         restaurantManager = RestaurantManager.getInstance();
         restaurantManager.setExtraDataLoaded(true);
         setViews();
-        btnStartDownload = findViewById(R.id.btn_download_from_web);
         registerClickCallback();
-        check_For_Updates(ID_RESTAURANTS);
+
+        if(CheckInternet.getConnectionType(this)){
+            check_For_Updates(ID_RESTAURANTS);
+        }else{
+            justLoadWhateverInStorage();
+        }
     }
 
     private void justLoadWhateverInStorage() {
@@ -85,10 +91,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-                for (Restaurant restaurant : restaurantManager) {
-                    Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-                }
                 RequireDownloadActivity.this.finish();
             }
         }.execute();
@@ -301,10 +303,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 if(filname.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
-                    restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-                    for (Restaurant restaurant : restaurantManager) {
-                        Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-                    }
                     RequireDownloadActivity.this.finish();
                 }
             }
@@ -499,6 +497,5 @@ public class RequireDownloadActivity extends AppCompatActivity {
         Intent intent = new Intent(context, RequireDownloadActivity.class);
         return intent;
     }
-
 
 }
