@@ -76,7 +76,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void justLoadWhateverInStorage() {
-
+        LoadingDialog();
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -175,7 +175,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 }
                 // Todo:
                 // if it reaches here load whatever is in local storage
-                //justLoadWhateverInStorage();
+                justLoadWhateverInStorage();
 
             }
             @Override
@@ -228,20 +228,19 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 .baseUrl(BASE_URL).build();
 
         FileDownloadClient fileDownloadClient = retrofit.create(FileDownloadClient.class);
-        Call<ResponseBody> call = fileDownloadClient.downloadFile(url);
+        Call<ResponseBody> call = fileDownloadClient.downloadFileStream(url);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 //write the binary file to the disk
-/*                new AsyncTask<Void,Void,Void>(){
+                new AsyncTask<Void,Void,Void>(){
                     @Override
                     protected Void doInBackground(Void... voids) {
                         writeToFile(response.body(), filename);
                         return null;
                     }
-                }.execute();*/
-                writeToFile(response.body(), filename);
-                //Toast.makeText(RequireDownloadActivity.this, "success! :)", Toast.LENGTH_SHORT).show();
+                }.execute();
+
             }
 
             @Override
@@ -271,7 +270,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 }
                 fileOutputStream.write(fileReader, 0, read);
             }
-//            Toast.makeText(this, "Wrote to " + getFilesDir() + "/" + filename, Toast.LENGTH_LONG).show();
             fileOutputStream.flush();
             startLoading(filename);
             return true;
@@ -357,12 +355,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 Log.d("LOAD", line);
             }
             int count = 0;
-            for (Restaurant restaurant : restaurantManager) {
-                count++;
-                Log.d("LISTING", restaurant.toString());
-            }
             Log.d("LISTING", "final count: " + count);
-
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -427,6 +420,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
             }
         } catch (IOException e) {
             Log.wtf("RESULT", "Error reading data file on line" + line, e);
+        }   finally{
+            if (fileInputStream != null) {
+                try {
+                    fileInputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
