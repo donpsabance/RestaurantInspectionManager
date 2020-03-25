@@ -71,8 +71,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         btnStartDownload = findViewById(R.id.btn_download_from_web);
         registerClickCallback();
         check_For_Updates(ID_RESTAURANTS);
-
-        //justLoadWhateverInStorage();
     }
 
     private void justLoadWhateverInStorage() {
@@ -87,6 +85,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+                for (Restaurant restaurant : restaurantManager) {
+                    Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+                }
                 RequireDownloadActivity.this.finish();
             }
         }.execute();
@@ -299,6 +301,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 if(filname.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
+                    restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+                    for (Restaurant restaurant : restaurantManager) {
+                        Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+                    }
                     RequireDownloadActivity.this.finish();
                 }
             }
@@ -412,11 +418,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 if(hmap.containsKey(sample.getTrackingNumber())){
                     hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
                 }
-/*                for (Restaurant restaurant : restaurantManager) {
-                    if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
-                        restaurant.getRestaurantInspectionList().add(sample);
-                    }
-                }*/
             }
         } catch (IOException e) {
             Log.wtf("RESULT", "Error reading data file on line" + line, e);

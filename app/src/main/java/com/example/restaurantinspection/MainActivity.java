@@ -67,11 +67,6 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-//        if(CompareTime())
-//        {
-//            ShowUpdateDialog();
-//        }
-//        startActivity(new Intent(this, MapsActivity.class));
 
         startActivity(new Intent(this, MapsActivity.class));
 
@@ -319,11 +314,6 @@ public class MainActivity extends AppCompatActivity {
 
                     hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
                 }
-/*                for (Restaurant restaurant : restaurantManager) {
-                    if (sample.getTrackingNumber().equalsIgnoreCase(restaurant.getTrackingNumber())) {
-                        restaurant.getRestaurantInspectionList().add(sample);
-                    }
-                }*/
             }
         } catch (IOException e) {
             Log.wtf(MAIN_ACTIVITY_TAG, "Error reading data file on line" + line, e);
@@ -340,16 +330,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         restaurantManager = RestaurantManager.getInstance();;
-        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        for (Restaurant restaurant : restaurantManager) {
-            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-        }
         arrayAdapter.notifyDataSetChanged();
-        for(Restaurant restaurant : restaurantManager){
-            if(!restaurant.getRestaurantInspectionList().isEmpty()){
-                Log.d("check new data","restaurant name : " + restaurant.getName() + "hazard level: " + restaurant.getRestaurantInspectionList().get(0).getHazardRating());
-            }
-        }
     }
 
 }
