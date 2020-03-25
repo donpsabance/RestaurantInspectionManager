@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
@@ -33,12 +31,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -121,8 +117,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //make sure we have permission to do anything with location first
         getPermissions();
-        // does the downloading
-        checkForUpdates();
+        // load extra data from disk
+        checkToUpdateData();
+    }
+
+    private void checkToUpdateData() {
+        if(!restaurantManager.isExtraDataLoaded()){
+            startActivity(RequireDownloadActivity.makeIntent(this));
+        }
     }
 
 
@@ -330,57 +332,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void checkForUpdates() {
-        if(restaurantManager.isExtraDataLoaded()){
-            return;
-        } else{
-            fetchPackages(ID_RESTAURANTS);
-        }
-    }
-
-    private void fetchPackages(String typeID) {
-
-        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
-        Call<Feed> call = surrey_data_api.getData(typeID);
-        ExtractInfo(call, typeID);
-
-    }
-
-    private void ExtractInfo(Call<Feed> Filetype, String type) {
-        Filetype.enqueue(new Callback<Feed>() {
-            @Override
-            public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(SERVER_TAG, "onResponse: Server Response" + response.toString());
-                Log.d(SERVER_TAG, "onResponse: received information: " + response.body().toString());
-
-                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
-                String url = ResourceList.get(0).getUrl();
-                String date_last_modified = ResourceList.get(0).getDate_last_modified();
-                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                if(type.equalsIgnoreCase(ID_RESTAURANTS)){
-                    // Todo check time here;
-                    if(true){
-                        //startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
-                    }
-                    fetchPackages(ID_INSPECTIONS);
-                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)){
-                    // Todo check time here;
-                    if(true){
-                        startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
-                    }
-                }
-                // Todo:
-                // if it reaches here load whatever is in local storage
-
-            }
-
-            @Override
-            public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(SERVER_TAG, "something went wrong " + t.getMessage());
-                Toast.makeText(MapsActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
 }

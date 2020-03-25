@@ -29,5 +29,7 @@
     <string name="Last_Modified_time">The time is %1$s</string>>
     <string name="Update">Do you want to update the new inspection?</string>>
     <string name="Yes">Yes</string>>
-    <string name="No">No</string>>
+    <string name="No">No</string>
+    <string name="new_data_is_available_would_you_like_to_update">New Data is available. Would you like to update?</string>
+    >
 </resources>
