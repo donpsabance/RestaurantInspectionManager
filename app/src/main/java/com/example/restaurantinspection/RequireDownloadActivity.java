@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Service.Feed;
@@ -33,6 +35,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
@@ -141,7 +144,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 }
                 // Todo:
                 // if it reaches here load whatever is in local storage
-                justLoadWhateverInStorage();
+                //justLoadWhateverInStorage();
 
             }
             @Override
@@ -463,4 +466,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         Intent intent = new Intent(context, RequireDownloadActivity.class);
         return intent;
     }
+
+
 }

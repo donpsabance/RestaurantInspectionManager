@@ -339,63 +339,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        arrayAdapter.notifyDataSetChanged();
-//        restaurantManager = RestaurantManager.getInstance();;
+        restaurantManager = RestaurantManager.getInstance();;
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-    }
-
-    public boolean CompareTime(String data_last_modified_web)
-    {
-        String UserLastModifiedTime = ReadUserTime();
-        Log.d("Time",UserLastModifiedTime);
-        UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
-        String WebLastModifiedTime = TakeDataTime(data_last_modified_web);
-        return GetHourDifference(WebLastModifiedTime, UserLastModifiedTime) > 200000;
-    }
-
-    private String ReadUserTime(){
-            SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-            String DefaultTime = getResources().getString(R.string.default_time);
-        return LastModifiedTimeFile.getString("User_Last_Modified_time",DefaultTime);
-    }
-
-    private String ReadWebTime(){
-        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
-        return LastModifiedTimeFile.getString("Web_Last_Modified_time",DefaultTime);
-    }
-
-    private void WriteUserTime(String date){
-        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
-        SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-        editor.putString("User_Last_Modified_time",date);
-        editor.apply();
-    }
-
-    private void WriteWebTime(String date){
-        SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
-        SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-        editor.putString("Web_Last_Modified_time",date);
-        editor.apply();
-    }
-
-    private String TakeDataTime(String date){
-        if(date != null)
-        {
-            date = date.replaceAll("[^0-9]","").trim();
-            date = date.substring(0,14);
+        arrayAdapter.notifyDataSetChanged();
+        for(Restaurant restaurant : restaurantManager){
+            if(!restaurant.getRestaurantInspectionList().isEmpty()){
+                Log.d("check new data","restaurant name : " + restaurant.getName() + "hazard level: " + restaurant.getRestaurantInspectionList().get(0).getHazardRating());
+            }
         }
-        return date;
     }
 
-    private double GetHourDifference(String date1, String date2) {
-        BigDecimal Date1 = new BigDecimal(date1);
-        BigDecimal Date2 = new BigDecimal(date2);
-        return (Date1.subtract(Date2).doubleValue()+1.0);
-    }
 }
