@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -120,8 +119,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //make sure we have permission to do anything with location first
         getPermissions();
-        // does the downloading
-        checkForUpdates();
+        // load extra data from disk
+        checkToUpdateData();
+    }
+
+    private void checkToUpdateData() {
+        if(!restaurantManager.isExtraDataLoaded()){
+            startActivity(RequireDownloadActivity.makeIntent(this));
+        }
     }
 
 

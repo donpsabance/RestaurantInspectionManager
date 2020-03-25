@@ -8,14 +8,38 @@
 
 
     <Button
-        android:id="@+id/btn_load"
+        android:id="@+id/btn_download_from_web"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="292dp"
-        android:text="load data more restaurants"
+        android:layout_marginBottom="196dp"
+        android:text="@string/Yes"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.3"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_load_from_storage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        android:layout_marginStart="32dp"
+        android:text="@string/No"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_download_from_web"
+        app:layout_constraintStart_toEndOf="@+id/btn_download_from_web"
+        app:layout_constraintTop_toTopOf="@+id/btn_download_from_web" />
+
+    <TextView
+        android:id="@+id/txt_newDownloadAvailable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="304dp"
+        android:visibility="invisible"
+        android:text="@string/new_data_is_available_would_you_like_to_update"
+        app:layout_constraintEnd_toEndOf="@+id/btn_load_from_storage"
+        app:layout_constraintHorizontal_bias="0.53"
+        app:layout_constraintStart_toStartOf="@+id/btn_download_from_web"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,9 @@ package com.example.restaurantinspection.model.Service;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-
+/*
+source:  https://howtodoinjava.com/retrofit2/retrofit-service-generator/
+ */
 public class ServiceGenerator {
     private static final String BASE_URL = "http://data.surrey.ca/";
 
