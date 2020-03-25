@@ -106,6 +106,18 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.show();
     }
 
+    private void LoadingDialog()
+    {
+        ProgressDialog progressDialog = new ProgressDialog(RequireDownloadActivity.this);
+        progressDialog.setTitle("Please Wait~~");
+        progressDialog.setMessage("Loading~~~~");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+    }
+
+
+
 
 
 
