@@ -19,10 +19,6 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantManager;
-import com.example.restaurantinspection.model.Service.Feed;
-import com.example.restaurantinspection.model.Service.Resource;
-import com.example.restaurantinspection.model.Service.ServiceGenerator;
-import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -33,10 +29,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
@@ -44,10 +38,6 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -105,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
 
-            ;
+
         };
 
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
@@ -124,7 +114,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void checkToUpdateData() {
-        if(!restaurantManager.isExtraDataLoaded()){
+        if (!restaurantManager.isExtraDataLoaded()) {
             startActivity(RequireDownloadActivity.makeIntent(this));
         }
     }
@@ -139,7 +129,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        setUpMap();
+    }
 
+    private void setUpMap() {
         if (locationPermission) {
 
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
@@ -156,6 +149,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         setUpClusterManager();
         setUpInfoWindows();
+
     }
 
     private void setUpInfoWindows() {
@@ -195,10 +189,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setUpClusterManager() {
+        //Initalize cluster manager
         mClusterManager = new ClusterManager(this, mMap);
         mClusterManager.setRenderer(new MarkerClusterRenderer(this, mMap, mClusterManager));
+
+        //set cluster manager
         mMap.setOnCameraIdleListener(mClusterManager);
         mMap.setOnMarkerClickListener(mClusterManager);
+
+        //Add restaurants (cluster item) to restaurants
         List<Restaurant> items = getRestaurants();
         mClusterManager.addItems(items);
         mClusterManager.cluster();
@@ -223,21 +222,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 restaurants.add(restaurantItem);
 
                 mHashMap.put(restaurantItem, resIndex);
-
             }
 
             resIndex++;
         }
         return restaurants;
-    }
-
-
-
-
-    public void loadMap() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
     }
 
     //Followed video tutorials
@@ -285,6 +274,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void loadMap(){
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
     private void getDeviceLocation() {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -317,79 +311,5 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
         mMap.animateCamera(cameraUpdate);
 
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        extractDatafromIntent();
-        displayInfoWindow();
-
-    }
-
-    //get selected restaurant from Restaurant Activity
-    private void extractDatafromIntent() {
-        Intent intent = getIntent();
-        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
-        clickRestaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
-    }
-
-    private void displayInfoWindow() {
-        //TODO: Display selected restaurant's info window
-    }
-
-
-    private void checkForUpdates() {
-        if (restaurantManager.isExtraDataLoaded()) {
-            return;
-        } else {
-            fetchPackages(ID_RESTAURANTS);
-        }
-    }
-
-    private void fetchPackages(String typeID) {
-
-        Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
-        Call<Feed> call = surrey_data_api.getData(typeID);
-        ExtractInfo(call, typeID);
-
-    }
-
-    private void ExtractInfo(Call<Feed> Filetype, String type) {
-        Filetype.enqueue(new Callback<Feed>() {
-            @Override
-            public void onResponse(Call<Feed> call, Response<Feed> response) {
-                Log.d(SERVER_TAG, "onResponse: Server Response" + response.toString());
-                Log.d(SERVER_TAG, "onResponse: received information: " + response.body().toString());
-
-                ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
-                String url = ResourceList.get(0).getUrl();
-                String date_last_modified = ResourceList.get(0).getDate_last_modified();
-                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
-                if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    // Todo check time here;
-                    if (true) {
-                        //startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
-                    }
-                    fetchPackages(ID_INSPECTIONS);
-                } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    // Todo check time here;
-                    if (true) {
-                        startActivity(RequireDownloadActivity.makeIntent(MapsActivity.this));
-                    }
-                }
-                // Todo:
-                // if it reaches here load whatever is in local storage
-
-            }
-
-            @Override
-            public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(SERVER_TAG, "something went wrong " + t.getMessage());
-                Toast.makeText(MapsActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }

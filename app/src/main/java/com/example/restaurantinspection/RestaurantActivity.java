@@ -63,12 +63,8 @@ public class RestaurantActivity extends AppCompatActivity {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-                Toast.makeText(RestaurantActivity.this, "You clicked" + restaurantIndex, Toast.LENGTH_SHORT).show();
-
                 Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
-                startActivityForResult(intent, 101);
+                startActivity(intent);
             }
         });
     }
@@ -103,7 +99,6 @@ public class RestaurantActivity extends AppCompatActivity {
             }
         });
     }
-
 
 
     private class CustomListAdapter extends ArrayAdapter<RestaurantInspection> {
@@ -151,7 +146,8 @@ public class RestaurantActivity extends AppCompatActivity {
                 criticalText.setText(numCriticalstr);
                 nonCriticalText.setText(numNonCriticalstr);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
-            } restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
+            }
+            restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
             return itemView;
         }
 
