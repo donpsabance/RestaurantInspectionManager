@@ -84,15 +84,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
-                file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
+                //file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
                 file_read_FromDownloadedInspections(INSPECTIONS_FILE_NAME);
                 return null;
             }
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                RequireDownloadActivity.this.finish();
+//                RequireDownloadActivity.this.finish();
+                finish();
             }
+
         }.execute();
     }
 
@@ -303,7 +305,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 if(filname.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
-                    RequireDownloadActivity.this.finish();
+//                    RequireDownloadActivity.this.finish();
+                    finish();
                 }
             }
         }.execute();
@@ -392,7 +395,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             BufferedReader reader = new BufferedReader(inputStreamReader);
             // Step over headers
             reader.readLine();
-            while ((!(line = reader.readLine()).equals(",,,,,,")) || ((line = reader.readLine()) != null)) {
+            while (((line = reader.readLine()) != null) && (!line.equals(",,,,,,"))) {
                 // Split line by ','
                 Log.d("TEST", line);
                 String[] parts = line.split("\"");
