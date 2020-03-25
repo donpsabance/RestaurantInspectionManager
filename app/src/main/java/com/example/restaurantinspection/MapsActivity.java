@@ -150,6 +150,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setUpClusterManager();
         setUpInfoWindows();
 
+        extractDatafromIntent();
+    }
+
+    private void extractDatafromIntent() {
+        Intent intent = getIntent();
+        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
+        clickRestaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
     }
 
     private void setUpInfoWindows() {
