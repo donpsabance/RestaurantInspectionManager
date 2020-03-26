@@ -101,10 +101,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
         File oldFile = new File("/data/data/com.example.restaurantinspection/files/"+old);
         String oldPath = oldFile.getAbsolutePath();
         oldFile = new File(oldPath);
-        Log.d("RENAME", old);
-        Log.d("RENAME", oldPath);
         String newPath = oldPath.replace(old,New);
-        Log.d("RENAME", newPath);
         File newFile = new File(newPath);
         if(oldFile.renameTo(newFile)) {
             Log.d("RENAME", "yes!!!!!!!!!!!!");
