@@ -29,8 +29,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
@@ -57,6 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private HashMap<Restaurant, Integer> mHashMap = new HashMap<>();
     private ClusterManager<Restaurant> mClusterManager;
+    private MarkerClusterRenderer mRenderer;
     private List<Restaurant> restaurants = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
@@ -107,18 +110,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        //make sure we have permission to do anything with location first
-        getPermissions();
+
         // load extra data from disk
         checkToUpdateData();
+
+        //make sure we have permission to do anything with location first
+        getPermissions();
     }
+
 
     private void checkToUpdateData() {
         if (!restaurantManager.isExtraDataLoaded()) {
             startActivity(RequireDownloadActivity.makeIntent(this));
         }
     }
-
 
     /**
      * Manipulates the map once available.
@@ -131,6 +136,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         setUpMap();
     }
+
 
     private void setUpMap() {
         if (locationPermission) {
@@ -149,15 +155,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         setUpClusterManager();
         setUpInfoWindows();
-
-        extractDatafromIntent();
+        updateClusters();
     }
+
+    private void updateClusters() {
+        extractDatafromIntent();
+
+        //if coming from intent
+        if (restaurantIndex != -1) {
+            mClusterManager.clearItems();
+        }
+    }
+
 
     private void extractDatafromIntent() {
-        Intent intent = getIntent();
-        restaurantIndex = intent.getIntExtra(RESTAURANT_INDEX, 0);
-        clickRestaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
+        restaurantIndex = getIntent().getIntExtra(RESTAURANT_INDEX, -1);
+        Toast.makeText(MapsActivity.this, "You clicked " + restaurantIndex, Toast.LENGTH_SHORT).show();
     }
+
 
     private void setUpInfoWindows() {
         //Create customized info window view
@@ -198,7 +213,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void setUpClusterManager() {
         //Initalize cluster manager
         mClusterManager = new ClusterManager(this, mMap);
-        mClusterManager.setRenderer(new MarkerClusterRenderer(this, mMap, mClusterManager));
+        mRenderer = new MarkerClusterRenderer(this, mMap, mClusterManager);
+        mClusterManager.setRenderer(mRenderer);
 
         //set cluster manager
         mMap.setOnCameraIdleListener(mClusterManager);
@@ -281,7 +297,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void loadMap(){
+    private void loadMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }

@@ -60,8 +60,8 @@ public class MarkerClusterRenderer extends DefaultClusterRenderer {
         marker.setTag(clusterItem);
     }
 
-
-
-
-
+    @Override
+    public Marker getMarker(ClusterItem clusterItem) {
+        return super.getMarker(clusterItem);
+    }
 }
