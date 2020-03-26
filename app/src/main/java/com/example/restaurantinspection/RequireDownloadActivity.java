@@ -75,7 +75,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void justLoadWhateverInStorage() {
-//        LoadingDialog();
+
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
@@ -92,7 +92,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-//                RequireDownloadActivity.this.finish();
                 terminateActivity();
             }
 
@@ -138,6 +137,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private void registerClickCallback() {
         btnStartDownload.setOnClickListener(v -> {
             DownloadingDialog();
+            // starts download for restaurants then for inspections
             fetchPackages(ID_RESTAURANTS);
         });
 
@@ -152,9 +152,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
 
     private void check_For_Updates(String typeID) {
-
         Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
         Call<Feed> call = surrey_data_api.getData(typeID);
+        // checks whether restaurants or inspections csv requires an update
         ExtractInfo2_checkForUpdate(call, typeID);
     }
 
@@ -163,21 +163,22 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
 
+                //extracts the needed information from web response
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
-                String url = ResourceList.get(0).getUrl();
+
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
+                // show display to download csv files if time difference greater than 20 hours
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    if (CompareTime(date_last_modified)) {
+                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
                     }
                     check_For_Updates(ID_INSPECTIONS);
                     return;
                 } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    if (CompareTime(date_last_modified)) {
+                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
+
                         setVisibilities(View.VISIBLE);
                         return;
                     }
@@ -207,8 +208,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
             public void onResponse(Call<Feed> call, Response<Feed> response) {
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
+
+
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
@@ -428,7 +429,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
-    public boolean CompareTime(String data_last_modified_web)
+    public boolean CompareTime_to_mostRecendtlyDownloaded(String data_last_modified_web)
     {
         String UserLastModifiedTime = ReadUserTime();
         Log.d("Time",UserLastModifiedTime);

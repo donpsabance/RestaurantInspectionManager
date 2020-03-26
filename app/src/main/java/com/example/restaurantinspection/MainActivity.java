@@ -332,11 +332,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-/*        restaurantManager = RestaurantManager.getInstance();;
-        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        for (Restaurant restaurant : restaurantManager) {
-            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-        }*/
         arrayAdapter.notifyDataSetChanged();
     }
 
