@@ -57,6 +57,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private Button btnStartDownload;
     private Button btnLoadFromStorage;
     private TextView textview_want_downloadMsg;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +108,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
     private void DownloadingDialog()
     {
-        ProgressDialog progressDialog = new ProgressDialog(RequireDownloadActivity.this);
+        progressDialog = new ProgressDialog(RequireDownloadActivity.this);
         progressDialog.setTitle("Please Wait~~");
         progressDialog.setMessage("Downloading");
         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
@@ -121,7 +122,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
     private void LoadingDialog()
     {
-        ProgressDialog progressDialog = new ProgressDialog(RequireDownloadActivity.this);
+        progressDialog = new ProgressDialog(RequireDownloadActivity.this);
         progressDialog.setTitle("Please Wait~~");
         progressDialog.setMessage("Loading~~~~");
         progressDialog.setCanceledOnTouchOutside(false);
@@ -176,7 +177,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
                     check_For_Updates(ID_INSPECTIONS);
                     return;
                 } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    // Todo check time here;
                     if (CompareTime(date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
@@ -496,4 +496,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
         return intent;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        progressDialog.dismiss();
+    }
 }
