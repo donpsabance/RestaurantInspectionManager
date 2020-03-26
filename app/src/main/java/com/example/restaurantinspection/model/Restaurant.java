@@ -1,7 +1,5 @@
 package com.example.restaurantinspection.model;
 
-import android.icu.text.CaseMap;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
@@ -43,7 +41,7 @@ public class Restaurant implements ClusterItem {
         this.longitude = longitude;
     }
 
-    public Restaurant(LatLng latLng, String title, String snippet){
+    public Restaurant(LatLng latLng, String title, String snippet) {
         this.mPosition = latLng;
         this.mTitle = title;
         this.mSnippet = snippet;
