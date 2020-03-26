@@ -65,12 +65,12 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private Button btnStartDownload;
     private Button btnLoadFromStorage;
     private TextView textview_want_downloadMsg;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_require_download);
-
         restaurantManager = RestaurantManager.getInstance();
         restaurantManager.setExtraDataLoaded(true);
         setViews();
@@ -117,6 +117,12 @@ public class RequireDownloadActivity extends AppCompatActivity {
         renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
         new AsyncTask<Void, Void, Void>() {
             @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                LoadingDialog();
+            }
+
+            @Override
             protected Void doInBackground(Void... voids) {
                 file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
                 file_read_FromDownloadedInspections(INSPECTIONS_FILE_NAME);
@@ -125,14 +131,21 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                RequireDownloadActivity.this.finish();
+                terminateActivity();
             }
         }.execute();
     }
 
+    private void terminateActivity() {
+        Intent i = new Intent();
+        Log.d("CHECK","SENDING INTENT");
+        setResult(RESULT_OK,i);
+        finish();
+    }
+
     private void DownloadingDialog()
     {
-        ProgressDialog progressDialog = new ProgressDialog(RequireDownloadActivity.this);
+        progressDialog = new ProgressDialog(RequireDownloadActivity.this);
         progressDialog.setTitle("Please Wait~~");
         progressDialog.setMessage("Downloading");
         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
@@ -147,7 +160,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
     private void LoadingDialog()
     {
-        ProgressDialog progressDialog = new ProgressDialog(RequireDownloadActivity.this);
+        progressDialog = new ProgressDialog(RequireDownloadActivity.this);
         progressDialog.setTitle("Please Wait~~");
         progressDialog.setMessage("Loading~~~~");
         progressDialog.setCanceledOnTouchOutside(false);
@@ -158,6 +171,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private void registerClickCallback() {
         btnStartDownload.setOnClickListener(v -> {
             DownloadingDialog();
+            // starts download for restaurants then for inspections
             fetchPackages(ID_RESTAURANTS);
         });
 
@@ -172,9 +186,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
 
     private void check_For_Updates(String typeID) {
-
         Surrey_Data_API surrey_data_api = ServiceGenerator.createService(Surrey_Data_API.class);
         Call<Feed> call = surrey_data_api.getData(typeID);
+        // checks whether restaurants or inspections csv requires an update
         ExtractInfo2_checkForUpdate(call, typeID);
     }
 
@@ -183,38 +197,32 @@ public class RequireDownloadActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Feed> call, Response<Feed> response) {
 
+                //extracts the needed information from web response
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
-                String url = ResourceList.get(0).getUrl();
+
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
-                // END OF UI STUFF
-                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
+                // show display to download csv files if time difference greater than 20 hours
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    // Todo check time here;
-                    if (CompareTime(date_last_modified)) {
-                        Log.d("PRAY TO GOD", "IM WHERE I WANTED TO BE");
-//                        btnStartDownload.setVisibility(View.VISIBLE);
+                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
                     }
                     check_For_Updates(ID_INSPECTIONS);
+                    return;
                 } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    // Todo check time here;
-                    if (CompareTime(date_last_modified)) {
+                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
+
                         setVisibilities(View.VISIBLE);
                         return;
                     }
                 }
-                // Todo:
                 // if it reaches here load whatever is in local storage
                 justLoadWhateverInStorage();
 
             }
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(TAG_CHECK, "something went wrong " + t.getMessage());
                 Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
@@ -234,8 +242,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
             public void onResponse(Call<Feed> call, Response<Feed> response) {
 
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
-                // UI STUFF
-                String format = ResourceList.get(0).getFormat();
+
+
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
                 WriteWebTime(date_last_modified);
@@ -334,7 +342,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 if(filname.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
-                    RequireDownloadActivity.this.finish();
+                    terminateActivity();
                 }
             }
         }.execute();
@@ -385,13 +393,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
                     restaurantManager.add(sample);
                 }
 
-                Log.d("NEW MANAGER : ", sample.toString());
-
-                Log.d("LOAD", line);
             }
             int count = 0;
-            Log.d("LISTING", "final count: " + count);
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -423,7 +426,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             BufferedReader reader = new BufferedReader(inputStreamReader);
             // Step over headers
             reader.readLine();
-            while ((!(line = reader.readLine()).equals(",,,,,,")) || ((line = reader.readLine()) != null)) {
+            while (((line = reader.readLine()) != null) && (!line.equals(",,,,,,"))) {
                 // Split line by ','
                 Log.d("TEST", line);
                 String[] parts = line.split("\"");
@@ -461,7 +464,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
-    public boolean CompareTime(String data_last_modified_web)
+    public boolean CompareTime_to_mostRecendtlyDownloaded(String data_last_modified_web)
     {
         String UserLastModifiedTime = ReadUserTime();
         Log.d("Time",UserLastModifiedTime);
@@ -529,4 +532,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
         return intent;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        progressDialog.dismiss();
+    }
 }

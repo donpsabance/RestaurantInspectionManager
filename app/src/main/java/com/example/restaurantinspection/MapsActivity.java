@@ -13,11 +13,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Service.Feed;
 import com.example.restaurantinspection.model.Service.Resource;
@@ -41,6 +44,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import retrofit2.Call;
@@ -48,13 +52,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
-    private static final String BASE_URL = "http://data.surrey.ca/";
-    private static final String ID_RESTAURANTS = "restaurants";
-    private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
-    private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
-    private static final String SERVER_TAG = "SERVER UPDATE: ";
 
     public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
     private final String LOG_TAG = "RESTAURANT INSPECTION: ";
@@ -67,6 +64,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
 
+    private static final int LOADING_DATA_RESULT_CODE = 100;
     private static final int LOCATION_PERMISSION_CODE = 1234;
     private final float DEFAULT_ZOOM = 12f;
     private final long MIN_TIME = 1000;
@@ -123,7 +121,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void checkToUpdateData() {
         if(!restaurantManager.isExtraDataLoaded()){
-            startActivity(RequireDownloadActivity.makeIntent(this));
+            Log.d("STARTING LOAD","BEGINNING ACTIVITY");
+            startActivityForResult(RequireDownloadActivity.makeIntent(this),LOADING_DATA_RESULT_CODE);
         }
     }
 
@@ -332,4 +331,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
+            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+            for (Restaurant restaurant : restaurantManager) {
+                Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+            }
+            getPermissions();
+        }
+    }
 }
