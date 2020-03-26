@@ -30,6 +30,7 @@ import com.example.restaurantinspection.model.Service.ServiceGenerator;
 import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -56,7 +57,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
     public static final String TAG_CHECK = "MainActivity";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
+    private static final String NEW_RESTAURANTS_FILE_NAME = "New_downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
+    private static final String NEW_INSPECTIONS_FILE_NAME = "New_downloaded_Inspections.csv";
     private RestaurantManager restaurantManager;
 
     private Button btnStartDownload;
@@ -67,6 +70,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_require_download);
+
         restaurantManager = RestaurantManager.getInstance();
         restaurantManager.setExtraDataLoaded(true);
         setViews();
@@ -77,10 +81,43 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }else{
             justLoadWhateverInStorage();
         }
+        deleteFile(NEW_RESTAURANTS_FILE_NAME);
+        deleteFile(NEW_INSPECTIONS_FILE_NAME);
+        WriteUserTime("20200301000000");
+    }
+
+    private void DeleteFile(String FileName)
+    {
+        File file = new File(FileName);
+        if(file.isFile())
+        {
+            deleteFile(FileName);
+            Log.d("Delete","delete "+FileName+"successful");
+        }
+    }
+
+    private void renameFile(String old,String New)
+    {
+        File oldFile = new File("/data/data/com.example.restaurantinspection/files/"+old);
+        String oldPath = oldFile.getAbsolutePath();
+        oldFile = new File(oldPath);
+        Log.d("RENAME", old);
+        Log.d("RENAME", oldPath);
+        String newPath = oldPath.replace(old,New);
+        Log.d("RENAME", newPath);
+        File newFile = new File(newPath);
+        if(oldFile.renameTo(newFile)) {
+            Log.d("RENAME", "yes!!!!!!!!!!!!");
+        }
+        else{
+            Log.d("RENAME", "NOOOOOOOOOO!!!!!!!!!!!!");
+        }
     }
 
     private void justLoadWhateverInStorage() {
         LoadingDialog();
+        renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
+        renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -104,7 +141,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //
+                Log.d("RENAME", "I am here");
+
             }
         });
         progressDialog.show();
@@ -119,11 +157,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.show();
 
     }
-
-
-
-
-
 
     private void registerClickCallback() {
         btnStartDownload.setOnClickListener(v -> {
@@ -208,12 +241,13 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 String format = ResourceList.get(0).getFormat();
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
+                WriteWebTime(date_last_modified);
 
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    downloadFile(url, RESTAURANTS_FILE_NAME);
+                    downloadFile(url, NEW_RESTAURANTS_FILE_NAME);
                     fetchPackages(ID_INSPECTIONS);
                 } else {
-                    downloadFile(url, INSPECTIONS_FILE_NAME);
+                    downloadFile(url, NEW_INSPECTIONS_FILE_NAME);
                     WriteUserTime(date_last_modified);
                 }
             }
