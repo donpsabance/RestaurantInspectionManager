@@ -24,11 +24,13 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
+import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
@@ -60,9 +62,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        readRestaurantData();
-        readInspectionData();
-
+        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
+        //readRestaurantData();
+//        readInspectionData();
+        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
@@ -329,11 +332,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        restaurantManager = RestaurantManager.getInstance();;
+/*        restaurantManager = RestaurantManager.getInstance();;
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-        }
+        }*/
         arrayAdapter.notifyDataSetChanged();
     }
 
