@@ -7,19 +7,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
-import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Service.CheckInternet;
@@ -40,7 +36,6 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
@@ -71,7 +66,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         restaurantManager.setExtraDataLoaded(true);
         setViews();
         registerClickCallback();
-
         if(CheckInternet.getConnectionType(this)){
             check_For_Updates(ID_RESTAURANTS);
         }else{
@@ -80,11 +74,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void justLoadWhateverInStorage() {
-        LoadingDialog();
+//        LoadingDialog();
         new AsyncTask<Void, Void, Void>() {
             @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                LoadingDialog();
+            }
+
+            @Override
             protected Void doInBackground(Void... voids) {
-                //file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
+                file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
                 file_read_FromDownloadedInspections(INSPECTIONS_FILE_NAME);
                 return null;
             }
@@ -92,10 +92,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
 //                RequireDownloadActivity.this.finish();
-                finish();
+                terminateActivity();
             }
 
         }.execute();
+    }
+
+    private void terminateActivity() {
+        Intent i = new Intent();
+        Log.d("CHECK","SENDING INTENT");
+        setResult(RESULT_OK,i);
+        finish();
     }
 
     private void DownloadingDialog()
@@ -161,17 +168,13 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
-                // END OF UI STUFF
-                //TODO: DOWNLOAD THE URL DATA IF DATE COMPARISON > 20 HOURS
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    // Todo check time here;
                     if (CompareTime(date_last_modified)) {
-                        Log.d("PRAY TO GOD", "IM WHERE I WANTED TO BE");
-//                        btnStartDownload.setVisibility(View.VISIBLE);
                         setVisibilities(View.VISIBLE);
                         return;
                     }
                     check_For_Updates(ID_INSPECTIONS);
+                    return;
                 } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
                     // Todo check time here;
                     if (CompareTime(date_last_modified)) {
@@ -179,14 +182,12 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         return;
                     }
                 }
-                // Todo:
                 // if it reaches here load whatever is in local storage
                 justLoadWhateverInStorage();
 
             }
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                Log.e(TAG_CHECK, "something went wrong " + t.getMessage());
                 Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
@@ -305,8 +306,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 if(filname.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
-//                    RequireDownloadActivity.this.finish();
-                    finish();
+                    terminateActivity();
                 }
             }
         }.execute();
@@ -357,13 +357,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
                     restaurantManager.add(sample);
                 }
 
-                Log.d("NEW MANAGER : ", sample.toString());
-
-                Log.d("LOAD", line);
             }
             int count = 0;
-            Log.d("LISTING", "final count: " + count);
-
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
