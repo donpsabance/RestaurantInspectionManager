@@ -183,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
                 reportText.setText(R.string.noavailablereports);
-                hazardRating.setVisibility(View.INVISIBLE);
+                hazardRating.setProgress(5);
             }
             return itemView;
         }
