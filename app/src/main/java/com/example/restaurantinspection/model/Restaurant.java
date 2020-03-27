@@ -62,6 +62,17 @@ public class Restaurant {
         return longitude;
     }
 
+    public boolean containsInspection(String inspectionDate){
+        boolean shouldAddInspection = true;
+        for(RestaurantInspection restaurantInspection : restaurantInspectionList){
+            if (restaurantInspection.getInspectionDate().equals(inspectionDate)) {
+                shouldAddInspection = false;
+                break;
+            }
+        }
+        return shouldAddInspection;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +
