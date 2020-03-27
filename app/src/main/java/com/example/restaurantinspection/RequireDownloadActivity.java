@@ -257,6 +257,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
 
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
+                WriteWebTime(date_last_modified);
 
                 // show display to download csv files if time difference greater than 20 hours
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
@@ -303,7 +304,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
                 String url = ResourceList.get(0).getUrl();
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
-                WriteWebTime(date_last_modified);
 
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
                     downloadFile(url, NEW_RESTAURANTS_FILE_NAME);
