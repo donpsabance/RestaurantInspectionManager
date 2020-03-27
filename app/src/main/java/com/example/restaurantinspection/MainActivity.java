@@ -152,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
             imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
-
             //make sure they have an inspection report available
             if (restaurant.getRestaurantInspectionList().size() > 0) {
 
