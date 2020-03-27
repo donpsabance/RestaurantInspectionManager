@@ -15,7 +15,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Service.CheckInternet;
@@ -26,6 +28,7 @@ import com.example.restaurantinspection.model.Service.ServiceGenerator;
 import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,6 +39,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
@@ -76,6 +80,31 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
+    private void DeleteFile(String FileName)
+    {
+        File file = new File(FileName);
+        if(file.isFile())
+        {
+            deleteFile(FileName);
+            Log.d("Delete","delete "+FileName+"successful");
+        }
+    }
+
+    private void renameFile(String old,String New)
+    {
+        File oldFile = new File("/data/data/com.example.restaurantinspection/files/"+old);
+        String oldPath = oldFile.getAbsolutePath();
+        oldFile = new File(oldPath);
+        String newPath = oldPath.replace(old,New);
+        File newFile = new File(newPath);
+        if(oldFile.renameTo(newFile)) {
+            Log.d("RENAME", "yes!!!!!!!!!!!!");
+        }
+        else{
+            Log.d("RENAME", "NOOOOOOOOOO!!!!!!!!!!!!");
+        }
+    }
+
     private void justLoadWhateverInStorage() {
 
         new AsyncTask<Void, Void, Void>() {
@@ -89,6 +118,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
             protected Void doInBackground(Void... voids) {
                 file_read_FromDownloadedRestaurants(RESTAURANTS_FILE_NAME);
                 file_read_FromDownloadedInspections(INSPECTIONS_FILE_NAME);
+                restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+                for (Restaurant restaurant : restaurantManager) {
+                    Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+                }
                 return null;
             }
 
@@ -239,7 +272,9 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                //call.cancel();
+                                call.cancel();
+                                deleteFile(TEMPORARY_RESTAURANTS_FILE_NAME);
+                                deleteFile(TEMPORARY_INSPECTIONS_FILE_NAME);
                             }
                         });
                         progressDialog.show();
@@ -250,6 +285,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
                         writeToFile(response.body(), filename);
                         return null;
+
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        super.onPostExecute(aVoid);
+                        if(filename.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
+                            progressDialog.dismiss();
+                            justLoadWhateverInStorage();
+                        }
+
                     }
                 }.execute();
 
@@ -267,13 +313,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
         InputStream inputStream = null;
         FileOutputStream fileOutputStream = null;
-
+        boolean isRestauarantFile = true;
         try {
-
             if(filename.equalsIgnoreCase(RESTAURANTS_FILE_NAME)){
                 fileOutputStream = openFileOutput(TEMPORARY_RESTAURANTS_FILE_NAME, MODE_PRIVATE);
+                isRestauarantFile = true;
             }else if(filename.equalsIgnoreCase(INSPECTIONS_FILE_NAME)){
                 fileOutputStream = openFileOutput(TEMPORARY_INSPECTIONS_FILE_NAME, MODE_PRIVATE);
+                isRestauarantFile = false;
             }
 
             byte[] fileReader = new byte[4096];
@@ -288,8 +335,12 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 fileOutputStream.write(fileReader, 0, read);
             }
             fileOutputStream.flush();
-            startLoading(filename);
-            return true;
+            if (isRestauarantFile){
+                renameFile(TEMPORARY_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
+            }else{
+                renameFile(TEMPORARY_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
