@@ -94,6 +94,8 @@ public class RestaurantInspection implements Comparable<RestaurantInspection> {
         return numNonCritical;
     }
 
+
+
     @Override
     public String toString() {
         return "RestaurantInspection{" +
