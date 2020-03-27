@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -66,6 +68,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private Button btnLoadFromStorage;
     private TextView textview_want_downloadMsg;
     private ProgressDialog progressDialog;
+    private boolean cancelled = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +86,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
         deleteFile(NEW_RESTAURANTS_FILE_NAME);
         deleteFile(NEW_INSPECTIONS_FILE_NAME);
-        WriteUserTime("20200301000000");
     }
 
     private void DeleteFile(String FileName)
@@ -111,10 +113,13 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
+
+
+
+
+
     private void justLoadWhateverInStorage() {
         LoadingDialog();
-        renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
-        renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
@@ -143,21 +148,32 @@ public class RequireDownloadActivity extends AppCompatActivity {
         finish();
     }
 
-    private void DownloadingDialog()
+    private void DownloadingDialog(Thread thread)
     {
         progressDialog = new ProgressDialog(RequireDownloadActivity.this);
         progressDialog.setTitle("Please Wait~~");
         progressDialog.setMessage("Downloading");
+        progressDialog.setCancelable(false);
         progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Log.d("RENAME", "I am here");
+                thread.interrupt();
+                deleteFile(NEW_RESTAURANTS_FILE_NAME);
+                deleteFile(NEW_INSPECTIONS_FILE_NAME);
+                cancel(true);
 
             }
         });
         progressDialog.show();
     }
+    private void cancel(boolean bool) {
+        if(bool) {
+            cancelled = true;
+        }else{
+            cancelled = false;
+        }
 
+    }
     private void LoadingDialog()
     {
         progressDialog = new ProgressDialog(RequireDownloadActivity.this);
@@ -167,12 +183,52 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.show();
 
     }
+        Handler mHandler= new Handler(){
+        public void handleMessage(Message msg){
+            super.handleMessage(msg);
+            if(msg.what == 1){
+                mHandler.post(runnable);
+            }else{
+                justLoadWhateverInStorage();
+            }
 
+        }
+    };
+
+     Runnable runnable = () -> {
+         renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
+         renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
+         String date_last_modified = ReadWebTime();
+         WriteUserTime(date_last_modified);
+         mHandler.sendEmptyMessage(0);
+
+     };
     private void registerClickCallback() {
         btnStartDownload.setOnClickListener(v -> {
-            DownloadingDialog();
             // starts download for restaurants then for inspections
-            fetchPackages(ID_RESTAURANTS);
+            cancel(false);
+            Thread myThread = new Thread();
+            DownloadingDialog(myThread);
+            new Thread(myThread)
+            {
+                @Override
+                public void run(){
+                    super.run();
+                    fetchPackages(ID_RESTAURANTS);
+                    try {
+                        myThread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(!cancelled) {
+                        progressDialog.dismiss();
+                        Message message = new Message();
+                        message.what = 1;
+                        mHandler.sendMessage(message);
+                    }
+                }
+            }.start();
+
         });
 
         btnLoadFromStorage.setOnClickListener(new View.OnClickListener() {
@@ -253,7 +309,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
                     fetchPackages(ID_INSPECTIONS);
                 } else {
                     downloadFile(url, NEW_INSPECTIONS_FILE_NAME);
-                    WriteUserTime(date_last_modified);
                 }
             }
 
