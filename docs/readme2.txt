@@ -1,0 +1,1 @@
+Please don't click yes in the update page, and cancel in the progressdialog too fast, please make sure it will have 2 second  between you click them.
