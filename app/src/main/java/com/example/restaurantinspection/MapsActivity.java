@@ -75,37 +75,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return intent;
     }
 
+    private void extractDatafromIntent() {
+        restaurantIndex = getIntent().getIntExtra(RESTAURANT_INDEX, -1);
+    }
 
-    private void startLocationUpdates() {
-
-        locationRequest = new LocationRequest();
-        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        locationRequest.setSmallestDisplacement(MIN_DISTANCE);
-        locationRequest.setInterval(MIN_TIME);
-
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    moveMapFocus(new LatLng(location.getLatitude(), location.getLongitude()), DEFAULT_ZOOM);
-                }
-            }
-
-
-        };
-
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
-                Looper.myLooper());
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
+            getPermissions();
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
 
         // load extra data from disk
         checkToUpdateData();
@@ -114,12 +99,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         getPermissions();
     }
 
-
     private void checkToUpdateData() {
         if(!restaurantManager.isExtraDataLoaded()){
             Log.d("STARTING LOAD","BEGINNING ACTIVITY");
             startActivityForResult(RequireDownloadActivity.makeIntent(this),LOADING_DATA_RESULT_CODE);
         }
+    }
+
+    private void loadMap() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    private void moveMapFocus(LatLng latLng, float zoom) {
+
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
+        mMap.animateCamera(cameraUpdate);
+
     }
 
     /**
@@ -130,10 +126,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         setUpMap();
     }
-
 
     private void setUpMap() {
         if (locationPermission) {
@@ -160,13 +154,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         updateMapOnClick();
     }
 
+
+    private void startLocationUpdates() {
+
+        locationRequest = new LocationRequest();
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        locationRequest.setSmallestDisplacement(MIN_DISTANCE);
+        locationRequest.setInterval(MIN_TIME);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    moveMapFocus(new LatLng(location.getLatitude(), location.getLongitude()), DEFAULT_ZOOM);
+                }
+            }
+
+
+        };
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
+                Looper.myLooper());
+    }
+
     //re-cluster all restaurants
     private void updateMapOnClick() {
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                setUpClusterManager();
-                setUpInfoWindows();
+
+                if(mClusterManager.getAlgorithm().getItems().size() == 1){
+
+                    setUpClusterManager();
+                    setUpInfoWindows();
+                }
             }
         });
     }
@@ -179,8 +203,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             //remove all restaurants
             mClusterManager.clearItems();
-            for (Restaurant r : mHashMap.keySet()
-            ) {
+            for (Restaurant r : mHashMap.keySet()) {
                 if (mHashMap.get(r) == restaurantIndex) {
                     //only add the specfic restaurant
                     mClusterManager.addItem(r);
@@ -189,10 +212,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //re-cluster map
             mClusterManager.cluster();
         }
-    }
-
-    private void extractDatafromIntent() {
-        restaurantIndex = getIntent().getIntExtra(RESTAURANT_INDEX, -1);
     }
 
 
@@ -252,8 +271,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private List<Restaurant> getRestaurants() {
 
         int resIndex = 0;
-        for (Restaurant r : restaurantManager
-        ) {
+        for (Restaurant r : restaurantManager) {
             if (r.getRestaurantInspectionList().size() != 0) {
                 double lat = Double.parseDouble(r.getLatitude());
                 double lon = Double.parseDouble(r.getLongitude());
@@ -319,11 +337,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void loadMap() {
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-    }
-
     private void getDeviceLocation() {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -350,20 +363,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.wtf(LOG_TAG, "ERROR: " + securityException.getStackTrace());
         }
     }
-
-    private void moveMapFocus(LatLng latLng, float zoom) {
-
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, zoom);
-        mMap.animateCamera(cameraUpdate);
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
-            getPermissions();
-        }
-    }
-
 }
