@@ -358,23 +358,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    //display selected restaurant's info window
-    private void displayInfoWindow() {
-        for (Marker m : mHashMap.keySet()) {
-            if (restaurantIndex == mHashMap.get(m)) {
-                m.showInfoWindow();
-            }
-        }
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
-/*            restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-            for (Restaurant restaurant : restaurantManager) {
-                Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-            }*/
             getPermissions();
         }
     }
