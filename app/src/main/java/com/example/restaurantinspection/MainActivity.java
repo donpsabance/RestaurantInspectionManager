@@ -63,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
-        //readRestaurantData();
-//        readInspectionData();
         Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {

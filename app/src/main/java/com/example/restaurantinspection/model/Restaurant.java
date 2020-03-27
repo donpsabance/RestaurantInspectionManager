@@ -1,5 +1,8 @@
 package com.example.restaurantinspection.model;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.clustering.ClusterItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +14,7 @@ import java.util.List;
  * of associated inspections.
  */
 
-public class Restaurant {
+public class Restaurant implements ClusterItem {
 
     private List<RestaurantInspection> restaurantInspectionList = new ArrayList<>();
 
@@ -23,6 +26,10 @@ public class Restaurant {
     private String latitude;
     private String longitude;
 
+    private LatLng mPosition;
+    private String mTitle;
+    private String mSnippet;
+
     public Restaurant(String trackingNumber, String name, String address, String city,
                       String facilityType, String latitude, String longitude) {
         this.trackingNumber = trackingNumber;
@@ -32,6 +39,12 @@ public class Restaurant {
         this.facilityType = facilityType;
         this.latitude = latitude;
         this.longitude = longitude;
+    }
+
+    public Restaurant(LatLng latLng, String title, String snippet) {
+        this.mPosition = latLng;
+        this.mTitle = title;
+        this.mSnippet = snippet;
     }
 
     public List<RestaurantInspection> getRestaurantInspectionList() {
@@ -62,6 +75,17 @@ public class Restaurant {
         return longitude;
     }
 
+    public boolean containsInspection(String inspectionDate){
+        boolean shouldAddInspection = true;
+        for(RestaurantInspection restaurantInspection : restaurantInspectionList){
+            if (restaurantInspection.getInspectionDate().equals(inspectionDate)) {
+                shouldAddInspection = false;
+                break;
+            }
+        }
+        return shouldAddInspection;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +
@@ -73,5 +97,20 @@ public class Restaurant {
                 ", latitude='" + latitude + '\'' +
                 ", longitude='" + longitude + '\'' +
                 '}';
+    }
+
+    @Override
+    public LatLng getPosition() {
+        return mPosition;
+    }
+
+    @Override
+    public String getTitle() {
+        return mTitle;
+    }
+
+    @Override
+    public String getSnippet() {
+        return mSnippet;
     }
 }

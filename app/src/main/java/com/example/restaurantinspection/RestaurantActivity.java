@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
@@ -100,7 +101,6 @@ public class RestaurantActivity extends AppCompatActivity {
     }
 
 
-
     private class CustomListAdapter extends ArrayAdapter<RestaurantInspection> {
         public CustomListAdapter() {
             super(RestaurantActivity.this, R.layout.restaurant_inspections_list, restaurant.getRestaurantInspectionList());
@@ -147,6 +147,7 @@ public class RestaurantActivity extends AppCompatActivity {
                 nonCriticalText.setText(numNonCriticalstr);
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating());
             }
+            restaurant = restaurantManager.getRestaurantList().get(restaurantIndex);
             return itemView;
         }
 

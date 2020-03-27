@@ -277,6 +277,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 justLoadWhateverInStorage();
 
             }
+
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
                 Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -570,6 +571,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
         BigDecimal Date2 = new BigDecimal(date2);
         return (Date1.subtract(Date2).doubleValue()+1.0);
     }
+
     private void setViews() {
         btnStartDownload = findViewById(R.id.btn_download_from_web);
         btnLoadFromStorage = findViewById(R.id.btn_load_from_storage);
@@ -592,4 +594,5 @@ public class RequireDownloadActivity extends AppCompatActivity {
         super.onDestroy();
         progressDialog.dismiss();
     }
+
 }
