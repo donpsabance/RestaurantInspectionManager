@@ -76,36 +76,23 @@ public class MainActivity extends AppCompatActivity {
         setUpMapButton();
     }
 
-    public static class UpdateDialog extends DialogFragment
-    {
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState)
-        {
-            AlertDialog.Builder UpdateDialog = new AlertDialog.Builder(getActivity());
-            UpdateDialog.setMessage(R.string.Update).setPositiveButton(R.string.Yes, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    Log.d("TAG", "onClick: update the information");
-                }
-            })
-            .setNegativeButton(R.string.No, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Log.d("TAG", "onClick: did nothing");
-                }
-            });
-            return UpdateDialog.create();
-        }
+    public void loadRestaurants() {
+        arrayAdapter = new CustomListAdapter();
+        ListView listView = findViewById(R.id.restaurantListView);
+        listView.setAdapter(arrayAdapter);
     }
 
-    public void ShowUpdateDialog()
-    {
-        DialogFragment showUpdateDialog = new UpdateDialog();
-        showUpdateDialog.show(getSupportFragmentManager(),"update");
+    @Override
+    protected void onResume() {
+        super.onResume();
+        arrayAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        finish();
+    }
 
     private void setUpMapButton() {
 
@@ -120,12 +107,91 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        finish();
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, int totalViolations) {
+
+        switch (hazardLevel.toUpperCase()){
+            case "LOW":
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(75, 194, 54)));
+                break;
+            case "MODERATE":
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 158, 66)));
+                break;
+            case "HIGH":
+                progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 66, 66)));
+                break;
+        }
+        progressBar.setMax(100);
+        progressBar.setProgress(5 + 10 * totalViolations);
     }
 
+    private int determineIcon(String restaurantName) {
+
+        if(restaurantName.toLowerCase().contains("a&w")){
+            return R.drawable.aw;
+        } else if(restaurantName.toLowerCase().contains("burger king")){
+            return R.drawable.bk;
+        } else if(restaurantName.toLowerCase().contains("blenz")){
+            return R.drawable.blenz;
+        } else if (restaurantName.toLowerCase().contains("boston pizza")){
+            return R.drawable.bp;
+        } else if(restaurantName.toLowerCase().contains("dairy queen")){
+            return R.drawable.dq;
+        } else if (restaurantName.toLowerCase().contains("kfc")){
+            return R.drawable.kfc;
+        } else if (restaurantName.toLowerCase().contains("mcdonalds")){
+            return R.drawable.mcd;
+        } else if (restaurantName.toLowerCase().contains("7-eleven")){
+            return R.drawable.seven11;
+        } else if (restaurantName.toLowerCase().contains("starbucks")){
+            return R.drawable.starbucks;
+        } else if (restaurantName.toLowerCase().contains("subway")){
+            return R.drawable.starbucks;
+        } else if (restaurantName.toLowerCase().contains("tim hortons")){
+            return R.drawable.timmys;
+        } else if (restaurantName.toLowerCase().contains("pizza")) {
+            return R.drawable.pizza;
+        } else if (restaurantName.toLowerCase().contains("burger")){
+            return R.drawable.burger;
+        } else if (restaurantName.toLowerCase().contains("sushi")) {
+            return R.drawable.sushi;
+        } else if (restaurantName.toLowerCase().contains("sandwich")) {
+            return R.drawable.sandwich;
+        } else if (restaurantName.toLowerCase().contains("coffee")) {
+            return R.drawable.coffee;
+        } else if (restaurantName.toLowerCase().contains("chicken")) {
+            return R.drawable.chicken;
+        } else if (restaurantName.toLowerCase().contains("seafood")) {
+            return R.drawable.lobster;
+        } else if (restaurantName.toLowerCase().contains("taco")) {
+            return R.drawable.taco;
+        } else if (restaurantName.toLowerCase().contains("noodles") ||
+                restaurantName.toLowerCase().contains("ramen") ||
+                restaurantName.toLowerCase().contains("pho")) {
+            return R.drawable.noodles;
+        }
+
+        //default
+        return R.drawable.food;
+    }
+
+    private void registerClickFeedback() {
+
+        ListView listView = findViewById(R.id.restaurantListView);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
+                Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
+
+                //start restaurant activity
+                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
+                startActivity(intent);
+            }
+        });
+    }
 
     private class CustomListAdapter extends ArrayAdapter<Restaurant> {
         public CustomListAdapter() {
@@ -187,150 +253,6 @@ public class MainActivity extends AppCompatActivity {
             }
             return itemView;
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, int totalViolations) {
-
-        if (hazardLevel.equalsIgnoreCase("LOW")) {
-            progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(75, 194, 54)));
-
-        } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
-            progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 158, 66)));
-
-        } else if (hazardLevel.equalsIgnoreCase("HIGH")) {
-            progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 66, 66)));
-        }
-        progressBar.setMax(100);
-        progressBar.setProgress(5 + 10 * totalViolations);
-    }
-
-    private int determineIcon(String restaurantName) {
-
-        if (restaurantName.toLowerCase().contains("pizza")) {
-            return R.drawable.pizza;
-        } else if (restaurantName.toLowerCase().contains("burger") ||
-                restaurantName.toLowerCase().contains("a&w")) {
-            return R.drawable.burger;
-        } else if (restaurantName.toLowerCase().contains("sushi")) {
-            return R.drawable.sushi;
-        } else if (restaurantName.toLowerCase().contains("subway") ||
-                restaurantName.toLowerCase().contains("sandwich")) {
-            return R.drawable.sandwich;
-        } else if (restaurantName.toLowerCase().contains("coffee") ||
-                restaurantName.toLowerCase().contains("tim hortons") ||
-                restaurantName.toLowerCase().contains("startbucks")) {
-            return R.drawable.coffee;
-        } else if (restaurantName.toLowerCase().contains("chicken")) {
-            return R.drawable.chicken;
-        } else if (restaurantName.toLowerCase().contains("seafood")) {
-            return R.drawable.lobster;
-        } else if (restaurantName.toLowerCase().contains("mcdonalds")) {
-            return R.drawable.mcdonalds;
-        } else if (restaurantName.toLowerCase().contains("taco")) {
-            return R.drawable.taco;
-        } else if (restaurantName.toLowerCase().contains("noodles") ||
-                restaurantName.toLowerCase().contains("ramen") ||
-                restaurantName.toLowerCase().contains("pho")) {
-            return R.drawable.noodles;
-        }
-
-        //default
-        return R.drawable.food;
-
-    }
-
-    private void registerClickFeedback() {
-
-        ListView listView = findViewById(R.id.restaurantListView);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
-                Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
-
-                //start restaurant activity
-                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
-                startActivity(intent);
-            }
-        });
-    }
-
-    private void readRestaurantData() {
-        InputStream is = getResources().openRawResource(R.raw.restaurants);
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8)
-        );
-
-        String line = "";
-        try {
-            // Step over headers
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                // Split line by ','
-                String[] tokens = line.split(",");
-                Restaurant sample = new Restaurant(tokens[0], tokens[1],
-                        tokens[2], tokens[3], tokens[4],
-                        tokens[5], tokens[6]);
-
-                restaurantManager.add(sample);
-            }
-        } catch (IOException e) {
-            Log.wtf(MAIN_ACTIVITY_TAG, "Error reading data file on line" + line, e);
-        }
-    }
-
-    private void readInspectionData() {
-        InputStream is = getResources().openRawResource(R.raw.new_inspections);
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8)
-        );
-        HashMap<String,Restaurant> hmap = new HashMap<>();
-        for(Restaurant r : restaurantManager){
-            hmap.put(r.getTrackingNumber(),r);
-        }
-
-        String line = "";
-        try {
-            // Step over headers
-            reader.readLine();
-            while ((line = reader.readLine()) != null) {
-                // Split line by ','
-                Log.d("TEST", line);
-
-                String[] tokens = line.split(",");
-                String var_token5;
-                if (tokens.length >= 7 && tokens[5].length() > 0) {
-                    var_token5 = tokens[5];
-                } else {
-                    var_token5 = "No violations";
-                }
-
-                RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
-                        tokens[2], tokens[3], tokens[4],
-                        var_token5, tokens[6]);
-                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
-                if(hmap.containsKey(sample.getTrackingNumber())){
-
-                    hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
-                }
-            }
-        } catch (IOException e) {
-            Log.wtf(MAIN_ACTIVITY_TAG, "Error reading data file on line" + line, e);
-        }
-    }
-
-    public void loadRestaurants() {
-        arrayAdapter = new CustomListAdapter();
-        ListView listView = findViewById(R.id.restaurantListView);
-        listView.setAdapter(arrayAdapter);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        arrayAdapter.notifyDataSetChanged();
     }
 
 }
