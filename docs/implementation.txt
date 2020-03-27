@@ -1,0 +1,16 @@
+
+
+For the following user story from
+4. Back-button behavior
+"On the single restaurant screen, tapping the GPS coords on a restaurant closes the current screen
+and returns to the map screen, selecting that restaurant and showing the small pop-up info
+about the restaurant."
+
+Changed implementation to show pop up info window to
+tapping the GPS coords return to the map screen and
+- have the map show just one marker (for the restaurant in question).
+- hide (remove?) the cluster markers and show the one restaurant marker.
+- When the user taps out of this info window (a tap event, on the map) have the app show the
+  rest of the clusters once again.
+
+as Dr. Fraser had suggested here: https://piazza.com/class/k47bhfajff66cx?cid=224
