@@ -1,4 +1,4 @@
-package com.example.restaurantinspection;
+package com.example.restaurantinspection.model.Util;
 
 import android.content.Context;
 import android.graphics.Bitmap;
