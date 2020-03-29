@@ -32,5 +32,6 @@
     <string name="No">No</string>
     <string name="new_data_is_available_would_you_like_to_update">New Data is available. Would you like to update?</string>
     <string name="search_icon">search icon</string>
+    <string name="please_enter_a_restaurant_name_or_keyword">Please enter a restaurant name or keyword</string>
     >
 </resources>
