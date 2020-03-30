@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.restaurantinspection.model.InspectionComparator;
+import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
@@ -75,6 +76,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_require_download);
         restaurantManager = RestaurantManager.getInstance();
+        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
+        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.setExtraDataLoaded(true);
         setViews();
         registerClickCallback();
@@ -142,9 +145,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void terminateActivity() {
-        Intent i = new Intent();
+/*        Intent i = new Intent();
         Log.d("CHECK","SENDING INTENT");
-        setResult(RESULT_OK,i);
+        setResult(RESULT_OK,i);*/
+        startActivity(MainActivity.makeIntent(this));
         finish();
     }
 
@@ -183,7 +187,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.show();
 
     }
-        Handler mHandler= new Handler(){
+    Handler mHandler= new Handler(){
         public void handleMessage(Message msg){
             super.handleMessage(msg);
             if(msg.what == 1){
@@ -195,14 +199,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     };
 
-     Runnable runnable = () -> {
-         renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
-         renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
-         String date_last_modified = ReadWebTime();
-         WriteUserTime(date_last_modified);
-         mHandler.sendEmptyMessage(0);
+    Runnable runnable = () -> {
+        renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
+        renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
+        String date_last_modified = ReadWebTime();
+        WriteUserTime(date_last_modified);
+        mHandler.sendEmptyMessage(0);
 
-     };
+    };
     private void registerClickCallback() {
         btnStartDownload.setOnClickListener(v -> {
             // starts download for restaurants then for inspections

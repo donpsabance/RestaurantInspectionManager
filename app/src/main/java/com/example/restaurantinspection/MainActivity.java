@@ -70,8 +70,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
-        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
+//        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
+//        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
@@ -321,5 +321,7 @@ public class MainActivity extends AppCompatActivity {
         });
         return true;
     }
-
+    public static Intent makeIntent(Context context){
+        return new Intent(context,MainActivity.class);
+    }
 }

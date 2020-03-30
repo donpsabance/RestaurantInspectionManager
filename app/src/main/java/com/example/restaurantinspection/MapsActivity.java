@@ -93,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         // load extra data from disk
-        checkToUpdateData();
+        //checkToUpdateData();
 
         //make sure we have permission to do anything with location first
         getPermissions();
