@@ -11,17 +11,23 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
@@ -47,9 +53,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -193,9 +201,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private class CustomListAdapter extends ArrayAdapter<Restaurant> {
+    private class CustomListAdapter extends ArrayAdapter<Restaurant> implements Filterable {
+        private List<Restaurant> exampleList;
+        private List<Restaurant> exampleListFull;
+
         public CustomListAdapter() {
             super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
+            this.exampleList = restaurantManager.getRestaurantList();
+            this.exampleListFull = new ArrayList<>(exampleList);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -252,6 +265,61 @@ public class MainActivity extends AppCompatActivity {
             }
             return itemView;
         }
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return exampleFilter;
+        }
+        private Filter exampleFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Restaurant> filteredList = new ArrayList<>();
+                if(constraint == null || constraint.length() == 0){
+                    filteredList.addAll(exampleListFull);
+                } else {
+                    String filteredPattern = constraint.toString().toLowerCase().trim();
+                    for (Restaurant restaurants : exampleListFull){
+                        if (restaurants.getName().toLowerCase().contains(filteredPattern)){
+                            filteredList.add(restaurants);
+                        }
+                    }
+                }
+                FilterResults results = new FilterResults();
+                results.values = filteredList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                exampleList.clear();
+                exampleList.addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+        };
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem menuItem = menu.findItem(R.id.search_menu);
+        SearchView searchView = (SearchView) menuItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                arrayAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+        return true;
     }
 
 }
