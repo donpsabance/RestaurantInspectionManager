@@ -1,0 +1,4 @@
+Product owner: Don
+Scrum master: Jack
+Repository manager: Alden
+Team member: Melody

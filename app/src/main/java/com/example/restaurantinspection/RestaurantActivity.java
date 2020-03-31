@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -60,12 +61,9 @@ public class RestaurantActivity extends AppCompatActivity {
 
         //Start MapActivity upon clicking gps textview
         TextView textView = findViewById(R.id.restaurantgpsid);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
-                startActivity(intent);
-            }
+        textView.setOnClickListener(v -> {
+            Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
+            startActivity(intent);
         });
     }
 
@@ -90,13 +88,10 @@ public class RestaurantActivity extends AppCompatActivity {
     private void registerClickBack() {
 
         ListView listView = findViewById(R.id.inspectionList);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listView.setOnItemClickListener((parent, view, position, id) -> {
 
-                Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantIndex, position);
-                startActivity(intent);
-            }
+            Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantIndex, position);
+            startActivity(intent);
         });
     }
 
@@ -165,10 +160,10 @@ public class RestaurantActivity extends AppCompatActivity {
         restaurantNameView.setText(restaurant.getName());
 
         TextView restaurantAddrView = findViewById(R.id.restaurantaddrid);
-        restaurantAddrView.setText(restaurant.getAddress() + ", " + restaurant.getCity());
+        restaurantAddrView.setText(String.format("%s, %s", restaurant.getAddress(), restaurant.getCity()));
 
         TextView restaurantGPSView = findViewById(R.id.restaurantgpsid);
-        restaurantGPSView.setText("(" + restaurant.getLatitude() + ", " + restaurant.getLongitude() + ")");
+        restaurantGPSView.setText(String.format("(%s, %s)", restaurant.getLatitude(), restaurant.getLongitude()));
     }
 
 

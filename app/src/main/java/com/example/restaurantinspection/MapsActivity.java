@@ -4,12 +4,16 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,10 +23,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
-import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Util.MarkerClusterRenderer;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -39,8 +42,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,6 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
+    private EditText mSearchText;
 
     private static final int LOADING_DATA_RESULT_CODE = 100;
     private static final int LOCATION_PERMISSION_CODE = 1234;
@@ -82,7 +86,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
+        if (requestCode == LOADING_DATA_RESULT_CODE && resultCode == RESULT_OK) {
             getPermissions();
         }
     }
@@ -97,12 +101,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //make sure we have permission to do anything with location first
         getPermissions();
+
+        setUpSearchBar();
+    }
+
+    private void setUpSearchBar() {
+        mSearchText = findViewById(R.id.input_search);
+        mSearchText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                    event.getAction() == KeyEvent.ACTION_DOWN ||
+                    event.getAction() == KeyEvent.KEYCODE_ENTER) {
+                //TODO: execute method for searching
+
+            }
+            return false;
+        });
+
     }
 
     private void checkToUpdateData() {
-        if(!restaurantManager.isExtraDataLoaded()){
-            Log.d("STARTING LOAD","BEGINNING ACTIVITY");
-            startActivityForResult(RequireDownloadActivity.makeIntent(this),LOADING_DATA_RESULT_CODE);
+        if (!restaurantManager.isExtraDataLoaded()) {
+            Log.d("STARTING LOAD", "BEGINNING ACTIVITY");
+            startActivityForResult(RequireDownloadActivity.makeIntent(this), LOADING_DATA_RESULT_CODE);
         }
     }
 
@@ -186,7 +207,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng latLng) {
 
-                if(mClusterManager.getAlgorithm().getItems().size() == 1){
+                if (mClusterManager.getAlgorithm().getItems().size() == 1) {
 
                     setUpClusterManager();
                     setUpInfoWindows();
@@ -205,7 +226,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mClusterManager.clearItems();
             for (Restaurant r : mHashMap.keySet()) {
                 if (mHashMap.get(r) == restaurantIndex) {
-                    //only add the specfic restaurant
+
+                    //only add the specific restaurant
                     mClusterManager.addItem(r);
                 }
             }
@@ -238,16 +260,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         //Start Restaurant Activity upon clicking info window
-        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Restaurant restaurant = (Restaurant) marker.getTag();
-                int pos = mHashMap.get(restaurant);
+        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(marker -> {
+            Restaurant restaurant = (Restaurant) marker.getTag();
+            int pos = mHashMap.get(restaurant);
 
-                //start restaurant activity
-                Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
-                startActivity(intent);
-            }
+            //start restaurant activity
+            Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
+            startActivity(intent);
         });
     }
 
