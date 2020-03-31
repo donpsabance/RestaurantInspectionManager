@@ -21,29 +21,39 @@
         android:background="#FFF"
         android:id="@+id/relLayout1">
 
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:id="@+id/ic_magnify"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_magnify"
-            android:contentDescription="@string/search_icon"
+<!--        <ImageView-->
+<!--            android:layout_width="25dp"-->
+<!--            android:layout_height="25dp"-->
+<!--            android:id="@+id/ic_magnify"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:src="@drawable/ic_magnify"-->
+<!--            android:contentDescription="@string/search_icon"-->
 
-            />
+<!--            />-->
 
-        <EditText
+<!--        <EditText-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:textSize="15sp"-->
+<!--            android:textColor="#000"-->
+<!--            android:id="@+id/input_search"-->
+<!--            android:background="@null"-->
+<!--            android:layout_marginStart="40dp"-->
+<!--            android:hint="@string/please_enter_a_restaurant_name_or_keyword"-->
+<!--            android:imeOptions="actionSearch"-->
+<!--            android:inputType="text" />-->
+
+
+        <SearchView
+            android:id="@+id/searchmap"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:id="@+id/input_search"
-            android:background="@null"
-            android:layout_marginStart="40dp"
-            android:hint="@string/please_enter_a_restaurant_name_or_keyword"
-            android:imeOptions="actionSearch"
-            android:inputType="text" />
+            android:queryHint="@string/query_hint"
+            android:searchHintIcon="@android:drawable/ic_menu_search"
+            android:searchIcon="@android:drawable/ic_menu_search" />
+
 
     </RelativeLayout>
 

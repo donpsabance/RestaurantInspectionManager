@@ -23,8 +23,8 @@
         android:layout_width="48dp"
         android:layout_height="47dp"
         android:layout_centerVertical="true"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="52dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
         android:background="@drawable/favorite_icon"
         android:focusable="false"
         android:focusableInTouchMode="false"
@@ -106,8 +106,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

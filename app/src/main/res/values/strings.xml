@@ -37,5 +37,6 @@
     <string name="hazard_message">hazard message</string>
     <string name="reports">Reports</string>
     <string name="unfavorite_icon">unfavorite icon</string>
+    <string name="query_hint">Enter a restaurant name</string>
     >
 </resources>
