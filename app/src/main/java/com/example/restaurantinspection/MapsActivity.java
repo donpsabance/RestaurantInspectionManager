@@ -103,6 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void setUpSearchBar() {
         SearchView searchView = findViewById(R.id.searchmap);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -119,9 +120,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void updateItems() {
-        String query = QueryPreferences.getStoredQuery(this);
+        String query = QueryPreferences.getStoredQuery(MapsActivity.this);
         //TODO: execute search method
 
+        if (!query.isEmpty()) {
+
+            mClusterManager.clearItems();
+
+            for (Restaurant r : mHashMap.keySet()
+            ) {
+                if (r.getTitle().contains(query)) {
+                    mClusterManager.addItem(r);
+                }
+            }
+
+            mClusterManager.cluster();
+        }
     }
 
     private void checkToUpdateData() {
