@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
-//        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
@@ -210,6 +208,8 @@ public class MainActivity extends AppCompatActivity {
             this.exampleList = restaurantManager.getRestaurantList();
             this.exampleListFull = new ArrayList<>(exampleList);
         }
+
+
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override

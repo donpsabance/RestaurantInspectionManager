@@ -58,7 +58,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    public static final String TAG_CHECK = "MainActivity";
+    public static final String TAG_CHECK = "DownloadActivity";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
     private static final String NEW_RESTAURANTS_FILE_NAME = "New_downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
