@@ -92,19 +92,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        // load extra data from disk
-        //checkToUpdateData();
-
         //make sure we have permission to do anything with location first
         getPermissions();
     }
 
-    private void checkToUpdateData() {
-        if(!restaurantManager.isExtraDataLoaded()){
-            Log.d("STARTING LOAD","BEGINNING ACTIVITY");
-            startActivityForResult(RequireDownloadActivity.makeIntent(this),LOADING_DATA_RESULT_CODE);
-        }
-    }
 
     private void loadMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
