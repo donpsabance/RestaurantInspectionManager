@@ -5,16 +5,19 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
@@ -25,10 +28,14 @@ import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 
+import org.w3c.dom.Text;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class RestaurantActivity extends AppCompatActivity {
@@ -37,6 +44,7 @@ public class RestaurantActivity extends AppCompatActivity {
     private int restaurantIndex;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private Restaurant restaurant;
+    public List<Restaurant> favourite_list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +62,7 @@ public class RestaurantActivity extends AppCompatActivity {
         checkEmptyInspections();
         registerClickBack();
         registerClickGPS();
+        initView();
 
     }
 
@@ -187,6 +196,23 @@ public class RestaurantActivity extends AppCompatActivity {
             button.setBackgroundColor(Color.rgb(245, 66, 66));
         }
     }
+
+    private void initView(){
+        ToggleButton favourite_Toggle = findViewById(R.id.favorite_toggle);
+        favourite_Toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                favourite_list.add(restaurant);
+                Log.d("favourite","add favourite");
+                Log.d("List",favourite_list.toString());
+            }else{
+                favourite_list.remove(restaurant);
+                Log.d("favourite","Remove favourite");
+                Log.d("List",favourite_list.toString());
+            }
+        });
+    }
+
+
 
     //called by Main Activity
     public static Intent makeIntent(Context context, int restaurantIndex) {
