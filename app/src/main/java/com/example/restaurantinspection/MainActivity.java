@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
+import com.example.restaurantinspection.model.QueryPreferences;
 import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
@@ -74,7 +76,25 @@ public class MainActivity extends AppCompatActivity {
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
+//        setUpSearchBar();
     }
+
+//    private void setUpSearchBar() {
+//        SearchView searchView = findViewById(R.id.searchmain);
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                QueryPreferences.setStoredQuery(MainActivity.this, query);
+//                //TODO: exexcute search method here
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                return false;
+//            }
+//        });
+//
 
     public void loadRestaurants() {
         arrayAdapter = new CustomListAdapter();

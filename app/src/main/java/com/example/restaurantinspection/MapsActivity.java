@@ -4,16 +4,12 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import com.example.restaurantinspection.model.QueryPreferences;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Util.MarkerClusterRenderer;
@@ -42,7 +39,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,10 +55,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ClusterManager<Restaurant> mClusterManager;
     private MarkerClusterRenderer mRenderer;
     private List<Restaurant> restaurants = new ArrayList<>();
+    private List<Restaurant> searchResult = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
-    private EditText mSearchText;
 
     private static final int LOADING_DATA_RESULT_CODE = 100;
     private static final int LOCATION_PERMISSION_CODE = 1234;
@@ -106,17 +102,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setUpSearchBar() {
-        mSearchText = findViewById(R.id.input_search);
-        mSearchText.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE ||
-                    event.getAction() == KeyEvent.ACTION_DOWN ||
-                    event.getAction() == KeyEvent.KEYCODE_ENTER) {
-                //TODO: execute method for searching
-
+        SearchView searchView = findViewById(R.id.searchmap);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                QueryPreferences.setStoredQuery(MapsActivity.this, query);
+                updateItems();
+                return true;
             }
-            return false;
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
         });
+    }
+
+    private void updateItems() {
+        String query = QueryPreferences.getStoredQuery(this);
+        //TODO: execute search method
 
     }
 
@@ -203,15 +207,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //re-cluster all restaurants
     private void updateMapOnClick() {
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
+        mMap.setOnMapClickListener(latLng -> {
 
-                if (mClusterManager.getAlgorithm().getItems().size() == 1) {
+            if (mClusterManager.getAlgorithm().getItems().size() == 1) {
 
-                    setUpClusterManager();
-                    setUpInfoWindows();
-                }
+                setUpClusterManager();
+                setUpInfoWindows();
             }
         });
     }
