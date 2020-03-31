@@ -121,15 +121,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateItems() {
         String query = QueryPreferences.getStoredQuery(MapsActivity.this);
-        //TODO: execute search method
-
+        //TODO: execute search method - below is placeholder search method to test marker behavior
         if (!query.isEmpty()) {
 
             mClusterManager.clearItems();
 
             for (Restaurant r : mHashMap.keySet()
             ) {
-                if (r.getTitle().contains(query)) {
+                if (r.getTitle().toUpperCase().contains(query.toUpperCase())) {
                     mClusterManager.addItem(r);
                 }
             }

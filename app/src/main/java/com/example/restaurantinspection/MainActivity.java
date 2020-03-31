@@ -76,25 +76,26 @@ public class MainActivity extends AppCompatActivity {
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
-//        setUpSearchBar();
+        setUpSearchBar();
     }
 
-//    private void setUpSearchBar() {
-//        SearchView searchView = findViewById(R.id.searchmain);
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//                QueryPreferences.setStoredQuery(MainActivity.this, query);
-//                //TODO: exexcute search method here
-//                return true;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                return false;
-//            }
-//        });
-//
+    private void setUpSearchBar() {
+        SearchView searchView = findViewById(R.id.searchmain);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                QueryPreferences.setStoredQuery(MainActivity.this, query);
+                //TODO: exexcute search method here
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+    }
+
 
     public void loadRestaurants() {
         arrayAdapter = new CustomListAdapter();
