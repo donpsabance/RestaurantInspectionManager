@@ -202,8 +202,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
     Runnable runnable = () -> {
         renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
         renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
-        String date_last_modified = ReadWebTime();
-        WriteUserTime(date_last_modified);
+        String Restaurants_date_last_modified = ReadWebTime("Web_Restaurants_Last_Modified_time");
+        WriteUserTime("User_Restaurants_Last_Modified_time",Restaurants_date_last_modified);
+        String Inspections_date_last_modified = ReadWebTime("Web_Inspections_Last_Modified_time");
+        WriteUserTime("User_Inspections_Last_Modified_time",Inspections_date_last_modified);
         mHandler.sendEmptyMessage(0);
 
     };
@@ -261,19 +263,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
 
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
-                WriteWebTime(date_last_modified);
 
                 // show display to download csv files if time difference greater than 20 hours
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
+                    if (CompareTime_to_mostRecendtlyDownloaded("User_Restaurants_Last_Modified_time",date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
                     }
                     check_For_Updates(ID_INSPECTIONS);
                     return;
                 } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
-
+                    if (CompareTime_to_mostRecendtlyDownloaded("User_Inspections_Last_Modified_time",date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
                     }
@@ -310,9 +310,11 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
+                    WriteWebTime("Web_Restaurants_Last_Modified_time",date_last_modified);
                     downloadFile(url, NEW_RESTAURANTS_FILE_NAME);
                     fetchPackages(ID_INSPECTIONS);
                 } else {
+                    WriteWebTime("Web_Inspections_Last_Modified_time",date_last_modified);
                     downloadFile(url, NEW_INSPECTIONS_FILE_NAME);
                 }
             }
@@ -524,40 +526,40 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
-    public boolean CompareTime_to_mostRecendtlyDownloaded(String data_last_modified_web)
+    public boolean CompareTime_to_mostRecendtlyDownloaded(String name, String data_last_modified_web)
     {
-        String UserLastModifiedTime = ReadUserTime();
+        String UserLastModifiedTime = ReadUserTime(name);
         Log.d("Time",UserLastModifiedTime);
         UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
         String WebLastModifiedTime = TakeDataTime(data_last_modified_web);
         return GetHourDifference(WebLastModifiedTime, UserLastModifiedTime) > 200000;
     }
 
-    private String ReadUserTime(){
+    private String ReadUserTime(String name){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
         String DefaultTime = getResources().getString(R.string.default_time);
-        return LastModifiedTimeFile.getString("User_Last_Modified_time",DefaultTime);
+        return LastModifiedTimeFile.getString(name,DefaultTime);
     }
 
-    private String ReadWebTime(){
+    private String ReadWebTime(String name){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
         String DefaultTime = getResources().getString(R.string.default_time);
-        return LastModifiedTimeFile.getString("Web_Last_Modified_time",DefaultTime);
+        return LastModifiedTimeFile.getString(name,DefaultTime);
     }
 
-    private void WriteUserTime(String date){
+    private void WriteUserTime(String name, String date){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
+        //String DefaultTime = getResources().getString(R.string.default_time);
         SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-        editor.putString("User_Last_Modified_time",date);
+        editor.putString(name,date);
         editor.apply();
     }
 
-    private void WriteWebTime(String date){
+    private void WriteWebTime(String name, String date){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
+        //String DefaultTime = getResources().getString(R.string.default_time);
         SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-        editor.putString("Web_Last_Modified_time",date);
+        editor.putString(name,date);
         editor.apply();
     }
 
