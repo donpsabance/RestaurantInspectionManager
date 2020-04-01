@@ -10,7 +10,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -68,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private ArrayAdapter<Restaurant> arrayAdapter;
+    private EditText textConstraintter;
+    private  Button btnTextConstraint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
