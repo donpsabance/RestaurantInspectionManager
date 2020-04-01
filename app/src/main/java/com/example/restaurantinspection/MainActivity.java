@@ -10,6 +10,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -77,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 //        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
 //        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        restaurantManager.CreateFullCopy();
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
+        searchRestaurant();
     }
 
     public void loadRestaurants() {
@@ -322,6 +325,11 @@ public class MainActivity extends AppCompatActivity {
 
                     restaurantManager.getRestaurantList().clear();
 
+                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+                        if(restaurant.getName().toLowerCase().contains(s.toString().toLowerCase())){
+                            restaurantManager.add(restaurant);
+                        }
+                    }
                     //
 
                     loadRestaurants();
