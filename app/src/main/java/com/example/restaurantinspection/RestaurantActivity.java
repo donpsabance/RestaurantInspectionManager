@@ -206,18 +206,24 @@ public class RestaurantActivity extends AppCompatActivity {
 
     private void initView(List<String> favourite_list){
         String TrackingNumber = restaurant.getTrackingNumber();
-        String Last_Date = restaurant.getRestaurantInspectionList().get(0).getInspectionDate();
+        String Date = "";
+        if(restaurant.getRestaurantInspectionList().size() != 0){
+            Date = restaurant.getRestaurantInspectionList().get(0).getInspectionDate();
+        }
+        String Last_Date = Date;
         ToggleButton favourite_Toggle = findViewById(R.id.favorite_toggle);
         favourite_Toggle.setChecked(restaurant.getFavourite());
         favourite_Toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
                 favourite_list.add(TrackingNumber + "+" + Last_Date);
                 saveList(favourite_list);
+                restaurant.setFavourite(true);
                 Log.d("favourite","add favourite");
                 Log.d("List",favourite_list.toString());
             }else{
                 favourite_list.remove(TrackingNumber + "+" + Last_Date);
                 saveList(favourite_list);
+                restaurant.setFavourite(false);
                 Log.d("favourite","Remove favourite");
                 Log.d("List",favourite_list.toString());
             }

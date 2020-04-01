@@ -64,11 +64,27 @@ public class MainActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-        List<String> favourite_list = readFavouriteList();
         startActivity(new Intent(this, MapsActivity.class));
+        List<String> favourite_list = readFavouriteList();
+        compareRestaurant(favourite_list);
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
+
+
+    }
+
+    private void compareRestaurant(List<String> list){
+        for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
+            for (String TrackingNum : list) {
+                if (TrackingNum.contains(restaurant.getTrackingNumber())) {
+                    restaurant.setFavourite(true);
+                }else{
+                    restaurant.setFavourite(false);
+                }
+            }
+        }
+
     }
 
 
@@ -200,6 +216,7 @@ public class MainActivity extends AppCompatActivity {
             this.exampleListFull = new ArrayList<>(exampleList);
         }
 
+
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
@@ -216,11 +233,13 @@ public class MainActivity extends AppCompatActivity {
             TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
+            ImageView star = itemView.findViewById(R.id.favorited);
 
             imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
             //make sure they have an inspection report available
+
             if (restaurant.getRestaurantInspectionList().size() > 0) {
 
                 RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(0);
@@ -246,6 +265,12 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageResource(icon);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
+                if(restaurant.getFavourite()){
+                    star.setVisibility(View.VISIBLE);
+                }else {
+                    star.setVisibility(View.INVISIBLE);
+                }
+
 
             } else {
 
@@ -254,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return itemView;
         }
+
 
         @NonNull
         @Override
