@@ -10,6 +10,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -299,6 +302,35 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    private void searchRestaurant(){
+
+        final EditText searchBar = findViewById(R.id.searchBar);
+
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {  }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {  }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                //make sure string is not empty so when we try to parse it, we dont crash the program
+                if (!s.toString().trim().equals("")) {
+
+                    restaurantManager.getRestaurantList().clear();
+
+                    //
+
+                    loadRestaurants();
+                }
+            }
+        };
+
+        searchBar.addTextChangedListener(textWatcher);
+
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

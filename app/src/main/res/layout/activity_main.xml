@@ -11,7 +11,7 @@
         android:id="@+id/restaurantListView"
         android:layout_width="407dp"
         android:layout_height="564dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,5 +29,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_dialog_map" />
+
+    <EditText
+        android:id="@+id/searchBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:hint="Search for a restaurant"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/restaurantListView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
