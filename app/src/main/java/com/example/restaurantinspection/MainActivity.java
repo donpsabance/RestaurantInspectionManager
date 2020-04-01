@@ -1,16 +1,11 @@
 package com.example.restaurantinspection;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -30,33 +26,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,24 +49,63 @@ public class MainActivity extends AppCompatActivity {
     private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private ArrayAdapter<Restaurant> arrayAdapter;
+    private EditText textConstraintter;
+    private  Button btnTextConstraint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
-//        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-
+        restaurantManager.CreateFullCopy();
         startActivity(new Intent(this, MapsActivity.class));
 
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
+        btnConstrainterClick();
     }
+
+    private void btnConstrainterClick() {
+        textConstraintter = findViewById(R.id.stringConstaint);
+        btnTextConstraint = findViewById(R.id.textConstraintbtn);
+        btnTextConstraint.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String constraint = textConstraintter.getText().toString();
+                restaurantManager.getRestaurantList().clear();
+                if(constraint.equalsIgnoreCase("") || constraint.length() == 0){
+                    restaurantManager.getRestaurantList().addAll(restaurantManager.getFullRestaurantListCopy());
+                } else {
+                    String filteredPattern = constraint.toString().toLowerCase().trim();
+                    for (Restaurant restaurants : restaurantManager.getFullRestaurantListCopy()){
+                        if (restaurants.getName().toLowerCase().contains(filteredPattern)){
+                            restaurantManager.getRestaurantList().add(restaurants);
+                        }
+                    }
+                }
+                arrayAdapter.notifyDataSetChanged();
+
+            }
+        });
+
+    }
+
+/*    protected Filter.FilterResults performFiltering(CharSequence constraint) {
+        List<Restaurant> filteredList = new ArrayList<>();
+        if(constraint == null || constraint.length() == 0){
+            filteredList.addAll(exampleListFull);
+        } else {
+            String filteredPattern = constraint.toString().toLowerCase().trim();
+            for (Restaurant restaurants : exampleListFull){
+                if (restaurants.getName().toLowerCase().contains(filteredPattern)){
+                    filteredList.add(restaurants);
+                }
+            }
+        }*/
 
     public void loadRestaurants() {
         arrayAdapter = new CustomListAdapter();
