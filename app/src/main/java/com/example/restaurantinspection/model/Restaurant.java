@@ -29,6 +29,7 @@ public class Restaurant implements ClusterItem {
     private LatLng mPosition;
     private String mTitle;
     private String mSnippet;
+    private boolean favourite = false;
 
     public Restaurant(String trackingNumber, String name, String address, String city,
                       String facilityType, String latitude, String longitude) {
@@ -113,4 +114,8 @@ public class Restaurant implements ClusterItem {
     public String getSnippet() {
         return mSnippet;
     }
+
+    public void setFavourite(boolean Boolean){favourite = Boolean;}
+
+    public boolean getFavourite(){return favourite;}
 }

@@ -1,7 +1,9 @@
 package com.example.restaurantinspection;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,14 +11,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
@@ -27,8 +25,8 @@ import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
-
-import org.w3c.dom.Text;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,12 +42,12 @@ public class RestaurantActivity extends AppCompatActivity {
     private int restaurantIndex;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private Restaurant restaurant;
-    public List<Restaurant> favourite_list = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant);
+        List<String> list = readFavouriteList();
         extractDatafromIntent();
         updateTextView();
 
@@ -62,7 +60,17 @@ public class RestaurantActivity extends AppCompatActivity {
         checkEmptyInspections();
         registerClickBack();
         registerClickGPS();
-        initView();
+        compareRestaurant(list);
+        initView(list);
+
+    }
+
+    private void compareRestaurant(List<String> list){
+        for (String TrackingNum : list){
+            if(restaurant.getTrackingNumber().equals(TrackingNum)){
+                restaurant.setFavourite(true);
+            }
+        }
 
     }
 
@@ -197,15 +205,18 @@ public class RestaurantActivity extends AppCompatActivity {
         }
     }
 
-    private void initView(){
+    private void initView(List<String> favourite_list){
         ToggleButton favourite_Toggle = findViewById(R.id.favorite_toggle);
+        favourite_Toggle.setChecked(restaurant.getFavourite());
         favourite_Toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if(isChecked){
-                favourite_list.add(restaurant);
+                favourite_list.add(restaurant.getTrackingNumber());
+                saveList(favourite_list);
                 Log.d("favourite","add favourite");
                 Log.d("List",favourite_list.toString());
             }else{
-                favourite_list.remove(restaurant);
+                favourite_list.remove(restaurant.getTrackingNumber());
+                saveList(favourite_list);
                 Log.d("favourite","Remove favourite");
                 Log.d("List",favourite_list.toString());
             }
@@ -219,5 +230,25 @@ public class RestaurantActivity extends AppCompatActivity {
         Intent intent = new Intent(context, RestaurantActivity.class);
         intent.putExtra(RESTAURANT_INDEX, restaurantIndex);
         return intent;
+    }
+
+    public void saveList(List<String> favourite_list){
+        SharedPreferences sp = this.getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        Gson user_gson = new Gson();
+        String favourite_jsonStr = user_gson.toJson(favourite_list);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("Favourite_list",favourite_jsonStr);
+        editor.apply();
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
     }
 }
