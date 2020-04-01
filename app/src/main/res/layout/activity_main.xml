@@ -5,7 +5,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:theme="@android:style/Theme.NoTitleBar">
+
+    <RelativeLayout
+        android:id="@+id/relLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="7dp"
+        android:background="#FFF"
+        android:elevation="10dp"
+        app:layout_constraintStart_toEndOf="@+id/restaurantListView"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <SearchView
+            android:id="@+id/searchmain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:queryHint="@string/query_hint"
+            android:searchHintIcon="@android:drawable/ic_menu_search"
+            android:searchIcon="@android:drawable/ic_menu_search" />
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/restaurantListView"

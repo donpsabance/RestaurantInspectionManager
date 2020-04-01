@@ -25,11 +25,18 @@
     <string name="inspection_type">Inspection type:</string>
     <string name="non_crit_issuesmessage">Non critical issues:</string>
     <string name="title_activity_maps">Map</string>
-    <string name="default_time">0000–00-00T00:00:00.000000</string>>
+    <string name="default_time">0000–00–00T00:00:00.000000</string>>
     <string name="Last_Modified_time">The time is %1$s</string>>
     <string name="Update">Do you want to update the new inspection?</string>>
     <string name="Yes">Yes</string>>
     <string name="No">No</string>
     <string name="new_data_is_available_would_you_like_to_update">New Data is available. Would you like to update?</string>
+    <string name="search_icon">search icon</string>
+    <string name="please_enter_a_restaurant_name_or_keyword">Please enter a restaurant name or keyword</string>
+    <string name="num_of_critical"># of critical</string>
+    <string name="hazard_message">hazard message</string>
+    <string name="reports">Reports</string>
+    <string name="unfavorite_icon">unfavorite icon</string>
+    <string name="query_hint">Enter a restaurant name</string>
     >
 </resources>
