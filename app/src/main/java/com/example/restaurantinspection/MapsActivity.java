@@ -1,8 +1,11 @@
 package com.example.restaurantinspection;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -40,6 +43,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.io.IOException;
@@ -96,13 +101,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+
         // load extra data from disk
         //checkToUpdateData();
 
         //make sure we have permission to do anything with location first
         getPermissions();
-
         setUpSearchBar();
+        List<String> favourite_list = readFavouriteList();
+        compare_date(favourite_list);
     }
 
     private void setUpSearchBar() {
@@ -381,5 +388,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Log.wtf(LOG_TAG, "ERROR: " + securityException.getStackTrace());
         }
+    }
+
+    public void compare_date(List<String> list){
+        List<Restaurant> favourite_list = new ArrayList<>();
+        List<String> new_favourite_list = new ArrayList<>();
+        for(String a : list){
+            String[] arr = a.split("\\+");
+            for(Restaurant restaurants : restaurantManager.getRestaurantList()){
+                if(restaurants.getTrackingNumber().equals(arr[0])){
+                    if(!restaurants.getRestaurantInspectionList().get(0).getInspectionDate().equals(arr[1])){
+                        arr[1] = restaurants.getRestaurantInspectionList().get(0).getInspectionDate();
+                        favourite_list.add(restaurants);
+                        new_favourite_list.add(arr[0]+"+"+arr[1]);
+                        Log.d("MAP",favourite_list.toString());
+                    }
+                }
+            }
+        }
+        if(favourite_list.size()!=0){
+            show_dialog(favourite_list);
+            saveList(new_favourite_list);
+        }
+    }
+
+    public void show_dialog(List<Restaurant> list){
+        List<String> show = new ArrayList<>();
+        for(Restaurant restaurants : list){
+            String name = restaurants.getName();
+            String date = restaurants.getRestaurantInspectionList().get(0).getInspectionDate();
+            String hazard_level = restaurants.getRestaurantInspectionList().get(0).getHazardRating();
+            String restaurants_show = name + "  " + date + "  " +hazard_level+"\n";
+            show.add(restaurants_show);
+        }
+        AlertDialog.Builder new_update = new AlertDialog.Builder(this);
+        new_update.setTitle("Newest Update for your favourite");
+        new_update.setMessage(show.toString().replace("[","").
+                replace("]","").
+                replace(",","").trim());
+        new_update.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        new_update.show();
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
+    }
+    public void saveList(List<String> favourite_list){
+        SharedPreferences sp = this.getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        Gson user_gson = new Gson();
+        String favourite_jsonStr = user_gson.toJson(favourite_list);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("Favourite_list",favourite_jsonStr);
+        editor.apply();
     }
 }
