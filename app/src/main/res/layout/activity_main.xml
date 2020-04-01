@@ -10,7 +10,7 @@
     <ListView
         android:id="@+id/restaurantListView"
         android:layout_width="392dp"
-        android:layout_height="406dp"
+        android:layout_height="559dp"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,27 +29,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_dialog_map" />
-
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:ems="10"
-        android:hint="enter text constraint"
-        android:id="@+id/stringConstaint"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/textConstraintbtn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="@+id/stringConstaint"
-        app:layout_constraintStart_toStartOf="@+id/stringConstaint"
-        app:layout_constraintTop_toBottomOf="@+id/stringConstaint" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

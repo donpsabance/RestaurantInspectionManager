@@ -66,46 +66,9 @@ public class MainActivity extends AppCompatActivity {
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
-        btnConstrainterClick();
     }
 
-    private void btnConstrainterClick() {
-        textConstraintter = findViewById(R.id.stringConstaint);
-        btnTextConstraint = findViewById(R.id.textConstraintbtn);
-        btnTextConstraint.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String constraint = textConstraintter.getText().toString();
-                restaurantManager.getRestaurantList().clear();
-                if(constraint.equalsIgnoreCase("") || constraint.length() == 0){
-                    restaurantManager.getRestaurantList().addAll(restaurantManager.getFullRestaurantListCopy());
-                } else {
-                    String filteredPattern = constraint.toString().toLowerCase().trim();
-                    for (Restaurant restaurants : restaurantManager.getFullRestaurantListCopy()){
-                        if (restaurants.getName().toLowerCase().contains(filteredPattern)){
-                            restaurantManager.getRestaurantList().add(restaurants);
-                        }
-                    }
-                }
-                arrayAdapter.notifyDataSetChanged();
 
-            }
-        });
-
-    }
-
-/*    protected Filter.FilterResults performFiltering(CharSequence constraint) {
-        List<Restaurant> filteredList = new ArrayList<>();
-        if(constraint == null || constraint.length() == 0){
-            filteredList.addAll(exampleListFull);
-        } else {
-            String filteredPattern = constraint.toString().toLowerCase().trim();
-            for (Restaurant restaurants : exampleListFull){
-                if (restaurants.getName().toLowerCase().contains(filteredPattern)){
-                    filteredList.add(restaurants);
-                }
-            }
-        }*/
 
     public void loadRestaurants() {
         arrayAdapter = new CustomListAdapter();
