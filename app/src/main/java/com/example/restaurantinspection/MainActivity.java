@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setUpMaxCriticalViolationsSearch() {
         filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
-        TextWatcher textWatcher = new TextWatcher() {
+        filter_maximumHazard_EditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -146,14 +146,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Todo Filter Adapter
+                // Todo work, filter array adapter
             }
 
             @Override
             public void afterTextChanged(Editable s) {
 
             }
-        };
+        });
     }
 
     public void loadRestaurants() {
