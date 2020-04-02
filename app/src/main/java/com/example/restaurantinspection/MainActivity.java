@@ -98,12 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
         //start MapActivity
         FloatingActionButton fab = findViewById(R.id.mapButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                startActivityForResult(intent, ACTIVITY_RESULT_FINISH);
-            }
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+            startActivityForResult(intent, ACTIVITY_RESULT_FINISH);
         });
     }
 
@@ -179,17 +176,14 @@ public class MainActivity extends AppCompatActivity {
     private void registerClickFeedback() {
 
         ListView listView = findViewById(R.id.restaurantListView);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listView.setOnItemClickListener((parent, view, position, id) -> {
 
-                Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
-                Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
+            Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
+            Toast.makeText(MainActivity.this, getString(R.string.you_clicked) + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
-                //start restaurant activity
-                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
-                startActivity(intent);
-            }
+            //start restaurant activity
+            Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
+            startActivity(intent);
         });
     }
 
@@ -213,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
             TextView addressText = itemView.findViewById(R.id.restaurantLocation);
             TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
+            TextView issuesText = itemView.findViewById(R.id.issuesfoundtext);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
 
             imageView.setImageResource(R.drawable.food);
@@ -235,9 +230,8 @@ public class MainActivity extends AppCompatActivity {
 
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating(), issuesFound);
 
-                String formattedInspectionDate = DateManager.formatDateInspection(inspectionDate);
-                String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
-                reportMsg += issuesFound + " issues found";
+                String reportMsg = DateManager.formatDateInspection(inspectionDate);
+                issuesText.setText(Integer.toString(issuesFound));
 
                 int icon = determineIcon(restaurant.getName());
 

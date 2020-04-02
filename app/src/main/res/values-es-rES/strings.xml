@@ -30,4 +30,13 @@
     <string name="No">No</string>
     <string name="new_data_is_available_would_you_like_to_update">Nuevos datos están disponibles. ¿Te gustaría actualizar?</string>
     <string name="default_time">0000–00-00T00:00:00.000000</string>
+    <string name="most_recent_report">Informe más reciente:</string>
+    <string name="issues_found">Problemas encontrados:</string>
+    <string name="please_wait">Por favor espera ~~</string>
+    <string name="cancel">Cancelar</string>
+    <string name="downloading">Descargando</string>
+    <string name="loading">Cargando</string>
+    <string name="something_went_wrong">" Algo salió mal"</string>
+    <string name="device_location_error">ERROR: no se pudo obtener la ubicación del dispositivo</string>
+    <string name="you_clicked">Hiciste clic</string>
 </resources>

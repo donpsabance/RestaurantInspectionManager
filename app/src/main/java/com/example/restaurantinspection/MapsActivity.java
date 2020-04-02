@@ -238,16 +238,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         //Start Restaurant Activity upon clicking info window
-        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Restaurant restaurant = (Restaurant) marker.getTag();
-                int pos = mHashMap.get(restaurant);
+        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(marker -> {
+            Restaurant restaurant = (Restaurant) marker.getTag();
+            int pos = mHashMap.get(restaurant);
 
-                //start restaurant activity
-                Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
-                startActivity(intent);
-            }
+            //start restaurant activity
+            Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
+            startActivity(intent);
         });
     }
 
@@ -279,7 +276,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String restaurantTitle = r.getName();
 
                 String restHazard = r.getRestaurantInspectionList().get(0).getHazardRating();
-                String restaurantSnippet = r.getAddress() + "\n" + "Hazard Rating: " + restHazard;
+                String restaurantSnippet = r.getAddress() + "\n" + R.string.hazard_rating + restHazard;
 
                 Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet);
                 restaurants.add(restaurantItem);
@@ -344,17 +341,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (locationPermission) {
                 final Task location = fusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(new OnCompleteListener() {
-                    @Override
-                    public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
-                            Location currentLocation = (Location) task.getResult();
+                location.addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Location currentLocation = (Location) task.getResult();
 
-                            moveMapFocus(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
-                        } else {
-                            Toast.makeText(MapsActivity.this, "ERROR: Could not get device location", Toast.LENGTH_SHORT).show();
-                        }
+                        moveMapFocus(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                DEFAULT_ZOOM);
+                    } else {
+                        Toast.makeText(MapsActivity.this, R.string.device_location_error, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
