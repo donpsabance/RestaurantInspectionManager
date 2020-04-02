@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setUpMaxCriticalViolationsSearch() {
         filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
-        TextWatcher textWatcher = new TextWatcher() {
+        filter_maximumHazard_EditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -212,9 +212,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Todo Filter Adapter
+                arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
             }
 
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+/*        TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
 
@@ -241,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     loadRestaurants();
                 }
             }
-        };
+        };*/
     }
 
     private void compareRestaurant(List<String> list){
@@ -507,7 +513,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 }
 
-                // THE
+                // THE MAX CRITICAL VIOLATIONS IN A YEAR FILTER
+                if(filter_maximumHazard_EditText.getText().toString().length() != 0){
+                    int maxConstraint = Integer.parseInt(filter_maximumHazard_EditText.getText().toString());
+                    int count = 0;
+                    for(iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        count = restaurant.getTotalViolationsWithinYear();
+                        if(count > maxConstraint){
+                            iterator.remove();
+                        }
+                    }
+                }
                 FilterResults results = new FilterResults();
                 results.values = filteredList;
                 return results;
