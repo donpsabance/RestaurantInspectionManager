@@ -68,11 +68,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        for (Restaurant restaurant : restaurantManager) {
-            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-        }
-        restaurantManager.CreateFullCopy();
 
         startActivity(new Intent(this, MapsActivity.class));
 
@@ -177,6 +172,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Todo filter adapter
+                CharSequence query = restaurantFilter_SearchView.getQuery();
+
             }
         });
     }
@@ -425,6 +422,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
         private Filter exampleFilter = new Filter() {
             @Override
+            // string match filter
             protected FilterResults performFiltering(CharSequence constraint) {
                 List<Restaurant> filteredList = new ArrayList<>();
                 if(constraint == null || constraint.length() == 0){
@@ -435,6 +433,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         if (restaurants.getName().toLowerCase().contains(filteredPattern)){
                             filteredList.add(restaurants);
                         }
+                    }
+                }
+                // favourites filter
+                if(favoritesChecboxFilter.isChecked()){
+                    for(Restaurant restaurant : filteredList){
+                        if()
                     }
                 }
                 FilterResults results = new FilterResults();
@@ -450,42 +454,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         };
     }
-
-/*    private void searchRestaurant(){
-
-        final EditText searchBar = findViewById(R.id.searchBar);
-
-        TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {  }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {  }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                //make sure string is not empty so when we try to parse it, we dont crash the program
-                if (!s.toString().trim().equals("")) {
-
-                    restaurantManager.getRestaurantList().clear();
-
-                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
-                        if(restaurant.getName().toLowerCase().contains(s.toString().toLowerCase())){
-                            restaurantManager.add(restaurant);
-                        }
-                    }
-                    //
-
-                    loadRestaurants();
-                }
-            }
-        };
-
-        searchBar.addTextChangedListener(textWatcher);
-
-    }*/
-
 
 
     @Override

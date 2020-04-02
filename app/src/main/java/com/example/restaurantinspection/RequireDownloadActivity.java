@@ -145,9 +145,11 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void terminateActivity() {
-/*        Intent i = new Intent();
-        Log.d("CHECK","SENDING INTENT");
-        setResult(RESULT_OK,i);*/
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for (Restaurant restaurant : restaurantManager) {
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
+        restaurantManager.CreateFullCopy();
         startActivity(MainActivity.makeIntent(this));
         finish();
     }
