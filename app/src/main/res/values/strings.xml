@@ -39,4 +39,11 @@
     <string name="unfavorite_icon">unfavorite icon</string>
     <string name="query_hint">Enter a restaurant name</string>
     >
+
+    <string-array name="hazards">
+        <item>none</item>
+        <item>Low</item>
+        <item>Moderate</item>
+        <item>High</item>
+    </string-array>
 </resources>

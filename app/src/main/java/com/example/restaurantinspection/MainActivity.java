@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,6 +28,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,24 +65,26 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private ArrayAdapter<Restaurant> arrayAdapter;
 
+    // Views Used for filtering
+    private Spinner hazardSpinner;
+    private SearchView restaurantFilter_SearchView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
-//        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        restaurantManager.CreateFullCopy();
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
+        restaurantManager.CreateFullCopy();
 
         startActivity(new Intent(this, MapsActivity.class));
 
@@ -89,11 +93,38 @@ public class MainActivity extends AppCompatActivity {
         setUpMapButton();
         //searchRestaurant();
         setUpSearchBar();
+        setUpSpinner();
+        setUpMaxCriticalViolationsSearch();
+        setUpFavoritesFilter();
     }
 
+    private void setUpFavoritesFilter() {
+
+    }
+
+    private void setUpSpinner() {
+        hazardSpinner = findViewById(R.id.spinnerHazard);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        hazardSpinner.setAdapter(adapter);
+        hazardSpinner.setOnItemSelectedListener(this);
+    }
+    // hazardSpinner click listener
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // Todo Spinner Selection
+        String text = parent.getItemAtPosition(position).toString();
+//        Toast.makeText(MainActivity.this, text,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+    // search bar
     private void setUpSearchBar() {
-        SearchView searchView = findViewById(R.id.searchmain);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        restaurantFilter_SearchView = findViewById(R.id.searchmain);
+        restaurantFilter_SearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 QueryPreferences.setStoredQuery(MainActivity.this, query);
@@ -103,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                arrayAdapter.getFilter().filter(newText);
                 return false;
             }
         });
@@ -115,11 +147,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(arrayAdapter);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        arrayAdapter.notifyDataSetChanged();
-    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -226,6 +254,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private class CustomListAdapter extends ArrayAdapter<Restaurant> implements Filterable {
         private List<Restaurant> exampleList;
         private List<Restaurant> exampleListFull;
@@ -324,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void searchRestaurant(){
+/*    private void searchRestaurant(){
 
         final EditText searchBar = findViewById(R.id.searchBar);
 
@@ -357,6 +386,10 @@ public class MainActivity extends AppCompatActivity {
 
         searchBar.addTextChangedListener(textWatcher);
 
+    }*/
+
+    private void setUpMaxCriticalViolationsSearch() {
+
     }
 
     @Override
@@ -382,5 +415,11 @@ public class MainActivity extends AppCompatActivity {
     }
     public static Intent makeIntent(Context context){
         return new Intent(context,MainActivity.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        arrayAdapter.notifyDataSetChanged();
     }
 }
