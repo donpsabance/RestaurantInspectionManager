@@ -1,26 +1,21 @@
 package com.example.restaurantinspection;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -35,34 +30,22 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.QueryPreferences;
-import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -75,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // Views Used for filtering
     private Spinner hazardSpinner;
     private SearchView restaurantFilter_SearchView;
+    private CheckBox favoritesChecboxFilter;
+    private EditText filter_maximumHazard_EditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,34 +78,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setUpMapButton();
         //searchRestaurant();
         setUpSearchBar();
-        setUpSpinner();
+        setUpHazardsSpinner();
         setUpMaxCriticalViolationsSearch();
         setUpFavoritesFilter();
     }
 
-    private void setUpFavoritesFilter() {
 
-    }
-
-    private void setUpSpinner() {
-        hazardSpinner = findViewById(R.id.spinnerHazard);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        hazardSpinner.setAdapter(adapter);
-        hazardSpinner.setOnItemSelectedListener(this);
-    }
-    // hazardSpinner click listener
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // Todo Spinner Selection
-        String text = parent.getItemAtPosition(position).toString();
-//        Toast.makeText(MainActivity.this, text,Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
     // search bar
     private void setUpSearchBar() {
         restaurantFilter_SearchView = findViewById(R.id.searchmain);
@@ -140,6 +103,63 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
+
+
+    private void setUpHazardsSpinner() {
+        hazardSpinner = findViewById(R.id.spinnerHazard);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        hazardSpinner.setAdapter(adapter);
+        hazardSpinner.setOnItemSelectedListener(this);
+    }
+    // hazardSpinner click listener
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // Todo Spinner Selection
+        String text = parent.getItemAtPosition(position).toString();
+//        Toast.makeText(MainActivity.this, text,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void setUpFavoritesFilter() {
+        favoritesChecboxFilter = findViewById(R.id.favoritescheckBox);
+        favoritesChecboxFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    Toast.makeText(MainActivity.this, "checked", Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(MainActivity.this, "unchecked", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+
+
+    private void setUpMaxCriticalViolationsSearch() {
+        filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        };
+    }
 
     public void loadRestaurants() {
         arrayAdapter = new CustomListAdapter();
@@ -388,9 +408,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }*/
 
-    private void setUpMaxCriticalViolationsSearch() {
 
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
