@@ -91,7 +91,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public boolean onQueryTextSubmit(String query) {
                 QueryPreferences.setStoredQuery(MainActivity.this, query);
-                //TODO: exexcute search method here
                 return true;
             }
 
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // hazardSpinner click listener
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // Todo Spinner Selection
+        // Todo: execute filter here
         String text = parent.getItemAtPosition(position).toString();
 //        Toast.makeText(MainActivity.this, text,Toast.LENGTH_SHORT).show();
     }
@@ -130,11 +129,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         favoritesChecboxFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    Toast.makeText(MainActivity.this, "checked", Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(MainActivity.this, "unchecked", Toast.LENGTH_SHORT).show();
-                }
+                // Todo filter adapter
             }
         });
     }
@@ -151,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                // Todo Filter Adapter
             }
 
             @Override
