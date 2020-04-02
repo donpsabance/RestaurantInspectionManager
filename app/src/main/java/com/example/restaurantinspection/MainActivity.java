@@ -1,5 +1,6 @@
 package com.example.restaurantinspection;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -40,6 +41,8 @@ import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,10 +73,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
 
         startActivity(new Intent(this, MapsActivity.class));
-
+        List<String> favourite_list = readFavouriteList();
+        compareRestaurant(favourite_list);
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
+
+
         //searchRestaurant();
         setUpSearchBar();
         setUpHazardsSpinner();
@@ -222,6 +228,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         };
     }
 
+    private void compareRestaurant(List<String> list){
+        for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
+            for (String TrackingNum : list) {
+                String arr[]=TrackingNum.split("\\+");
+                TrackingNum = arr[0];
+                if (TrackingNum.equals(restaurant.getTrackingNumber())) {
+                    restaurant.setFavourite(true);
+                }
+            }
+        }
+
+    }
+
+
+
     public void loadRestaurants() {
 
         if(hazardFilter != null & maxViolationFilter != null){
@@ -360,6 +381,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             this.exampleListFull = new ArrayList<>(exampleList);
         }
 
+
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
@@ -376,11 +398,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
+            ImageView star = itemView.findViewById(R.id.favorited);
 
             imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
             //make sure they have an inspection report available
+
             if (restaurant.getRestaurantInspectionList().size() > 0) {
 
                 RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(0);
@@ -406,6 +430,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 imageView.setImageResource(icon);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
+                if(restaurant.getFavourite()){
+                    star.setVisibility(View.VISIBLE);
+                }else {
+                    star.setVisibility(View.INVISIBLE);
+                }
+
 
             } else {
 
@@ -414,6 +444,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
             return itemView;
         }
+
 
         @NonNull
         @Override
@@ -477,6 +508,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
         return true;
     }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
+    }
+
+
     public static Intent makeIntent(Context context){
         return new Intent(context,MainActivity.class);
     }
