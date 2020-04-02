@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,13 +14,10 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
-import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Service.CheckInternet;
@@ -34,7 +30,6 @@ import com.example.restaurantinspection.model.Service.Surrey_Data_API;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +38,6 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
@@ -154,15 +148,12 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.setTitle(getString(R.string.please_wait));
         progressDialog.setMessage(getString(R.string.downloading));
         progressDialog.setCancelable(false);
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                thread.interrupt();
-                deleteFile(NEW_RESTAURANTS_FILE_NAME);
-                deleteFile(NEW_INSPECTIONS_FILE_NAME);
-                cancel(true);
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), (dialog, which) -> {
+            thread.interrupt();
+            deleteFile(NEW_RESTAURANTS_FILE_NAME);
+            deleteFile(NEW_INSPECTIONS_FILE_NAME);
+            cancel(true);
 
-            }
         });
         progressDialog.show();
     }

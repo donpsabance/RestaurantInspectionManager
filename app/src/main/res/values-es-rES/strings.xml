@@ -3,7 +3,7 @@
     <string name="app_name">Inspección de restaurante</string>
     <string name="restaurant_information">" Información del restaurante"</string>
     <string name="critical_issues">" cuestiones críticas:"</string>
-    <string name="hazard_rating">" Clasificación de peligro:"</string>
+    <string name="hazard_rating">" Clasificación de peligro: "</string>
     <string name="violation_severity">" Gravedad de violación:"</string>
     <string name="violation_100_199">" Sin permiso calificado o construcción ilegal."</string>
     <string name="violation_200_299">" Almacenamiento / embalaje de alimentos inseguros."</string>
@@ -35,8 +35,13 @@
     <string name="please_wait">Por favor espera ~~</string>
     <string name="cancel">Cancelar</string>
     <string name="downloading">Descargando</string>
-    <string name="loading">Cargando</string>
+    <string name="loading">Cargando~~~~</string>
     <string name="something_went_wrong">" Algo salió mal"</string>
-    <string name="device_location_error">ERROR: no se pudo obtener la ubicación del dispositivo</string>
-    <string name="you_clicked">Hiciste clic</string>
+    <string name="device_location_error">ERROR: no se pudo obtener lad ubicación del dispositivo</string>
+    <string name="you_clicked">Hiciste clic </string>
+    <string name="critical">Critico</string>
+    <string name="not_critical">No Critico</string>
+    <string name="routine">Rutina</string>
+    <string name="follow_up">Seguimiento</string>
+    <string name="no_violations_message">" Sin Violación"</string>
 </resources>

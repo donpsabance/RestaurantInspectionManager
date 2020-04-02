@@ -13,7 +13,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
@@ -60,12 +59,9 @@ public class RestaurantActivity extends AppCompatActivity {
 
         //Start MapActivity upon clicking gps textview
         TextView textView = findViewById(R.id.restaurantgpsid);
-        textView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
-                startActivity(intent);
-            }
+        textView.setOnClickListener(v -> {
+            Intent intent = MapsActivity.makeIntent(RestaurantActivity.this, restaurantIndex);
+            startActivity(intent);
         });
     }
 
@@ -90,13 +86,10 @@ public class RestaurantActivity extends AppCompatActivity {
     private void registerClickBack() {
 
         ListView listView = findViewById(R.id.inspectionList);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listView.setOnItemClickListener((parent, view, position, id) -> {
 
-                Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantIndex, position);
-                startActivity(intent);
-            }
+            Intent intent = SingleInspectionActivity.makeIntent(RestaurantActivity.this, restaurantIndex, position);
+            startActivity(intent);
         });
     }
 

@@ -3,7 +3,7 @@
     <string name="restaurant_information">Restaurant Information</string>
     <string name="todo" translatable="false">TODO</string>
     <string name="critical_issues">Critical issues:</string>
-    <string name="hazard_rating">Hazard rating:</string>
+    <string name="hazard_rating">Hazard rating: </string>
     <string name="violation_severity">Violation Severity:</string>
     <string name="violation_100_199">No qualified permit or illegal construction.</string>
     <string name="violation_200_299">Unsafe food storage/packaging.</string>
@@ -21,7 +21,7 @@
     <string name="gps_coordinates">GPS Coordinates:</string>
     <string name="noinspections">No inspections available</string>
     <string name="noavailablereports">No available reports</string>
-    <string name="no_violations_message" translatable="false"><![CDATA[<No violations>]]></string>
+    <string name="no_violations_message">No Violation</string>
     <string name="inspection_type">Inspection type:</string>
     <string name="non_crit_issuesmessage">Non critical issues:</string>
     <string name="title_activity_maps">Map</string>
@@ -39,5 +39,9 @@
     <string name="loading">Loading~~~~</string>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="device_location_error">ERROR: Could not get device location</string>
-    <string name="you_clicked">You clicked</string>
+    <string name="you_clicked">You clicked </string>
+    <string name="critical">Critical</string>
+    <string name="not_critical">Not Critical</string>
+    <string name="routine">Routine</string>
+    <string name="follow_up">Follow-Up</string>
 </resources>

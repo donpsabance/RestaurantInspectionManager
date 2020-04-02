@@ -1,5 +1,6 @@
 package com.example.restaurantinspection;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -9,7 +10,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -82,10 +82,19 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private void updateTextUI() {
-        String message;
+        String message = "";
 
+        String inspectionType = restaurantInspection.getInspectionType();
         TextView inspectionTypeView = findViewById(R.id.inspectionType);
-        message = getString(R.string.inspection_type) + " " + restaurantInspection.getInspectionType();
+
+        if(inspectionType.equalsIgnoreCase("Routine")) {
+            message = getString(R.string.inspection_type) + " " + getString(R.string.routine);
+        }
+        if(inspectionType.equalsIgnoreCase("Follow-Up")){
+            message = getString(R.string.inspection_type) + " " + getString(R.string.follow_up);
+        }
+
+
         inspectionTypeView.setText(message);
 
         TextView inspectionDateView = findViewById(R.id.inspectionDate);
@@ -105,6 +114,10 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
         TextView hazardResultView = findViewById(R.id.HazardResult);
 
+
+
+        ProgressBar progressBar = findViewById(R.id.hazardBarSingle);
+        determineHazardLevel(progressBar, restaurantInspection.getHazardRating(), hazardResultView);
         String hazardRating = restaurantInspection.getHazardRating();
         if (hazardRating.equalsIgnoreCase("LOW")){
             hazardResultView.setText(R.string.low);
@@ -115,11 +128,6 @@ public class SingleInspectionActivity extends AppCompatActivity {
         if (hazardRating.equalsIgnoreCase("HIGH")){
             hazardResultView.setText(R.string.high);
         }
-
-
-        ProgressBar progressBar = findViewById(R.id.hazardBarSingle);
-        determineHazardLevel(progressBar, restaurantInspection.getHazardRating(), hazardResultView);
-        hazardResultView.setText(restaurantInspection.getHazardRating());
 
 
     }
@@ -184,6 +192,7 @@ public class SingleInspectionActivity extends AppCompatActivity {
             super(SingleInspectionActivity.this, R.layout.list_violations_layout, restaurantInspection.getViolationsList());
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
 
@@ -221,12 +230,12 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
             if (violation.getStatus().equalsIgnoreCase("Critical")) {
                 colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this, R.color.colorAccent));
+                severityMessage_view.setText(R.string.critical);
 
             } else {
                 colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this, R.color.yellow));
+                severityMessage_view.setText(R.string.not_critical);
             }
-            severityMessage_view.setText(violation.getStatus());
-
 
             return itemview;
         }
@@ -245,12 +254,9 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
     private void registerClickCallback() {
         ListView listView = findViewById(R.id.inspectionListView);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Violation violation = restaurantInspection.getViolationsList().get(position);
-                Toast.makeText(SingleInspectionActivity.this, violation.getViolationDump(), Toast.LENGTH_SHORT).show();
-            }
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Violation violation = restaurantInspection.getViolationsList().get(position);
+            Toast.makeText(SingleInspectionActivity.this, violation.getViolationDump(), Toast.LENGTH_SHORT).show();
         });
     }
 

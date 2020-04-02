@@ -8,21 +8,18 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
-import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Util.MarkerClusterRenderer;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -35,12 +32,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -82,7 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
+        if (requestCode == LOADING_DATA_RESULT_CODE && resultCode == RESULT_OK) {
             getPermissions();
         }
     }
@@ -100,9 +95,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void checkToUpdateData() {
-        if(!restaurantManager.isExtraDataLoaded()){
-            Log.d("STARTING LOAD","BEGINNING ACTIVITY");
-            startActivityForResult(RequireDownloadActivity.makeIntent(this),LOADING_DATA_RESULT_CODE);
+        if (!restaurantManager.isExtraDataLoaded()) {
+            Log.d("STARTING LOAD", "BEGINNING ACTIVITY");
+            startActivityForResult(RequireDownloadActivity.makeIntent(this), LOADING_DATA_RESULT_CODE);
         }
     }
 
@@ -182,15 +177,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //re-cluster all restaurants
     private void updateMapOnClick() {
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
+        mMap.setOnMapClickListener(latLng -> {
 
-                if(mClusterManager.getAlgorithm().getItems().size() == 1){
+            if (mClusterManager.getAlgorithm().getItems().size() == 1) {
 
-                    setUpClusterManager();
-                    setUpInfoWindows();
-                }
+                setUpClusterManager();
+                setUpInfoWindows();
             }
         });
     }
@@ -276,7 +268,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String restaurantTitle = r.getName();
 
                 String restHazard = r.getRestaurantInspectionList().get(0).getHazardRating();
-                String restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + restHazard;
+                String restaurantSnippet = "";
+                if (restHazard.equalsIgnoreCase("Low")) {
+                    restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.low);
+                }
+                if (restHazard.equalsIgnoreCase("Moderate")) {
+                    restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.moderate);
+                }
+                if (restHazard.equalsIgnoreCase("Moderate")) {
+                    restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.high);
+                }
 
                 Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet);
                 restaurants.add(restaurantItem);
@@ -316,20 +317,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
 
         locationPermission = false;
-        switch (requestCode) {
-            case LOCATION_PERMISSION_CODE: {
-
-                if (results.length > 0) {
-                    for (int i : results) {
-                        if (i != PackageManager.PERMISSION_GRANTED) {
-                            return;
-                        }
+        if (requestCode == LOCATION_PERMISSION_CODE) {
+            if (results.length > 0) {
+                for (int i : results) {
+                    if (i != PackageManager.PERMISSION_GRANTED) {
+                        return;
                     }
-
-                    //they accepted permissions, load map
-                    locationPermission = true;
-                    loadMap();
                 }
+
+                //they accepted permissions, load map
+                locationPermission = true;
+                loadMap();
             }
         }
     }

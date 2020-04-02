@@ -2,8 +2,6 @@ package com.example.restaurantinspection.model;
 
 import android.util.Log;
 
-import com.example.restaurantinspection.R;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
