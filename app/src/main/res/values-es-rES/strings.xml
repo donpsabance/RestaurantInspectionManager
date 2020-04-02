@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Inspección de restaurante</string>
+    <string name="restaurant_information">" Información del restaurante"</string>
+    <string name="critical_issues">" cuestiones críticas:"</string>
+    <string name="hazard_rating">" Clasificación de peligro:"</string>
+    <string name="violation_severity">" Gravedad de violación:"</string>
+    <string name="violation_100_199">" Sin permiso calificado o construcción ilegal."</string>
+    <string name="violation_200_299">" Almacenamiento / embalaje de alimentos inseguros."</string>
+    <string name="violation_300_399">" Equipo pobre y ambiente de trabajo"</string>
+    <string name="violation_400_499">" El personal tiene malos hábitos o condiciones de higiene."</string>
+    <string name="violation_500_599">" NIVEL SEGURO DE ALIMENTOS insuficiente"</string>
+    <string name="address">" La dirección:"</string>
+    <string name="low">Bajo</string>
+    <string name="moderate">Mediano</string>
+    <string name="high">Alto</string>
+    <string name="number_of_critical_issues">Número de problemas críticos:</string>
+    <string name="number_of_non_critical_issues">Número de problemas no críticos:</string>
+    <string name="inspection_date">Fecha de inspección:</string>
+    <string name="date">" Fecha:"</string>
+    <string name="gps_coordinates">" coordenadas GPS:"</string>
+    <string name="noinspections">" No hay inspecciones disponibles"</string>
+    <string name="noavailablereports">No hay informes disponibles</string>
+    <string name="inspection_type">" Tipo de inspección:"</string>
+    <string name="non_crit_issuesmessage">" Problemas no críticos:"</string>
+    <string name="title_activity_maps">" Mapa"</string>
+    <string name="Last_Modified_time">" El tiempo es% 1 $ s"</string>
+    <string name="Update">" ¿Quieres actualizar la nueva inspección?"</string>
+    <string name="Yes">Sí</string>
+    <string name="No">No</string>
+    <string name="new_data_is_available_would_you_like_to_update">Nuevos datos están disponibles. ¿Te gustaría actualizar?</string>
+    <string name="default_time">0000–00-00T00:00:00.000000</string>
+</resources>

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Restaurant Inspection</string>
     <string name="restaurant_information">Restaurant Information</string>
-    <string name="todo">TODO</string>
+    <string name="todo" translatable="false">TODO</string>
     <string name="critical_issues">Critical issues:</string>
     <string name="hazard_rating">Hazard rating:</string>
     <string name="violation_severity">Violation Severity:</string>
@@ -21,7 +21,7 @@
     <string name="gps_coordinates">GPS Coordinates:</string>
     <string name="noinspections">No inspections available</string>
     <string name="noavailablereports">No available reports</string>
-    <string name="no_violations_message"><![CDATA[<No violations>]]></string>
+    <string name="no_violations_message" translatable="false"><![CDATA[<No violations>]]></string>
     <string name="inspection_type">Inspection type:</string>
     <string name="non_crit_issuesmessage">Non critical issues:</string>
     <string name="title_activity_maps">Map</string>
