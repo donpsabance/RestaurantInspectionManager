@@ -61,6 +61,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private CheckBox favoritesChecboxFilter;
     private EditText filter_maximumHazard_EditText;
 
+    private List<Restaurant> hazardFilter = restaurantManager.getFullRestaurantListCopy();
+    private List<Restaurant> maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,13 +79,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
-        //searchRestaurant();
         setUpSearchBar();
         setUpHazardsSpinner();
         setUpMaxCriticalViolationsSearch();
         setUpFavoritesFilter();
     }
 
+    private void enableFilter(){
+
+
+    }
 
     // search bar
     private void setUpSearchBar() {
@@ -102,7 +108,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
     }
 
+    //load restaurants based on hazard level
+    private void filterRestaurants(String hazardLevel){
 
+        List<Restaurant> result = new ArrayList<>();
+        if(!hazardLevel.equalsIgnoreCase("none")){
+
+            restaurantManager.getRestaurantList().clear();
+            for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+
+                //most recent inspection
+                if(restaurant.getRestaurantInspectionList() != null &&
+                        restaurant.getRestaurantInspectionList().size() > 0){
+                    if(restaurant.getRestaurantInspectionList().get(0).getHazardRating().equalsIgnoreCase(hazardLevel)){
+
+                        result.add(restaurant);
+
+                    }
+                }
+            }
+        } else if(hazardLevel.equalsIgnoreCase("none")){
+
+            result = restaurantManager.getFullRestaurantListCopy();
+
+        }
+
+        hazardFilter = result;
+    }
 
     private void setUpHazardsSpinner() {
         hazardSpinner = findViewById(R.id.spinnerHazard);
@@ -114,9 +146,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // hazardSpinner click listener
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // Todo: execute filter here
-        String text = parent.getItemAtPosition(position).toString();
-//        Toast.makeText(MainActivity.this, text,Toast.LENGTH_SHORT).show();
+
+        //pos 0 -none, 1 - low, 2 -moderate, 3 - high
+        switch (position){
+            case 0:
+                filterRestaurants("none");
+                loadRestaurants();
+                break;
+            case 1:
+                filterRestaurants("low");
+                loadRestaurants();
+                break;
+            case 2:
+                filterRestaurants("moderate");
+                loadRestaurants();
+                break;
+            case 3:
+                filterRestaurants("high");
+                loadRestaurants();
+                break;
+
+        }
     }
 
     @Override
@@ -138,6 +188,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setUpMaxCriticalViolationsSearch() {
         filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
+        hazardSpinner = findViewById(R.id.spinnerHazard);
+
         TextWatcher textWatcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -146,23 +198,57 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // Todo Filter Adapter
             }
 
             @Override
             public void afterTextChanged(Editable s) {
 
+                if(!s.toString().trim().equals("")){
+
+                    List<Restaurant> result = new ArrayList<>();
+                    int maxViolation = Integer.parseInt(s.toString());
+                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+
+                        if(restaurant.getRestaurantInspectionList()  != null &&
+                                restaurant.getRestaurantInspectionList().size() > 0){
+
+                            if(restaurant.getRestaurantInspectionList().get(0).getNumCritical() <= maxViolation){
+
+                                result.add(restaurant);
+
+                            }
+                        }
+                    }
+                    maxViolationFilter = result;
+                    loadRestaurants();
+                } else {
+                    maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
+                    loadRestaurants();
+                }
             }
         };
+        filter_maximumHazard_EditText.addTextChangedListener(textWatcher);
     }
 
     public void loadRestaurants() {
+
+        if(hazardFilter != null & maxViolationFilter != null){
+
+            restaurantManager.getRestaurantList().clear();
+            for(Restaurant restaurant : hazardFilter){
+                for(Restaurant restaurant1 : maxViolationFilter){
+
+                    if(restaurant.getName().equalsIgnoreCase(restaurant1.getName())){
+                        restaurantManager.add(restaurant);
+                    }
+                }
+            }
+        }
+
         arrayAdapter = new CustomListAdapter();
         ListView listView = findViewById(R.id.restaurantListView);
         listView.setAdapter(arrayAdapter);
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -273,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private class CustomListAdapter extends ArrayAdapter<Restaurant> implements Filterable {
         private List<Restaurant> exampleList;
         private List<Restaurant> exampleListFull;
+
 
         public CustomListAdapter() {
             super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
