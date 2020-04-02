@@ -118,7 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void setUpSearchBar() {
+/*    private void setUpSearchBar() {
         SearchView searchView = findViewById(R.id.searchmap);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -134,7 +134,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
-    }
+    }*/
 
     private void updateItems() {
         String query = QueryPreferences.getStoredQuery(MapsActivity.this);
