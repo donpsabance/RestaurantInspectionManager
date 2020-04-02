@@ -1,15 +1,22 @@
 package com.example.restaurantinspection;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,10 +26,9 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Restaurant;
-import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.example.restaurantinspection.model.Util.MarkerClusterRenderer;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -37,10 +43,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.google.maps.android.clustering.ClusterManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
     private LocationRequest locationRequest;
+    private EditText mSearchText;
 
     private static final int LOADING_DATA_RESULT_CODE = 100;
     private static final int LOCATION_PERMISSION_CODE = 1234;
@@ -82,7 +91,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == LOADING_DATA_RESULT_CODE && resultCode==RESULT_OK){
+        if (requestCode == LOADING_DATA_RESULT_CODE && resultCode == RESULT_OK) {
             getPermissions();
         }
     }
@@ -92,17 +101,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+
         // load extra data from disk
-        checkToUpdateData();
+        //checkToUpdateData();
 
         //make sure we have permission to do anything with location first
         getPermissions();
+        setUpSearchBar();
+        List<String> favourite_list = readFavouriteList();
+        compare_date(favourite_list);
+    }
+
+    private void setUpSearchBar() {
+        mSearchText = findViewById(R.id.input_search);
+        mSearchText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                    event.getAction() == KeyEvent.ACTION_DOWN ||
+                    event.getAction() == KeyEvent.KEYCODE_ENTER) {
+                //TODO: execute method for searching
+
+            }
+            return false;
+        });
+
     }
 
     private void checkToUpdateData() {
-        if(!restaurantManager.isExtraDataLoaded()){
-            Log.d("STARTING LOAD","BEGINNING ACTIVITY");
-            startActivityForResult(RequireDownloadActivity.makeIntent(this),LOADING_DATA_RESULT_CODE);
+        if (!restaurantManager.isExtraDataLoaded()) {
+            Log.d("STARTING LOAD", "BEGINNING ACTIVITY");
+            startActivityForResult(RequireDownloadActivity.makeIntent(this), LOADING_DATA_RESULT_CODE);
         }
     }
 
@@ -186,7 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapClick(LatLng latLng) {
 
-                if(mClusterManager.getAlgorithm().getItems().size() == 1){
+                if (mClusterManager.getAlgorithm().getItems().size() == 1) {
 
                     setUpClusterManager();
                     setUpInfoWindows();
@@ -205,7 +233,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mClusterManager.clearItems();
             for (Restaurant r : mHashMap.keySet()) {
                 if (mHashMap.get(r) == restaurantIndex) {
-                    //only add the specfic restaurant
+
+                    //only add the specific restaurant
                     mClusterManager.addItem(r);
                 }
             }
@@ -238,16 +267,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         //Start Restaurant Activity upon clicking info window
-        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                Restaurant restaurant = (Restaurant) marker.getTag();
-                int pos = mHashMap.get(restaurant);
+        mClusterManager.getMarkerCollection().setOnInfoWindowClickListener(marker -> {
+            Restaurant restaurant = (Restaurant) marker.getTag();
+            int pos = mHashMap.get(restaurant);
 
-                //start restaurant activity
-                Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
-                startActivity(intent);
-            }
+            //start restaurant activity
+            Intent intent = RestaurantActivity.makeIntent(MapsActivity.this, pos);
+            startActivity(intent);
         });
     }
 
@@ -362,5 +388,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Log.wtf(LOG_TAG, "ERROR: " + securityException.getStackTrace());
         }
+    }
+
+    public void compare_date(List<String> list){
+        List<Restaurant> favourite_list = new ArrayList<>();
+        List<String> new_favourite_list = new ArrayList<>();
+        for(String a : list){
+            String[] arr = a.split("\\+");
+            for(Restaurant restaurants : restaurantManager.getRestaurantList()){
+                if(restaurants.getTrackingNumber().equals(arr[0])){
+                    if(!restaurants.getRestaurantInspectionList().get(0).getInspectionDate().equals(arr[1])){
+                        arr[1] = restaurants.getRestaurantInspectionList().get(0).getInspectionDate();
+                        favourite_list.add(restaurants);
+                        new_favourite_list.add(arr[0]+"+"+arr[1]);
+                        Log.d("MAP",favourite_list.toString());
+                    }
+                }
+            }
+        }
+        if(favourite_list.size()!=0){
+            show_dialog(favourite_list);
+            saveList(new_favourite_list);
+        }
+    }
+
+    public void show_dialog(List<Restaurant> list){
+        List<String> show = new ArrayList<>();
+        for(Restaurant restaurants : list){
+            String name = restaurants.getName();
+            String date = restaurants.getRestaurantInspectionList().get(0).getInspectionDate();
+            String hazard_level = restaurants.getRestaurantInspectionList().get(0).getHazardRating();
+            String restaurants_show = name + "  " + date + "  " +hazard_level+"\n";
+            show.add(restaurants_show);
+        }
+        AlertDialog.Builder new_update = new AlertDialog.Builder(this);
+        new_update.setTitle("Newest Update for your favourite");
+        new_update.setMessage(show.toString().replace("[","").
+                replace("]","").
+                replace(",","").trim());
+        new_update.setNeutralButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        new_update.show();
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
+    }
+    public void saveList(List<String> favourite_list){
+        SharedPreferences sp = this.getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        Gson user_gson = new Gson();
+        String favourite_jsonStr = user_gson.toJson(favourite_list);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("Favourite_list",favourite_jsonStr);
+        editor.apply();
     }
 }

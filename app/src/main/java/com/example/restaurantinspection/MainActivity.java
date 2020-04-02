@@ -1,7 +1,6 @@
 package com.example.restaurantinspection;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,45 +10,42 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,19 +58,36 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
-        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
+//        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
+//        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.getRestaurantList().sort(new RestaurantComparator());
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-
         startActivity(new Intent(this, MapsActivity.class));
-
+        List<String> favourite_list = readFavouriteList();
+        compareRestaurant(favourite_list);
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
+
+
     }
+
+    private void compareRestaurant(List<String> list){
+        for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
+            for (String TrackingNum : list) {
+                String arr[]=TrackingNum.split("\\+");
+                TrackingNum = arr[0];
+                if (TrackingNum.equals(restaurant.getTrackingNumber())) {
+                    restaurant.setFavourite(true);
+                }
+            }
+        }
+
+    }
+
+
 
     public void loadRestaurants() {
         arrayAdapter = new CustomListAdapter();
@@ -193,10 +206,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private class CustomListAdapter extends ArrayAdapter<Restaurant> {
+    private class CustomListAdapter extends ArrayAdapter<Restaurant> implements Filterable {
+        private List<Restaurant> exampleList;
+        private List<Restaurant> exampleListFull;
+
         public CustomListAdapter() {
             super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
+            this.exampleList = restaurantManager.getRestaurantList();
+            this.exampleListFull = new ArrayList<>(exampleList);
         }
+
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         @Override
@@ -214,11 +233,13 @@ public class MainActivity extends AppCompatActivity {
             TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
+            ImageView star = itemView.findViewById(R.id.favorited);
 
             imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
             //make sure they have an inspection report available
+
             if (restaurant.getRestaurantInspectionList().size() > 0) {
 
                 RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(0);
@@ -244,6 +265,12 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageResource(icon);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
+                if(restaurant.getFavourite()){
+                    star.setVisibility(View.VISIBLE);
+                }else {
+                    star.setVisibility(View.INVISIBLE);
+                }
+
 
             } else {
 
@@ -252,6 +279,77 @@ public class MainActivity extends AppCompatActivity {
             }
             return itemView;
         }
+
+
+        @NonNull
+        @Override
+        public Filter getFilter() {
+            return exampleFilter;
+        }
+        private Filter exampleFilter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Restaurant> filteredList = new ArrayList<>();
+                if(constraint == null || constraint.length() == 0){
+                    filteredList.addAll(exampleListFull);
+                } else {
+                    String filteredPattern = constraint.toString().toLowerCase().trim();
+                    for (Restaurant restaurants : exampleListFull){
+                        if (restaurants.getName().toLowerCase().contains(filteredPattern)){
+                            filteredList.add(restaurants);
+                        }
+                    }
+                }
+                FilterResults results = new FilterResults();
+                results.values = filteredList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                exampleList.clear();
+                exampleList.addAll((List) results.values);
+                notifyDataSetChanged();
+            }
+        };
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem menuItem = menu.findItem(R.id.search_menu);
+        SearchView searchView = (SearchView) menuItem.getActionView();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                arrayAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+        return true;
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
+    }
+
+
+    public static Intent makeIntent(Context context){
+        return new Intent(context,MainActivity.class);
+    }
 }
