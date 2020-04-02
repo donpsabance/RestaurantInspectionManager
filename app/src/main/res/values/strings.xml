@@ -38,6 +38,7 @@
     <string name="reports">Reports</string>
     <string name="unfavorite_icon">unfavorite icon</string>
     <string name="query_hint">Enter a restaurant name</string>
+    <string name="extra_filters"><u>Extra Filters</u></string>
     >
 
     <string-array name="hazards">

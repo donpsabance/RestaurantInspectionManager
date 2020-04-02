@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
 import android.widget.SearchView;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -37,6 +39,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
@@ -92,13 +95,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        // load extra data from disk
-        //checkToUpdateData();
-
         //make sure we have permission to do anything with location first
         getPermissions();
 
         setUpSearchBar();
+        setFabSettingsButton();
+    }
+
+    // allows additional settings to be shown/hidden
+    private void setFabSettingsButton() {
+        final ConstraintLayout extraSettingsLayout = findViewById(R.id.mapSettings_constraintLayout);
+        FloatingActionButton fab = findViewById(R.id.settingsPopUpFab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(extraSettingsLayout.getVisibility() == View.INVISIBLE){
+                    extraSettingsLayout.setVisibility(View.VISIBLE);
+                }else{
+                    extraSettingsLayout.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
     }
 
     private void setUpSearchBar() {

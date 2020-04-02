@@ -8,10 +8,9 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
-        android:id="@+id/relLayout2"
+        android:id="@+id/mapSettings_constraintLayout"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginStart="7dp"
         android:background="#FFF"
         android:elevation="10dp"
         app:layout_constraintStart_toEndOf="@+id/restaurantListView"
