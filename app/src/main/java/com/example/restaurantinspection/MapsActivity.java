@@ -12,7 +12,10 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.Layout;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,7 +112,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setFabSettingsButton();
     }
 
-    private void setUpSearchBar() {
+/*    private void setUpSearchBar() {
         mSearchText = findViewById(R.id.input_search);
         mSearchText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
@@ -122,9 +125,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return false;
         });
 
-    }
+    }*/
 
-    /*    private void setUpSearchBar() {
+        private void setUpSearchBar() {
         SearchView searchView = findViewById(R.id.searchmap);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -140,7 +143,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
-    }*/
+    }
 
     private void updateItems() {
         String query = QueryPreferences.getStoredQuery(MapsActivity.this);
@@ -174,13 +177,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
-    }
-
-    private void checkToUpdateData() {
-        if (!restaurantManager.isExtraDataLoaded()) {
-            Log.d("STARTING LOAD", "BEGINNING ACTIVITY");
-            startActivityForResult(RequireDownloadActivity.makeIntent(this), LOADING_DATA_RESULT_CODE);
-        }
     }
 
     private void loadMap() {

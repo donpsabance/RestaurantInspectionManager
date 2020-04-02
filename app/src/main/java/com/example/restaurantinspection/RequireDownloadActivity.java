@@ -154,7 +154,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
         for (Restaurant restaurant : restaurantManager) {
             Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
         }
-        restaurantManager.CreateFullCopy();
         startActivity(MainActivity.makeIntent(this));
         finish();
     }
@@ -497,7 +496,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             reader.readLine();
             while (((line = reader.readLine()) != null) && (!line.equals(",,,,,,"))) {
                 // Split line by ','
-                Log.d("TEST", line);
+                //Log.d("TEST", line);
                 String[] parts = line.split("\"");
                 String[] tokens = parts[0].split(",");
                 String var_token5;
@@ -515,7 +514,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         tokens[2], tokens[3], tokens[4],
                         var_token5, var_token6);
 
-                Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
+                //Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
                 if(hmap.containsKey(sample.getTrackingNumber())){
                     hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
                 }
