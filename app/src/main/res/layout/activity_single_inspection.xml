@@ -30,8 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="50dp"
-        android:layout_marginRight="50dp"
-        android:text="inspection date"
+        android:text="@string/inspection_date"
         app:layout_constraintBottom_toBottomOf="@+id/inspectionType"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/inspectionType" />

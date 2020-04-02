@@ -276,7 +276,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String restaurantTitle = r.getName();
 
                 String restHazard = r.getRestaurantInspectionList().get(0).getHazardRating();
-                String restaurantSnippet = r.getAddress() + "\n" + R.string.hazard_rating + restHazard;
+                String restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + restHazard;
 
                 Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet);
                 restaurants.add(restaurantItem);

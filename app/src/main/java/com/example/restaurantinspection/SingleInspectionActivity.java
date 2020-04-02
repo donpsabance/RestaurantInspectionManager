@@ -1,10 +1,5 @@
 package com.example.restaurantinspection;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -22,10 +17,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Violation;
-
 
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
@@ -105,10 +104,21 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
 
         TextView hazardResultView = findViewById(R.id.HazardResult);
-        hazardResultView.setText(restaurantInspection.getHazardRating());
+
+        String hazardRating = restaurantInspection.getHazardRating();
+        if (hazardRating.equalsIgnoreCase("LOW")){
+            hazardResultView.setText(R.string.low);
+        }
+        if (hazardRating.equalsIgnoreCase("MODERATE")){
+            hazardResultView.setText(R.string.moderate);
+        }
+        if (hazardRating.equalsIgnoreCase("HIGH")){
+            hazardResultView.setText(R.string.high);
+        }
+
 
         ProgressBar progressBar = findViewById(R.id.hazardBarSingle);
-        determineHazardLevel(progressBar,restaurantInspection.getHazardRating(),hazardResultView);
+        determineHazardLevel(progressBar, restaurantInspection.getHazardRating(), hazardResultView);
         hazardResultView.setText(restaurantInspection.getHazardRating());
 
 
@@ -141,20 +151,20 @@ public class SingleInspectionActivity extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, TextView hazardTextView){
+    private void determineHazardLevel(ProgressBar progressBar, String hazardLevel, TextView hazardTextView) {
 
-        if(hazardLevel.equalsIgnoreCase("LOW")){
+        if (hazardLevel.equalsIgnoreCase("LOW")) {
             progressBar.setProgress(30);
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(75, 194, 54)));
             hazardTextView.setTextColor(Color.rgb(75, 194, 54));
 
-        } else if(hazardLevel.equalsIgnoreCase("MODERATE")){
+        } else if (hazardLevel.equalsIgnoreCase("MODERATE")) {
 
             progressBar.setProgress(60);
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 158, 66)));
             hazardTextView.setTextColor(Color.rgb(245, 158, 66));
 
-        } else if(hazardLevel.equalsIgnoreCase("HIGH")){
+        } else if (hazardLevel.equalsIgnoreCase("HIGH")) {
 
             progressBar.setProgress(90);
             progressBar.setProgressTintList(ColorStateList.valueOf(Color.rgb(245, 66, 66)));
@@ -168,18 +178,18 @@ public class SingleInspectionActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
-    private class CustomListAdapter extends ArrayAdapter<Violation>{
+    private class CustomListAdapter extends ArrayAdapter<Violation> {
 
-        public CustomListAdapter(){
-            super(SingleInspectionActivity.this,R.layout.list_violations_layout,restaurantInspection.getViolationsList());
+        public CustomListAdapter() {
+            super(SingleInspectionActivity.this, R.layout.list_violations_layout, restaurantInspection.getViolationsList());
         }
 
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
 
             View itemview = view;
-            if(itemview == null){
-                itemview = getLayoutInflater().inflate(R.layout.list_violations_layout,viewGroup,false);
+            if (itemview == null) {
+                itemview = getLayoutInflater().inflate(R.layout.list_violations_layout, viewGroup, false);
             }
             ImageView imageView = itemview.findViewById(R.id.violationIcon);
             TextView briefMessage_view = itemview.findViewById(R.id.violationDescription);
@@ -192,28 +202,28 @@ public class SingleInspectionActivity extends AppCompatActivity {
 
             int id_num = violation.getViolation_id();
 
-            if(id_num >= 100 && id_num < 200){
+            if (id_num >= 100 && id_num < 200) {
                 imageView.setImageResource(R.drawable.permits);
                 briefMessage_view.setText(R.string.violation_100_199);
-            }else if(id_num >= 200 && id_num < 300){
+            } else if (id_num >= 200 && id_num < 300) {
                 imageView.setImageResource(R.drawable.food_safety);
                 briefMessage_view.setText(R.string.violation_200_299);
-            }else if (id_num >= 300 && id_num < 400){
+            } else if (id_num >= 300 && id_num < 400) {
                 imageView.setImageResource(R.drawable.equipment_cleanliness);
                 briefMessage_view.setText(R.string.violation_300_399);
-            }else if(id_num >= 400 && id_num < 500){
+            } else if (id_num >= 400 && id_num < 500) {
                 imageView.setImageResource(R.drawable.wash_hands);
                 briefMessage_view.setText(R.string.violation_400_499);
-            }else if(id_num >= 500 && id_num < 600){
+            } else if (id_num >= 500 && id_num < 600) {
                 imageView.setImageResource(R.drawable.food_safe);
                 briefMessage_view.setText(R.string.violation_500_599);
             }
 
-            if(violation.getStatus().equalsIgnoreCase("Critical")){
-                colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this,R.color.colorAccent));
+            if (violation.getStatus().equalsIgnoreCase("Critical")) {
+                colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this, R.color.colorAccent));
 
-            }else{
-                colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this,R.color.yellow));
+            } else {
+                colorBlock_imageview.setColorFilter(ContextCompat.getColor(SingleInspectionActivity.this, R.color.yellow));
             }
             severityMessage_view.setText(violation.getStatus());
 
@@ -222,13 +232,13 @@ public class SingleInspectionActivity extends AppCompatActivity {
         }
 
     }
+
     private void checkEmptyViolations() {
         TextView textView = findViewById(R.id.violation_emptyMessage);
-        if(restaurantInspection.getViolationsList().size() == 0){
+        if (restaurantInspection.getViolationsList().size() == 0) {
             textView.setText(R.string.no_violations_message);
             textView.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             textView.setVisibility(View.INVISIBLE);
         }
     }
@@ -239,16 +249,16 @@ public class SingleInspectionActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Violation violation = restaurantInspection.getViolationsList().get(position);
-                Toast.makeText(SingleInspectionActivity.this,violation.getViolationDump(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(SingleInspectionActivity.this, violation.getViolationDump(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     //called by Restaurant Activity
     public static Intent makeIntent(Context context, int restaurantIndex, int inspectionIndex) {
-        Intent intent = new Intent (context, SingleInspectionActivity.class);
-        intent.putExtra(EXTRA_RESTAURANT_INDEX,restaurantIndex);
-        intent.putExtra(EXTRA_INSPECTION_INDEX,inspectionIndex);
+        Intent intent = new Intent(context, SingleInspectionActivity.class);
+        intent.putExtra(EXTRA_RESTAURANT_INDEX, restaurantIndex);
+        intent.putExtra(EXTRA_INSPECTION_INDEX, inspectionIndex);
         return intent;
     }
 
