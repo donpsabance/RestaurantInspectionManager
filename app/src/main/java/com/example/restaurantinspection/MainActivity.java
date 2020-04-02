@@ -77,10 +77,10 @@ public class MainActivity extends AppCompatActivity {
     private void compareRestaurant(List<String> list){
         for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
             for (String TrackingNum : list) {
-                if (TrackingNum.contains(restaurant.getTrackingNumber())) {
+                String arr[]=TrackingNum.split("\\+");
+                TrackingNum = arr[0];
+                if (TrackingNum.equals(restaurant.getTrackingNumber())) {
                     restaurant.setFavourite(true);
-                }else{
-                    restaurant.setFavourite(false);
                 }
             }
         }
