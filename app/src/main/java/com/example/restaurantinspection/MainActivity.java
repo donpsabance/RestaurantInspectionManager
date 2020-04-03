@@ -186,14 +186,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Todo filter adapter
-//                CharSequence query = restaurantFilter_SearchView.getQuery();
-//                int count = 0;
-//                for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
-//                    if(restaurant.getFavourite()){
-//                        count++;
-//                    }
-//                }
-//                Toast.makeText(MainActivity.this,"count = " + count, Toast.LENGTH_SHORT).show();
                 arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
 
             }

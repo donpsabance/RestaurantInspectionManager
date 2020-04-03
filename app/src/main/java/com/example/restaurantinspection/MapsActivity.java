@@ -10,13 +10,17 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.text.Layout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +58,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, AdapterView.OnItemSelectedListener {
 
     public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
     private final String LOG_TAG = "RESTAURANT INSPECTION: ";
@@ -77,6 +81,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private final float DEFAULT_ZOOM = 12f;
     private final long MIN_TIME = 1000;
     private final float MIN_DISTANCE = 1f;
+
+    // Views used for filtering
+    private Spinner filter_hazardSpinner;
+    private CheckBox filter_favouritedCheckBox;
+    private SearchView filter_restaurantSearchview;
+    private  EditText filter_maxViolations_InYear;
 
     private boolean locationPermission = false;
 
@@ -110,7 +120,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         List<String> favourite_list = readFavouriteList();
         compare_date(favourite_list);
         setFabSettingsButton();
+        setFavoritesFilter();
+        setHazardFilter();
+        setMaxCriticalViolations();
     }
+
 
 /*    private void setUpSearchBar() {
         mSearchText = findViewById(R.id.input_search);
@@ -128,39 +142,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }*/
 
         private void setUpSearchBar() {
-        SearchView searchView = findViewById(R.id.searchmap);
+        filter_restaurantSearchview = findViewById(R.id.searchmap);
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        filter_restaurantSearchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 QueryPreferences.setStoredQuery(MapsActivity.this, query);
-                updateItems();
+//                updateItems();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                QueryPreferences.setStoredQuery(MapsActivity.this, newText);
+                updateItems(newText);
                 return false;
             }
         });
     }
 
-    private void updateItems() {
+    private void updateItems(String textFilter) {
         String query = QueryPreferences.getStoredQuery(MapsActivity.this);
         //TODO: execute search method - below is placeholder search method to test marker behavior
-        if (!query.isEmpty()) {
+        if (textFilter.length() != 0) {
 
             mClusterManager.clearItems();
 
-            for (Restaurant r : mHashMap.keySet()
-            ) {
+            for (Restaurant r : mHashMap.keySet()) {
                 if (r.getTitle().toUpperCase().contains(query.toUpperCase())) {
                     mClusterManager.addItem(r);
                 }
             }
 
-            mClusterManager.cluster();
+        } else {
+            for (Restaurant r : mHashMap.keySet()) {
+                mClusterManager.addItem(r);
+            }
         }
+
+        mClusterManager.cluster();
     }
 
     // allows additional settings to be shown/hidden
@@ -175,7 +195,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }else{
                     extraSettingsLayout.setVisibility(View.INVISIBLE);
                 }
+                Toast.makeText(MapsActivity.this, "CLICKED", Toast.LENGTH_SHORT).show();
             }
+
         });
     }
 
@@ -226,7 +248,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //on tap display all restaurants
         updateMapOnClick();
     }
-
 
     private void startLocationUpdates() {
 
@@ -495,4 +516,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         editor.putString("Favourite_list",favourite_jsonStr);
         editor.apply();
     }
+
+    private void setFavoritesFilter(){
+        filter_favouritedCheckBox = findViewById(R.id.checkBox_favourite);
+        filter_favouritedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // TODO update the clusters
+//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+            }
+        });
+    }
+
+    private void setHazardFilter() {
+        filter_hazardSpinner = findViewById(R.id.spinner_hazzardConstraint);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filter_hazardSpinner.setAdapter(adapter);
+        filter_hazardSpinner.setOnItemSelectedListener(this);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // TODO  update the clusters
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void setMaxCriticalViolations() {
+        filter_maxViolations_InYear = findViewById(R.id.edit_txt_maxCritMap);
+        filter_maxViolations_InYear.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // TODO update the clusters
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
 }
