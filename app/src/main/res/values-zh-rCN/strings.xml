@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">餐厅检查</string>
+    <string name="restaurant_information">餐厅信息</string>
+    <string name="critical_issues">严重问题:</string>
+    <string name="hazard_rating">危害等级: </string>
+    <string name="violation_severity">违反程度:</string>
+    <string name="violation_100_199">没有合格的许可证或非法建设。</string>
+    <string name="violation_200_299">不安全的食物存储或包装方式。</string>
+    <string name="violation_300_399">设备和工作环境恶劣。</string>
+    <string name="violation_400_499">员工的卫生习惯或条件差。</string>
+    <string name="violation_500_599">食品安全水平不足</string>
+    <string name="address">地址: </string>
+    <string name="low">低危</string>
+    <string name="moderate">中等</string>
+    <string name="high">高危</string>
+    <string name="number_of_critical_issues">严重问题数量:</string>
+    <string name="number_of_non_critical_issues">非严重问题数量:</string>
+    <string name="inspection_date">检查日期:</string>
+    <string name="date">日期:</string>
+    <string name="gps_coordinates">GPS坐标:</string>
+    <string name="noinspections">没有检查可用</string>
+    <string name="noavailablereports">没有报告可用</string>
+    <string name="no_violations_message">无违规</string>
+    <string name="inspection_type">检验类型:</string>
+    <string name="non_crit_issuesmessage">非严重问题:</string>
+    <string name="title_activity_maps">地图</string>
+    <string name="default_time">0000–00-00T00:00:00.000000</string>>
+    <string name="Update">你想要更新最新的检查吗?</string>>
+    <string name="Yes">好的</string>>
+    <string name="No">算了</string>
+    <string name="new_data_is_available_would_you_like_to_update">有新的信息可以下载了。需要更新么?</string>
+    <string name="most_recent_report">最新报告:</string>
+    <string name="issues_found">问题发现量:</string>
+    <string name="please_wait">请稍后~~</string>
+    <string name="cancel">取消</string>
+    <string name="downloading">下载中</string>
+    <string name="loading">读取中~~~~</string>
+    <string name="something_went_wrong">好像出了些问题</string>
+    <string name="device_location_error">错误：无法获取设备位置</string>
+    <string name="you_clicked">你点击了 </string>
+    <string name="critical">严重</string>
+    <string name="not_critical">不严重</string>
+    <string name="routine">常规</string>
+    <string name="follow_up">跟进</string>
+</resources>

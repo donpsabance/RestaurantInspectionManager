@@ -24,7 +24,6 @@
     <string name="inspection_type">" Tipo de inspección:"</string>
     <string name="non_crit_issuesmessage">" Problemas no críticos:"</string>
     <string name="title_activity_maps">" Mapa"</string>
-    <string name="Last_Modified_time">" El tiempo es% 1 $ s"</string>
     <string name="Update">" ¿Quieres actualizar la nueva inspección?"</string>
     <string name="Yes">Sí</string>
     <string name="No">No</string>
