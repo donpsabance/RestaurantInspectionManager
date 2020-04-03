@@ -75,10 +75,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        startActivity(new Intent(this, MapsActivity.class));
         List<String> favourite_list = readFavouriteList();
         compareRestaurant(favourite_list);
         restaurantManager.CreateFullCopy();
+
+        startActivity(new Intent(this, MapsActivity.class));
+
 
         List<Restaurant> hazardFilter = restaurantManager.getFullRestaurantListCopy();
         List<Restaurant> maxViolationFilter = restaurantManager.getFullRestaurantListCopy();

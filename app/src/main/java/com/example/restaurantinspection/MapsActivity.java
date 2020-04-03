@@ -119,6 +119,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setUpSearchBar();
         List<String> favourite_list = readFavouriteList();
         compare_date(favourite_list);
+
+        // ui settings
         setFabSettingsButton();
         setFavoritesFilter();
         setHazardFilter();
@@ -164,19 +166,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void updateItems(String textFilter) {
         String query = QueryPreferences.getStoredQuery(MapsActivity.this);
         //TODO: execute search method - below is placeholder search method to test marker behavior
-        if (textFilter.length() != 0) {
+//        mClusterManager.clearItems();
+        boolean shouldAdd = true;
+        int count = 0;
 
-            mClusterManager.clearItems();
+
+        if (textFilter.length() != 0) {
 
             for (Restaurant r : mHashMap.keySet()) {
                 if (r.getTitle().toUpperCase().contains(query.toUpperCase())) {
-                    mClusterManager.addItem(r);
+                    if(filter_favouritedCheckBox.isChecked()){
+                        if(!r.getFavourite()) {shouldAdd = false;}
+                    }
+
+                    if(shouldAdd){
+                        mClusterManager.addItem(r);
+                    }
                 }
             }
 
         } else {
             for (Restaurant r : mHashMap.keySet()) {
-                mClusterManager.addItem(r);
+                if(filter_favouritedCheckBox.isChecked()){
+                    if(!r.getFavourite()) {shouldAdd = false;}
+                }
+
+                if(shouldAdd){
+                    mClusterManager.addItem(r);
+                }
             }
         }
 
@@ -196,6 +213,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     extraSettingsLayout.setVisibility(View.INVISIBLE);
                 }
                 Toast.makeText(MapsActivity.this, "CLICKED", Toast.LENGTH_SHORT).show();
+                restaurantManager.getRestaurantList().clear();
+                setUpMap();
             }
 
         });
@@ -523,7 +542,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO update the clusters
-//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
             }
         });
     }
