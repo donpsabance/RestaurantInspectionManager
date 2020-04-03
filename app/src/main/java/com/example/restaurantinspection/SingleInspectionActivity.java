@@ -256,7 +256,118 @@ public class SingleInspectionActivity extends AppCompatActivity {
         ListView listView = findViewById(R.id.inspectionListView);
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Violation violation = restaurantInspection.getViolationsList().get(position);
-            Toast.makeText(SingleInspectionActivity.this, violation.getViolationDump(), Toast.LENGTH_SHORT).show();
+            switch(violation.getViolation_id()){
+                case 101:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V101, Toast.LENGTH_SHORT).show();
+                    break;
+                case 102:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V102, Toast.LENGTH_SHORT).show();
+                    break;
+                case 103:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V103, Toast.LENGTH_SHORT).show();
+                    break;
+                case 104:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V104, Toast.LENGTH_SHORT).show();
+                    break;
+                case 201:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V201, Toast.LENGTH_SHORT).show();
+                    break;
+                case 202:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V202, Toast.LENGTH_SHORT).show();
+                    break;
+                case 203:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V203, Toast.LENGTH_SHORT).show();
+                    break;
+                case 204:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V204, Toast.LENGTH_SHORT).show();
+                    break;
+                case 205:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V205, Toast.LENGTH_SHORT).show();
+                    break;
+                case 206:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V206, Toast.LENGTH_SHORT).show();
+                    break;
+                case 208:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V208, Toast.LENGTH_SHORT).show();
+                    break;
+                case 209:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V209, Toast.LENGTH_SHORT).show();
+                    break;
+                case 210:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V210, Toast.LENGTH_SHORT).show();
+                    break;
+                case 211:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V211, Toast.LENGTH_SHORT).show();
+                    break;
+                case 212:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V212, Toast.LENGTH_SHORT).show();
+                    break;
+                case 301:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V301, Toast.LENGTH_SHORT).show();
+                    break;
+                case 302:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V302, Toast.LENGTH_SHORT).show();
+                    break;
+                case 303:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V303, Toast.LENGTH_SHORT).show();
+                    break;
+                case 304:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V304, Toast.LENGTH_SHORT).show();
+                    break;
+                case 305:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V305, Toast.LENGTH_SHORT).show();
+                    break;
+                case 306:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V306, Toast.LENGTH_SHORT).show();
+                    break;
+                case 307:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V307, Toast.LENGTH_SHORT).show();
+                    break;
+                case 308:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V308, Toast.LENGTH_SHORT).show();
+                    break;
+                case 309:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V309, Toast.LENGTH_SHORT).show();
+                    break;
+                case 310:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V310, Toast.LENGTH_SHORT).show();
+                    break;
+                case 311:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V311, Toast.LENGTH_SHORT).show();
+                    break;
+                case 312:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V312, Toast.LENGTH_SHORT).show();
+                    break;
+                case 313:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V313, Toast.LENGTH_SHORT).show();
+                    break;
+                case 314:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V314, Toast.LENGTH_SHORT).show();
+                    break;
+                case 315:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V315, Toast.LENGTH_SHORT).show();
+                    break;
+                case 401:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V401, Toast.LENGTH_SHORT).show();
+                    break;
+                case 402:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V402, Toast.LENGTH_SHORT).show();
+                    break;
+                case 403:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V403, Toast.LENGTH_SHORT).show();
+                    break;
+                case 404:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V404, Toast.LENGTH_SHORT).show();
+                    break;
+                case 501:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V501, Toast.LENGTH_SHORT).show();
+                    break;
+                case 502:
+                    Toast.makeText(SingleInspectionActivity.this,R.string.V502, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+
+            //Toast.makeText(SingleInspectionActivity.this, violation.getViolationDump(), Toast.LENGTH_SHORT).show();
         });
     }
 
