@@ -49,7 +49,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="# of critical"
         app:layout_constraintStart_toStartOf="@+id/inspectionDate"
         app:layout_constraintTop_toBottomOf="@+id/inspectionDate" />
 

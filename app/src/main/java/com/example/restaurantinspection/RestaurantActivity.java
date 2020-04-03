@@ -1,18 +1,21 @@
 package com.example.restaurantinspection;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
@@ -22,11 +25,15 @@ import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class RestaurantActivity extends AppCompatActivity {
@@ -40,6 +47,7 @@ public class RestaurantActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_restaurant);
+        List<String> favourite_list = readFavouriteList();
         extractDatafromIntent();
         updateTextView();
 
@@ -52,6 +60,16 @@ public class RestaurantActivity extends AppCompatActivity {
         checkEmptyInspections();
         registerClickBack();
         registerClickGPS();
+        compareRestaurant(favourite_list);
+        initView(favourite_list);
+    }
+
+    private void compareRestaurant(List<String> list){
+        for (String TrackingNum : list){
+            if(TrackingNum.contains(restaurant.getTrackingNumber())){
+                restaurant.setFavourite(true);
+            }
+        }
 
     }
 
@@ -158,10 +176,10 @@ public class RestaurantActivity extends AppCompatActivity {
         restaurantNameView.setText(restaurant.getName());
 
         TextView restaurantAddrView = findViewById(R.id.restaurantaddrid);
-        restaurantAddrView.setText(restaurant.getAddress() + ", " + restaurant.getCity());
+        restaurantAddrView.setText(String.format("%s, %s", restaurant.getAddress(), restaurant.getCity()));
 
         TextView restaurantGPSView = findViewById(R.id.restaurantgpsid);
-        restaurantGPSView.setText("(" + restaurant.getLatitude() + ", " + restaurant.getLongitude() + ")");
+        restaurantGPSView.setText(String.format("(%s, %s)", restaurant.getLatitude(), restaurant.getLongitude()));
     }
 
 
@@ -186,10 +204,70 @@ public class RestaurantActivity extends AppCompatActivity {
         }
     }
 
+    private void initView(List<String> favourite_list){
+        String TrackingNumber = restaurant.getTrackingNumber();
+        String Date = "";
+        if(restaurant.getRestaurantInspectionList().size() != 0){
+            Date = restaurant.getRestaurantInspectionList().get(0).getInspectionDate();
+        }
+        String Last_Date = Date;
+        ToggleButton favourite_Toggle = findViewById(R.id.favorite_toggle);
+        favourite_Toggle.setChecked(restaurant.getFavourite());
+        favourite_Toggle.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if(isChecked){
+                favourite_list.add(TrackingNumber + "+" + Last_Date);
+                saveList(favourite_list);
+                restaurant.setFavourite(true);
+                Log.d("favourite","add favourite");
+                Log.d("List",favourite_list.toString());
+            }else{
+                favourite_list.remove(TrackingNumber + "+" + Last_Date);
+                saveList(favourite_list);
+                restaurant.setFavourite(false);
+                Log.d("favourite","Remove favourite");
+                Log.d("List",favourite_list.toString());
+            }
+        });
+    }
+
+
+
     //called by Main Activity
     public static Intent makeIntent(Context context, int restaurantIndex) {
         Intent intent = new Intent(context, RestaurantActivity.class);
         intent.putExtra(RESTAURANT_INDEX, restaurantIndex);
         return intent;
+    }
+
+
+
+    public void saveList(List<String> favourite_list){
+        SharedPreferences sp = this.getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        Gson user_gson = new Gson();
+        String favourite_jsonStr = user_gson.toJson(favourite_list);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("Favourite_list",favourite_jsonStr);
+        editor.apply();
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
+    }
+
+    private List<String> getRestaurant(List<String> oldList){
+        List<String> list = new ArrayList<>();
+        for(String a : oldList){
+            String[] arr = a.split("\\+");
+            list.add(arr[0]);
+        }
+
+        return list;
     }
 }

@@ -25,7 +25,8 @@
     <string name="inspection_type">Inspection type:</string>
     <string name="non_crit_issuesmessage">Non critical issues:</string>
     <string name="title_activity_maps">Map</string>
-    <string name="default_time">0000–00-00T00:00:00.000000</string>>
+    <string name="default_time">0000–00–00T00:00:00.000000</string>>
+    <string name="Last_Modified_time" translatable="false">The time is %1$s</string>>
     <string name="Update">Do you want to update the new inspection?</string>>
     <string name="Yes">Yes</string>>
     <string name="No">No</string>
@@ -79,4 +80,5 @@
     <string name="V404">404, Not Critical, Employee smoking in food preparation/processing/storage areas [s. 21(2)], Not Repeat</string>
     <string name="V501">501, Not Critical, Operator does not have FOODSAFE Level 1 or Equivalent [s. 10(1)],Not Repeat</string>
     <string name="V502">502, Not Critical, In the operator’s absence no staff on duty has FOODSAFE Level 1 or equivalent [s. 10(2)], Not Repeat</string>
+    >
 </resources>

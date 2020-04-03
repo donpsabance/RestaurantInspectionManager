@@ -14,9 +14,13 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.restaurantinspection.model.InspectionComparator;
+import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
@@ -26,10 +30,13 @@ import com.example.restaurantinspection.model.Service.FileDownloadClient;
 import com.example.restaurantinspection.model.Service.Resource;
 import com.example.restaurantinspection.model.Service.ServiceGenerator;
 import com.example.restaurantinspection.model.Service.Surrey_Data_API;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +46,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -69,6 +77,8 @@ public class RequireDownloadActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_require_download);
         restaurantManager = RestaurantManager.getInstance();
+        Reader.readRestaurantData(restaurantManager,getResources().openRawResource(R.raw.restaurants));
+        Reader.readInspectionData(restaurantManager,getResources().openRawResource(R.raw.new_inspections));
         restaurantManager.setExtraDataLoaded(true);
         setViews();
         registerClickCallback();
@@ -133,12 +143,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 terminateActivity();
             }
         }.execute();
+
     }
 
     private void terminateActivity() {
-        Intent i = new Intent();
+/*        Intent i = new Intent();
         Log.d("CHECK","SENDING INTENT");
-        setResult(RESULT_OK,i);
+        setResult(RESULT_OK,i);*/
+        startActivity(MainActivity.makeIntent(this));
         finish();
     }
 
@@ -170,7 +182,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
         progressDialog.show();
 
     }
-        Handler mHandler= new Handler(){
+    Handler mHandler= new Handler(){
         public void handleMessage(Message msg){
             super.handleMessage(msg);
             if(msg.what == 1){
@@ -182,14 +194,16 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     };
 
-     Runnable runnable = () -> {
-         renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
-         renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
-         String date_last_modified = ReadWebTime();
-         WriteUserTime(date_last_modified);
-         mHandler.sendEmptyMessage(0);
+    Runnable runnable = () -> {
+        renameFile(NEW_RESTAURANTS_FILE_NAME,RESTAURANTS_FILE_NAME);
+        renameFile(NEW_INSPECTIONS_FILE_NAME,INSPECTIONS_FILE_NAME);
+        String Restaurants_date_last_modified = ReadWebTime("Web_Restaurants_Last_Modified_time");
+        WriteUserTime("User_Restaurants_Last_Modified_time",Restaurants_date_last_modified);
+        String Inspections_date_last_modified = ReadWebTime("Web_Inspections_Last_Modified_time");
+        WriteUserTime("User_Inspections_Last_Modified_time",Inspections_date_last_modified);
+        mHandler.sendEmptyMessage(0);
 
-     };
+    };
     private void registerClickCallback() {
         btnStartDownload.setOnClickListener(v -> {
             // starts download for restaurants then for inspections
@@ -239,19 +253,17 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 ArrayList<Resource> ResourceList = response.body().getResult().getResources();
 
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
-                WriteWebTime(date_last_modified);
 
                 // show display to download csv files if time difference greater than 20 hours
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
-                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
+                    if (CompareTime_to_mostRecendtlyDownloaded("User_Restaurants_Last_Modified_time",date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
                     }
                     check_For_Updates(ID_INSPECTIONS);
                     return;
                 } else if (type.equalsIgnoreCase(ID_INSPECTIONS)) {
-                    if (CompareTime_to_mostRecendtlyDownloaded(date_last_modified)) {
-
+                    if (CompareTime_to_mostRecendtlyDownloaded("User_Inspections_Last_Modified_time",date_last_modified)) {
                         setVisibilities(View.VISIBLE);
                         return;
                     }
@@ -288,9 +300,11 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 String date_last_modified = ResourceList.get(0).getDate_last_modified();
 
                 if (type.equalsIgnoreCase(ID_RESTAURANTS)) {
+                    WriteWebTime("Web_Restaurants_Last_Modified_time",date_last_modified);
                     downloadFile(url, NEW_RESTAURANTS_FILE_NAME);
                     fetchPackages(ID_INSPECTIONS);
                 } else {
+                    WriteWebTime("Web_Inspections_Last_Modified_time",date_last_modified);
                     downloadFile(url, NEW_INSPECTIONS_FILE_NAME);
                 }
             }
@@ -500,40 +514,40 @@ public class RequireDownloadActivity extends AppCompatActivity {
         }
     }
 
-    public boolean CompareTime_to_mostRecendtlyDownloaded(String data_last_modified_web)
+    public boolean CompareTime_to_mostRecendtlyDownloaded(String name, String data_last_modified_web)
     {
-        String UserLastModifiedTime = ReadUserTime();
+        String UserLastModifiedTime = ReadUserTime(name);
         Log.d("Time",UserLastModifiedTime);
         UserLastModifiedTime = TakeDataTime(UserLastModifiedTime);
         String WebLastModifiedTime = TakeDataTime(data_last_modified_web);
         return GetHourDifference(WebLastModifiedTime, UserLastModifiedTime) > 200000;
     }
 
-    private String ReadUserTime(){
+    private String ReadUserTime(String name){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
         String DefaultTime = getResources().getString(R.string.default_time);
-        return LastModifiedTimeFile.getString("User_Last_Modified_time",DefaultTime);
+        return LastModifiedTimeFile.getString(name,DefaultTime);
     }
 
-    private String ReadWebTime(){
+    private String ReadWebTime(String name){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
         String DefaultTime = getResources().getString(R.string.default_time);
-        return LastModifiedTimeFile.getString("Web_Last_Modified_time",DefaultTime);
+        return LastModifiedTimeFile.getString(name,DefaultTime);
     }
 
-    private void WriteUserTime(String date){
+    private void WriteUserTime(String name, String date){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
+        //String DefaultTime = getResources().getString(R.string.default_time);
         SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-        editor.putString("User_Last_Modified_time",date);
+        editor.putString(name,date);
         editor.apply();
     }
 
-    private void WriteWebTime(String date){
+    private void WriteWebTime(String name, String date){
         SharedPreferences LastModifiedTimeFile = getSharedPreferences("Time", Context.MODE_PRIVATE);
-        String DefaultTime = getResources().getString(R.string.default_time);
+        //String DefaultTime = getResources().getString(R.string.default_time);
         SharedPreferences.Editor editor = LastModifiedTimeFile.edit();
-        editor.putString("Web_Last_Modified_time",date);
+        editor.putString(name,date);
         editor.apply();
     }
 
@@ -572,6 +586,31 @@ public class RequireDownloadActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         progressDialog.dismiss();
+    }
+
+    private void compareRestaurant(List<String> list){
+        for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
+            for (String TrackingNum : list) {
+                if (TrackingNum.contains(restaurant.getTrackingNumber())) {
+                    restaurant.setFavourite(true);
+
+                }else{
+                    restaurant.setFavourite(false);
+                }
+            }
+        }
+
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
     }
 
 }

@@ -18,6 +18,22 @@
         android:textSize="18sp"
         android:textStyle="italic"/>
 
+    <ToggleButton
+        android:id="@+id/favorite_toggle"
+        android:layout_width="48dp"
+        android:layout_height="47dp"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="52dp"
+        android:background="@drawable/favorite_icon"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text=""
+        android:textOff=""
+        android:textOn=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/addr"
         android:layout_width="wrap_content"
