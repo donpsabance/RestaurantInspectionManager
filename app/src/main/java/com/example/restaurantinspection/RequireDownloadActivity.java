@@ -15,6 +15,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +32,8 @@ import com.example.restaurantinspection.model.Service.FileDownloadClient;
 import com.example.restaurantinspection.model.Service.Resource;
 import com.example.restaurantinspection.model.Service.ServiceGenerator;
 import com.example.restaurantinspection.model.Service.Surrey_Data_API;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,6 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -142,12 +146,14 @@ public class RequireDownloadActivity extends AppCompatActivity {
                 terminateActivity();
             }
         }.execute();
+
     }
 
     private void terminateActivity() {
-/*        Intent i = new Intent();
-        Log.d("CHECK","SENDING INTENT");
-        setResult(RESULT_OK,i);*/
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for (Restaurant restaurant : restaurantManager) {
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
         startActivity(MainActivity.makeIntent(this));
         finish();
     }
@@ -490,7 +496,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             reader.readLine();
             while (((line = reader.readLine()) != null) && (!line.equals(",,,,,,"))) {
                 // Split line by ','
-                Log.d("TEST", line);
+                //Log.d("TEST", line);
                 String[] parts = line.split("\"");
                 String[] tokens = parts[0].split(",");
                 String var_token5;
@@ -508,7 +514,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         tokens[2], tokens[3], tokens[4],
                         var_token5, var_token6);
 
-                Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
+                //Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
                 if(hmap.containsKey(sample.getTrackingNumber())){
                     hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
                 }
@@ -599,6 +605,31 @@ public class RequireDownloadActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         progressDialog.dismiss();
+    }
+
+    private void compareRestaurant(List<String> list){
+        for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
+            for (String TrackingNum : list) {
+                if (TrackingNum.contains(restaurant.getTrackingNumber())) {
+                    restaurant.setFavourite(true);
+
+                }else{
+                    restaurant.setFavourite(false);
+                }
+            }
+        }
+
+    }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
     }
 
 }

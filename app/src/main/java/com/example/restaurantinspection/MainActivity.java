@@ -1,9 +1,7 @@
 package com.example.restaurantinspection;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -19,7 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
@@ -27,79 +26,266 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RequiresPermission;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 
 import com.example.restaurantinspection.model.DateManager;
 import com.example.restaurantinspection.model.InspectionComparator;
-import com.example.restaurantinspection.model.Reader;
+import com.example.restaurantinspection.model.QueryPreferences;
 import com.example.restaurantinspection.model.Restaurant;
 import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     public static final String MAIN_ACTIVITY_TAG = "MyActivity";
     private static final int ACTIVITY_RESULT_FINISH = 101;
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private ArrayAdapter<Restaurant> arrayAdapter;
-    private EditText textConstraintter;
-    private  Button btnTextConstraint;
+
+    // Views Used for filtering
+    private Spinner hazardSpinner;
+    private SearchView restaurantFilter_SearchView;
+    private CheckBox favoritesChecboxFilter;
+    private EditText filter_maximumHazard_EditText;
+
+    private List<Restaurant> hazardFilter;
+    private List<Restaurant> maxViolationFilter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
-        restaurantManager.CreateFullCopy();
-        for (Restaurant restaurant : restaurantManager) {
-            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
-        }
 
         startActivity(new Intent(this, MapsActivity.class));
+        List<String> favourite_list = readFavouriteList();
+        compareRestaurant(favourite_list);
+        restaurantManager.CreateFullCopy();
+
+        List<Restaurant> hazardFilter = restaurantManager.getFullRestaurantListCopy();
+        List<Restaurant> maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
 
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
-        searchRestaurant();
+
+
+        //searchRestaurant();
+        setUpSearchBar();
+        setUpHazardsSpinner();
+        setUpMaxCriticalViolationsSearch();
+        setUpFavoritesFilter();
     }
 
+
+    // search bar
+    private void setUpSearchBar() {
+        restaurantFilter_SearchView = findViewById(R.id.searchmain);
+        restaurantFilter_SearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                QueryPreferences.setStoredQuery(MainActivity.this, query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                arrayAdapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+    }
+
+    //load restaurants based on hazard level
+    private void filterRestaurants(String hazardLevel){
+
+        List<Restaurant> result = new ArrayList<>();
+        if(!hazardLevel.equalsIgnoreCase("none")){
+
+            restaurantManager.getRestaurantList().clear();
+            for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+
+                //most recent inspection
+                if(restaurant.getRestaurantInspectionList() != null &&
+                        restaurant.getRestaurantInspectionList().size() > 0){
+                    if(restaurant.getRestaurantInspectionList().get(0).getHazardRating().equalsIgnoreCase(hazardLevel)){
+
+                        result.add(restaurant);
+
+                    }
+                }
+            }
+        } else if(hazardLevel.equalsIgnoreCase("none")){
+
+            result = restaurantManager.getFullRestaurantListCopy();
+
+        }
+
+        hazardFilter = result;
+    }
+
+    private void setUpHazardsSpinner() {
+        hazardSpinner = findViewById(R.id.spinnerHazard);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        hazardSpinner.setAdapter(adapter);
+        hazardSpinner.setOnItemSelectedListener(this);
+    }
+    // hazardSpinner click listener
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+/*        //pos 0 -none, 1 - low, 2 -moderate, 3 - high
+        switch (position){
+            case 0:
+                filterRestaurants("none");
+                loadRestaurants();
+                break;
+            case 1:
+                filterRestaurants("low");
+                loadRestaurants();
+                break;
+            case 2:
+                filterRestaurants("moderate");
+                loadRestaurants();
+                break;
+            case 3:
+                filterRestaurants("high");
+                loadRestaurants();
+                break;
+
+        }*/
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    private void setUpFavoritesFilter() {
+        favoritesChecboxFilter = findViewById(R.id.favoritescheckBox);
+        favoritesChecboxFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Todo filter adapter
+//                CharSequence query = restaurantFilter_SearchView.getQuery();
+//                int count = 0;
+//                for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+//                    if(restaurant.getFavourite()){
+//                        count++;
+//                    }
+//                }
+//                Toast.makeText(MainActivity.this,"count = " + count, Toast.LENGTH_SHORT).show();
+                arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+
+            }
+        });
+    }
+
+
+
+    private void setUpMaxCriticalViolationsSearch() {
+        filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
+        filter_maximumHazard_EditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+/*        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                if(!s.toString().trim().equals("")){
+
+                    List<Restaurant> result = new ArrayList<>();
+                    int maxViolation = Integer.parseInt(s.toString());
+                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+
+                        if(restaurant.getRestaurantInspectionList()  != null &&
+                                restaurant.getRestaurantInspectionList().size() > 0){
+
+                            if(restaurant.getRestaurantInspectionList().get(0).getNumCritical() <= maxViolation){
+
+                                result.add(restaurant);
+
+                            }
+                        }
+                    }
+                    maxViolationFilter = result;
+                    loadRestaurants();
+                } else {
+                    maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
+                    loadRestaurants();
+                }
+            }
+        };*/
+    }
+
+    private void compareRestaurant(List<String> list){
+        for(Restaurant restaurant : restaurantManager.getRestaurantList()) {
+            for (String TrackingNum : list) {
+                String arr[]=TrackingNum.split("\\+");
+                TrackingNum = arr[0];
+                if (TrackingNum.equals(restaurant.getTrackingNumber())) {
+                    restaurant.setFavourite(true);
+                }
+            }
+        }
+
+    }
+
+
+
     public void loadRestaurants() {
+
+        if(hazardFilter != null & maxViolationFilter != null){
+
+            restaurantManager.getRestaurantList().clear();
+            for(Restaurant restaurant : hazardFilter){
+                for(Restaurant restaurant1 : maxViolationFilter){
+
+                    if(restaurant.getName().equalsIgnoreCase(restaurant1.getName())){
+                        restaurantManager.add(restaurant);
+                    }
+                }
+            }
+        }
+
         arrayAdapter = new CustomListAdapter();
         ListView listView = findViewById(R.id.restaurantListView);
         listView.setAdapter(arrayAdapter);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        arrayAdapter.notifyDataSetChanged();
-    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -206,16 +392,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private class CustomListAdapter extends ArrayAdapter<Restaurant> implements Filterable {
         private List<Restaurant> exampleList;
-        private List<Restaurant> exampleListFull;
 
         public CustomListAdapter() {
             super(MainActivity.this, R.layout.restaurantlistlayout, restaurantManager.getRestaurantList());
             this.exampleList = restaurantManager.getRestaurantList();
-            this.exampleListFull = new ArrayList<>(exampleList);
         }
-
 
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -234,11 +418,13 @@ public class MainActivity extends AppCompatActivity {
             TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
+            ImageView star = itemView.findViewById(R.id.favorited);
 
             imageView.setImageResource(R.drawable.food);
             addressText.setText(restaurant.getAddress());
             descriptionText.setText(restaurant.getName());
             //make sure they have an inspection report available
+
             if (restaurant.getRestaurantInspectionList().size() > 0) {
 
                 RestaurantInspection restaurantInspection = restaurant.getRestaurantInspectionList().get(0);
@@ -264,6 +450,12 @@ public class MainActivity extends AppCompatActivity {
                 imageView.setImageResource(icon);
                 descriptionText.setText(restaurant.getName());
                 reportText.setText(reportMsg);
+                if(restaurant.getFavourite()){
+                    star.setVisibility(View.VISIBLE);
+                }else {
+                    star.setVisibility(View.INVISIBLE);
+                }
+
 
             } else {
 
@@ -273,6 +465,7 @@ public class MainActivity extends AppCompatActivity {
             return itemView;
         }
 
+
         @NonNull
         @Override
         public Filter getFilter() {
@@ -280,15 +473,55 @@ public class MainActivity extends AppCompatActivity {
         }
         private Filter exampleFilter = new Filter() {
             @Override
+            // string match filter
             protected FilterResults performFiltering(CharSequence constraint) {
                 List<Restaurant> filteredList = new ArrayList<>();
                 if(constraint == null || constraint.length() == 0){
-                    filteredList.addAll(exampleListFull);
+                    filteredList.addAll(restaurantManager.getFullRestaurantListCopy());
                 } else {
                     String filteredPattern = constraint.toString().toLowerCase().trim();
-                    for (Restaurant restaurants : exampleListFull){
+                    for (Restaurant restaurants : restaurantManager.getFullRestaurantListCopy()){
                         if (restaurants.getName().toLowerCase().contains(filteredPattern)){
                             filteredList.add(restaurants);
+                        }
+                    }
+                }
+                // THE FAVORITE CHECK BOX FILTER
+                Iterator<Restaurant> iterator;
+                if(favoritesChecboxFilter.isChecked()){
+                    for(iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        if(!restaurant.getFavourite()){
+                            iterator.remove();
+                        }
+                    }
+                }
+
+                // THE SPINNER FILTER
+                String selectedHazardLevel = hazardSpinner.getSelectedItem().toString();
+                if(!selectedHazardLevel.equalsIgnoreCase("none")){
+                    for (iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        List<RestaurantInspection> inspectionList = restaurant.getRestaurantInspectionList();
+                        if(inspectionList.size() > 0 ){
+                            if((! inspectionList.get(0).getHazardRating().toLowerCase().equalsIgnoreCase(selectedHazardLevel))){
+                                iterator.remove();
+                            }
+                        } else {
+                            iterator.remove();
+                        }
+                    }
+                }
+
+                // THE MAX CRITICAL VIOLATIONS IN A YEAR FILTER
+                if(filter_maximumHazard_EditText.getText().toString().length() != 0){
+                    int maxConstraint = Integer.parseInt(filter_maximumHazard_EditText.getText().toString());
+                    int count = 0;
+                    for(iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        count = restaurant.getTotalViolationsWithinYear();
+                        if(count > maxConstraint){
+                            iterator.remove();
                         }
                     }
                 }
@@ -306,40 +539,6 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void searchRestaurant(){
-
-        final EditText searchBar = findViewById(R.id.searchBar);
-
-        TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {  }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {  }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                //make sure string is not empty so when we try to parse it, we dont crash the program
-                if (!s.toString().trim().equals("")) {
-
-                    restaurantManager.getRestaurantList().clear();
-
-                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
-                        if(restaurant.getName().toLowerCase().contains(s.toString().toLowerCase())){
-                            restaurantManager.add(restaurant);
-                        }
-                    }
-                    //
-
-                    loadRestaurants();
-                }
-            }
-        };
-
-        searchBar.addTextChangedListener(textWatcher);
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -362,7 +561,26 @@ public class MainActivity extends AppCompatActivity {
         });
         return true;
     }
+
+    public List<String> readFavouriteList() {
+        List<String> list = new ArrayList<>();
+        SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
+        String favourite_jsonStr = sp1.getString("Favourite_list","");
+        if(!favourite_jsonStr.equals("")){
+            Gson gson = new Gson();
+            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+        }
+        return list;
+    }
+
+
     public static Intent makeIntent(Context context){
         return new Intent(context,MainActivity.class);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        arrayAdapter.notifyDataSetChanged();
     }
 }

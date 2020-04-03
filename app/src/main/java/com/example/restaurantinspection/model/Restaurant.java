@@ -4,6 +4,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.clustering.ClusterItem;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public class Restaurant implements ClusterItem {
     private LatLng mPosition;
     private String mTitle;
     private String mSnippet;
+    private boolean favourite = false;
 
     public Restaurant(String trackingNumber, String name, String address, String city,
                       String facilityType, String latitude, String longitude) {
@@ -86,6 +89,22 @@ public class Restaurant implements ClusterItem {
         return shouldAddInspection;
     }
 
+    public int getTotalViolationsWithinYear(){
+        if(restaurantInspectionList.size() == 0){
+            return 0;
+        }
+        int count = 0;
+        for(RestaurantInspection inspection : restaurantInspectionList){
+            Date date = DateManager.dateCreate(inspection.getInspectionDate());
+            boolean contributes_ToCounter = DateManager.check_ifOver_AYear(date);
+            if(! contributes_ToCounter) {
+                break;
+            }
+            count += inspection.getNumCritical();
+        }
+        return count;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +
@@ -113,4 +132,8 @@ public class Restaurant implements ClusterItem {
     public String getSnippet() {
         return mSnippet;
     }
+
+    public void setFavourite(boolean Boolean){favourite = Boolean;}
+
+    public boolean getFavourite(){return favourite;}
 }
