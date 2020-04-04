@@ -19,6 +19,8 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,6 +35,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.restaurantinspection.model.QueryPreferences;
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Util.MarkerClusterRenderer;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -56,6 +59,7 @@ import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, AdapterView.OnItemSelectedListener {
@@ -86,7 +90,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Spinner filter_hazardSpinner;
     private CheckBox filter_favouritedCheckBox;
     private SearchView filter_restaurantSearchview;
-    private  EditText filter_maxViolations_InYear;
+    private EditText filter_maxViolations_InYear;
+    private Filter_class filter_class;
 
     private boolean locationPermission = false;
 
@@ -120,6 +125,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         List<String> favourite_list = readFavouriteList();
         compare_date(favourite_list);
 
+        filter_class = new Filter_class(restaurantManager.getRestaurantList());
         // ui settings
         setFabSettingsButton();
         setFavoritesFilter();
@@ -143,7 +149,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }*/
 
-        private void setUpSearchBar() {
+    private void setUpSearchBar() {
         filter_restaurantSearchview = findViewById(R.id.searchmap);
 
         filter_restaurantSearchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -157,7 +163,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onQueryTextChange(String newText) {
                 QueryPreferences.setStoredQuery(MapsActivity.this, newText);
-                updateItems(newText);
+                filter_class.getFilter().filter(newText);
+                //updateItems(newText);
                 return false;
             }
         });
@@ -175,11 +182,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             for (Restaurant r : mHashMap.keySet()) {
                 if (r.getTitle().toUpperCase().contains(query.toUpperCase())) {
-                    if(filter_favouritedCheckBox.isChecked()){
-                        if(!r.getFavourite()) {shouldAdd = false;}
+                    if (filter_favouritedCheckBox.isChecked()) {
+                        if (!r.getFavourite()) {
+                            shouldAdd = false;
+                        }
                     }
 
-                    if(shouldAdd){
+                    if (shouldAdd) {
                         mClusterManager.addItem(r);
                     }
                 }
@@ -187,11 +196,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         } else {
             for (Restaurant r : mHashMap.keySet()) {
-                if(filter_favouritedCheckBox.isChecked()){
-                    if(!r.getFavourite()) {shouldAdd = false;}
+                if (filter_favouritedCheckBox.isChecked()) {
+                    if (!r.getFavourite()) {
+                        shouldAdd = false;
+                    }
                 }
 
-                if(shouldAdd){
+                if (shouldAdd) {
                     mClusterManager.addItem(r);
                 }
             }
@@ -207,14 +218,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(extraSettingsLayout.getVisibility() == View.INVISIBLE){
+                if (extraSettingsLayout.getVisibility() == View.INVISIBLE) {
                     extraSettingsLayout.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     extraSettingsLayout.setVisibility(View.INVISIBLE);
                 }
-                Toast.makeText(MapsActivity.this, "CLICKED", Toast.LENGTH_SHORT).show();
-                restaurantManager.getRestaurantList().clear();
-                setUpMap();
+
             }
 
         });
@@ -385,11 +394,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 double lon = Double.parseDouble(r.getLongitude());
                 LatLng restaurantPos = new LatLng(lat, lon);
                 String restaurantTitle = r.getName();
+                boolean isfavourite = r.getFavourite();
 
                 String restHazard = r.getRestaurantInspectionList().get(0).getHazardRating();
                 String restaurantSnippet = r.getAddress() + "\n" + "Hazard Rating: " + restHazard;
 
-                Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet);
+                Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet, isfavourite);
                 restaurants.add(restaurantItem);
 
                 mHashMap.put(restaurantItem, resIndex);
@@ -472,42 +482,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void compare_date(List<String> list){
+    public void compare_date(List<String> list) {
         List<Restaurant> favourite_list = new ArrayList<>();
         List<String> new_favourite_list = new ArrayList<>();
-        for(String a : list){
+        for (String a : list) {
             String[] arr = a.split("\\+");
-            for(Restaurant restaurants : restaurantManager.getRestaurantList()){
-                if(restaurants.getTrackingNumber().equals(arr[0])){
-                    if(!restaurants.getRestaurantInspectionList().get(0).getInspectionDate().equals(arr[1])){
+            for (Restaurant restaurants : restaurantManager.getRestaurantList()) {
+                if (restaurants.getTrackingNumber().equals(arr[0])) {
+                    if (!restaurants.getRestaurantInspectionList().get(0).getInspectionDate().equals(arr[1])) {
                         arr[1] = restaurants.getRestaurantInspectionList().get(0).getInspectionDate();
                         favourite_list.add(restaurants);
-                        new_favourite_list.add(arr[0]+"+"+arr[1]);
-                        Log.d("MAP",favourite_list.toString());
+                        new_favourite_list.add(arr[0] + "+" + arr[1]);
+                        Log.d("MAP", favourite_list.toString());
                     }
                 }
             }
         }
-        if(favourite_list.size()!=0){
+        if (favourite_list.size() != 0) {
             show_dialog(favourite_list);
             saveList(new_favourite_list);
         }
     }
 
-    public void show_dialog(List<Restaurant> list){
+    public void show_dialog(List<Restaurant> list) {
         List<String> show = new ArrayList<>();
-        for(Restaurant restaurants : list){
+        for (Restaurant restaurants : list) {
             String name = restaurants.getName();
             String date = restaurants.getRestaurantInspectionList().get(0).getInspectionDate();
             String hazard_level = restaurants.getRestaurantInspectionList().get(0).getHazardRating();
-            String restaurants_show = name + "  " + date + "  " +hazard_level+"\n";
+            String restaurants_show = name + "  " + date + "  " + hazard_level + "\n";
             show.add(restaurants_show);
         }
         AlertDialog.Builder new_update = new AlertDialog.Builder(this);
         new_update.setTitle("Newest Update for your favourite");
-        new_update.setMessage(show.toString().replace("[","").
-                replace("]","").
-                replace(",","").trim());
+        new_update.setMessage(show.toString().replace("[", "").
+                replace("]", "").
+                replace(",", "").trim());
         new_update.setNeutralButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -520,36 +530,69 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public List<String> readFavouriteList() {
         List<String> list = new ArrayList<>();
         SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
-        String favourite_jsonStr = sp1.getString("Favourite_list","");
-        if(!favourite_jsonStr.equals("")){
+        String favourite_jsonStr = sp1.getString("Favourite_list", "");
+        if (!favourite_jsonStr.equals("")) {
             Gson gson = new Gson();
-            list = gson.fromJson(favourite_jsonStr,new TypeToken<List<String>>(){}.getType());
+            list = gson.fromJson(favourite_jsonStr, new TypeToken<List<String>>() {
+            }.getType());
         }
         return list;
     }
-    public void saveList(List<String> favourite_list){
+
+    public void saveList(List<String> favourite_list) {
         SharedPreferences sp = this.getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
         Gson user_gson = new Gson();
         String favourite_jsonStr = user_gson.toJson(favourite_list);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString("Favourite_list",favourite_jsonStr);
+        editor.putString("Favourite_list", favourite_jsonStr);
         editor.apply();
     }
 
-    private void setFavoritesFilter(){
+    private void setFavoritesFilter() {
         filter_favouritedCheckBox = findViewById(R.id.checkBox_favourite);
         filter_favouritedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO update the clusters
-                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+/*                if (filter_favouritedCheckBox.isChecked()) {
+                    // clear items first
+                    mMap.clear();
+                    mClusterManager.clearItems();
+                    mClusterManager.cluster();
+                    // clear hash map
+                    mHashMap.clear();
+                    // clear restaurant list
+                    restaurantManager.getRestaurantList().clear();
+                    for (Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()) {
+                        if (restaurant.getFavourite()) {
+                            restaurantManager.add(restaurant);
+                        }
+                    }
+                    setUpClusterManager();
+                    setUpInfoWindows();
+
+                    //only display marker for selected restaurant
+                    updateClusters();
+
+                    //on tap display all restaurants
+                    updateMapOnClick();
+                    Toast.makeText(MapsActivity.this, "SIZE : " + mHashMap.size(), Toast.LENGTH_SHORT).show();
+                    // TODO THIS SOLUTION WORKS SOMEHOW
+                    mClusterManager.clearItems();
+                    for (Restaurant r : mHashMap.keySet()) {
+                        mClusterManager.addItem(r);
+                    }
+                    mClusterManager.cluster();
+
+                }*/
             }
         });
     }
 
     private void setHazardFilter() {
         filter_hazardSpinner = findViewById(R.id.spinner_hazzardConstraint);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.hazards, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filter_hazardSpinner.setAdapter(adapter);
         filter_hazardSpinner.setOnItemSelectedListener(this);
@@ -558,6 +601,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // TODO  update the clusters
+        filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
     }
 
     @Override
@@ -576,6 +620,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO update the clusters
+                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
             }
 
             @Override
@@ -583,6 +628,107 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         });
+    }
+
+    private class Filter_class implements Filterable {
+        private List<Restaurant> restaurantList;
+
+        public Filter_class(List<Restaurant> restaurantsList) {
+            this.restaurantList = restaurantsList;
+        }
+
+
+        @Override
+        public Filter getFilter() {
+            return filterValue;
+        }
+
+        private Filter filterValue = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Restaurant> filteredList = new ArrayList<>();
+                // restaurant search bar filter
+                if(constraint == null || constraint.length() == 0){
+                    filteredList.addAll(restaurantManager.getFullRestaurantListCopy());
+                } else {
+                    String filteredPattern = constraint.toString().toLowerCase().trim();
+                    for (Restaurant restaurants : restaurantManager.getFullRestaurantListCopy()){
+                        if (restaurants.getName().toLowerCase().contains(filteredPattern)){
+                            filteredList.add(restaurants);
+                        }
+                    }
+                }
+
+                // Check box filter
+                Iterator<Restaurant> iterator;
+                if(filter_favouritedCheckBox.isChecked()){
+                    for(iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        if(!restaurant.getFavourite()){
+                            iterator.remove();
+                        }
+                    }
+                }
+                // THE SPINNER FILTER
+                String selectedHazardLevel = filter_hazardSpinner.getSelectedItem().toString();
+                if(!selectedHazardLevel.equalsIgnoreCase("none")){
+                    for (iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        List<RestaurantInspection> inspectionList = restaurant.getRestaurantInspectionList();
+                        if(inspectionList.size() > 0 ){
+                            if((! inspectionList.get(0).getHazardRating().toLowerCase().equalsIgnoreCase(selectedHazardLevel))){
+                                iterator.remove();
+                            }
+                        } else {
+                            iterator.remove();
+                        }
+                    }
+                }
+
+                // THE MAX CRITICAL VIOLATIONS IN A YEAR FILTER
+                if(filter_maxViolations_InYear.getText().toString().length() != 0){
+                    int maxConstraint = Integer.parseInt(filter_maxViolations_InYear.getText().toString());
+                    int count = 0;
+                    for(iterator = filteredList.iterator(); iterator.hasNext();){
+                        Restaurant restaurant = iterator.next();
+                        count = restaurant.getTotalViolationsWithinYear();
+                        if(count > maxConstraint){
+                            iterator.remove();
+                        }
+                    }
+                }
+
+                FilterResults results = new FilterResults();
+                results.values = filteredList;
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint, FilterResults results) {
+                restaurantList.clear();
+                restaurantList.addAll((List) results.values);
+
+                // clear items first
+                mClusterManager.clearItems();
+                mClusterManager.cluster();
+                // clear hash map
+                mHashMap.clear();
+
+                setUpClusterManager();
+                setUpInfoWindows();
+
+                //only display marker for selected restaurant
+                updateClusters();
+
+                //on tap display all restaurants
+                updateMapOnClick();
+                mClusterManager.clearItems();
+                for (Restaurant r : mHashMap.keySet()) {
+                    mClusterManager.addItem(r);
+                }
+                mClusterManager.cluster();
+            }
+        };
     }
 
 }

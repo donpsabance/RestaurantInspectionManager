@@ -44,10 +44,11 @@ public class Restaurant implements ClusterItem {
         this.longitude = longitude;
     }
 
-    public Restaurant(LatLng latLng, String title, String snippet) {
+    public Restaurant(LatLng latLng, String title, String snippet,boolean isFavourite) {
         this.mPosition = latLng;
         this.mTitle = title;
         this.mSnippet = snippet;
+        this.favourite = isFavourite;
     }
 
     public List<RestaurantInspection> getRestaurantInspectionList() {
