@@ -46,9 +46,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // Views Used for filtering
     private Spinner hazardSpinner;
     private SearchView restaurantFilter_SearchView;
-    private CheckBox favoritesChecboxFilter;
+    private CheckBox favoritesCheckboxFilter;
     private EditText filter_maximumHazard_EditText;
 
     private List<Restaurant> hazardFilter;
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setUpHazardsSpinner();
         setUpMaxCriticalViolationsSearch();
         setUpFavoritesFilter();
+        loadSavedFilters();
     }
 
 
@@ -144,7 +147,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         hazardFilter = result;
     }
 
+    private void loadSavedFilters(){
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        EditText editText = findViewById(R.id.editText_maxCritical);
+
+        String[] arr = getResources().getStringArray(R.array.hazards);
+        hazardSpinner.setSelection(Arrays.asList(arr).indexOf(sharedPreferences.getString("hazardFilter", "none")));
+        editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
+        favoritesCheckboxFilter.setChecked(sharedPreferences.getBoolean("favoritesFilter", false));
+
+    }
+
     private void setUpHazardsSpinner() {
+
         hazardSpinner = findViewById(R.id.spinnerHazard);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,R.array.hazards,android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -155,26 +171,37 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
-/*        //pos 0 -none, 1 - low, 2 -moderate, 3 - high
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        //pos 0 -none, 1 - low, 2 -moderate, 3 - high
         switch (position){
             case 0:
                 filterRestaurants("none");
                 loadRestaurants();
+                editor.putString("hazardFilter", "none");
+                editor.apply();
                 break;
             case 1:
                 filterRestaurants("low");
                 loadRestaurants();
+                editor.putString("hazardFilter", "Low");
+                editor.apply();
                 break;
             case 2:
                 filterRestaurants("moderate");
                 loadRestaurants();
+                editor.putString("hazardFilter", "Moderate");
+                editor.apply();
                 break;
             case 3:
                 filterRestaurants("high");
                 loadRestaurants();
+                editor.putString("hazardFilter", "High");
+                editor.apply();
                 break;
 
-        }*/
+        }
     }
 
     @Override
@@ -183,12 +210,19 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setUpFavoritesFilter() {
-        favoritesChecboxFilter = findViewById(R.id.favoritescheckBox);
-        favoritesChecboxFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        favoritesCheckboxFilter = findViewById(R.id.favoritescheckBox);
+        favoritesCheckboxFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Todo filter adapter
                 arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+                editor.putBoolean("favoritesFilter", isChecked);
+                editor.apply();
+
 
             }
         });
@@ -197,6 +231,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     private void setUpMaxCriticalViolationsSearch() {
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
         filter_maximumHazard_EditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -207,6 +245,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+
+                if(!s.toString().trim().equalsIgnoreCase("")){
+
+                    editor.putInt("maxViolationFilter", Integer.parseInt(s.toString().trim()));
+                    editor.apply();
+                }
             }
 
             @Override
@@ -482,7 +526,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 // THE FAVORITE CHECK BOX FILTER
                 Iterator<Restaurant> iterator;
-                if(favoritesChecboxFilter.isChecked()){
+                if(favoritesCheckboxFilter.isChecked()){
                     for(iterator = filteredList.iterator(); iterator.hasNext();){
                         Restaurant restaurant = iterator.next();
                         if(!restaurant.getFavourite()){
@@ -526,8 +570,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                exampleList.clear();
-                exampleList.addAll((List) results.values);
+//                exampleList.clear();
+//                exampleList.addAll((List) results.values);
                 notifyDataSetChanged();
             }
         };
@@ -576,5 +620,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onResume() {
         super.onResume();
         arrayAdapter.notifyDataSetChanged();
+        loadSavedFilters();
     }
 }

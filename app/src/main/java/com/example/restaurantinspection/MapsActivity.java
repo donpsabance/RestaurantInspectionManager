@@ -58,9 +58,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, AdapterView.OnItemSelectedListener {
 
@@ -131,6 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setFavoritesFilter();
         setHazardFilter();
         setMaxCriticalViolations();
+        loadSavedFilters();
     }
 
 
@@ -148,6 +151,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
     }*/
+
+    private void loadSavedFilters(){
+
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+
+
+        String[] arr = getResources().getStringArray(R.array.hazards);
+        filter_hazardSpinner.setSelection(Arrays.asList(arr).indexOf(sharedPreferences.getString("hazardFilter", "none")));
+        filter_maxViolations_InYear.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
+        filter_favouritedCheckBox.setChecked(sharedPreferences.getBoolean("favoritesFilter", false));
+
+    }
 
     private void setUpSearchBar() {
         filter_restaurantSearchview = findViewById(R.id.searchmap);
@@ -572,6 +587,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setFavoritesFilter() {
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_favouritedCheckBox = findViewById(R.id.checkBox_favourite);
         filter_favouritedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -579,6 +597,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // TODO update the clusters
 //                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
                 filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+                editor.putBoolean("favoritesFilter", isChecked);
+                editor.apply();
+
+
             }
         });
     }
