@@ -162,8 +162,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onQueryTextChange(String newText) {
                 QueryPreferences.setStoredQuery(MapsActivity.this, newText);
-//                filter_class.getFilter().filter(newText);
-                updateItems(newText);
+                filter_class.getFilter().filter(newText);
+//                updateItems(newText);
                 return false;
             }
         });
@@ -577,39 +577,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO update the clusters
-                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
-//                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-/*                if (filter_favouritedCheckBox.isChecked()) {
-                    // clear items first
-                    mMap.clear();
-                    mClusterManager.clearItems();
-                    mClusterManager.cluster();
-                    // clear hash map
-                    mHashMap.clear();
-                    // clear restaurant list
-                    restaurantManager.getRestaurantList().clear();
-                    for (Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()) {
-                        if (restaurant.getFavourite()) {
-                            restaurantManager.add(restaurant);
-                        }
-                    }
-                    setUpClusterManager();
-                    setUpInfoWindows();
-
-                    //only display marker for selected restaurant
-                    updateClusters();
-
-                    //on tap display all restaurants
-                    updateMapOnClick();
-                    Toast.makeText(MapsActivity.this, "SIZE : " + mHashMap.size(), Toast.LENGTH_SHORT).show();
-                    // TODO THIS SOLUTION WORKS SOMEHOW
-                    mClusterManager.clearItems();
-                    for (Restaurant r : mHashMap.keySet()) {
-                        mClusterManager.addItem(r);
-                    }
-                    mClusterManager.cluster();
-
-                }*/
+//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
             }
         });
     }
@@ -626,8 +595,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // TODO  update the clusters
-//        filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-        updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+        filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+//        updateItems(filter_restaurantSearchview.getQuery().toString().trim());
 //        Toast.makeText(MapsActivity.this, filter_hazardSpinner.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
 
     }
@@ -648,8 +617,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO update the clusters
-//                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
 
             }
 
@@ -735,7 +704,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-/*                restaurantList.clear();
+                restaurantList.clear();
                 restaurantList.addAll((List) results.values);
 
                 // clear items first
@@ -755,7 +724,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for (Restaurant r : mHashMap.keySet()) {
                     mClusterManager.addItem(r);
                 }
-                mClusterManager.cluster();*/
+                mClusterManager.cluster();
             }
         };
     }
