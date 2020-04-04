@@ -156,58 +156,81 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onQueryTextSubmit(String query) {
                 QueryPreferences.setStoredQuery(MapsActivity.this, query);
-//                updateItems();
                 return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 QueryPreferences.setStoredQuery(MapsActivity.this, newText);
-                filter_class.getFilter().filter(newText);
-                //updateItems(newText);
+//                filter_class.getFilter().filter(newText);
+                updateItems(newText);
                 return false;
             }
         });
     }
 
-    private void updateItems(String textFilter) {
+    private void updateItems(String constraint) {
         String query = QueryPreferences.getStoredQuery(MapsActivity.this);
         //TODO: execute search method - below is placeholder search method to test marker behavior
-//        mClusterManager.clearItems();
-        boolean shouldAdd = true;
-        int count = 0;
-
-
-        if (textFilter.length() != 0) {
-
-            for (Restaurant r : mHashMap.keySet()) {
-                if (r.getTitle().toUpperCase().contains(query.toUpperCase())) {
-                    if (filter_favouritedCheckBox.isChecked()) {
-                        if (!r.getFavourite()) {
-                            shouldAdd = false;
-                        }
-                    }
-
-                    if (shouldAdd) {
-                        mClusterManager.addItem(r);
-                    }
-                }
-            }
-
+        List<Restaurant> filteredList = new ArrayList<>();
+        // restaurant search bar filter
+        if(constraint == null || constraint.length() == 0){
+            filteredList.addAll(restaurantManager.getFullRestaurantListCopy());
         } else {
-            for (Restaurant r : mHashMap.keySet()) {
-                if (filter_favouritedCheckBox.isChecked()) {
-                    if (!r.getFavourite()) {
-                        shouldAdd = false;
-                    }
-                }
-
-                if (shouldAdd) {
-                    mClusterManager.addItem(r);
+            String filteredPattern = constraint.toString().toLowerCase().trim();
+            for (Restaurant restaurants : restaurantManager.getFullRestaurantListCopy()){
+                if (restaurants.getName().toLowerCase().contains(filteredPattern)){
+                    filteredList.add(restaurants);
                 }
             }
         }
 
+        // Check box filter
+        Iterator<Restaurant> iterator;
+        if(filter_favouritedCheckBox.isChecked()){
+            for(iterator = filteredList.iterator(); iterator.hasNext();){
+                Restaurant restaurant = iterator.next();
+                if(!restaurant.getFavourite()){
+                    iterator.remove();
+                }
+            }
+        }
+        // THE SPINNER FILTER
+        String selectedHazardLevel = filter_hazardSpinner.getSelectedItem().toString();
+        if(!selectedHazardLevel.equalsIgnoreCase("none")){
+            for (iterator = filteredList.iterator(); iterator.hasNext();){
+                Restaurant restaurant = iterator.next();
+                List<RestaurantInspection> inspectionList = restaurant.getRestaurantInspectionList();
+                if(inspectionList.size() > 0 ){
+                    if((! inspectionList.get(0).getHazardRating().toLowerCase().equalsIgnoreCase(selectedHazardLevel))){
+                        iterator.remove();
+                    }
+                } else {
+                    iterator.remove();
+                }
+            }
+        }
+
+        restaurantManager.getRestaurantList().clear();
+        restaurantManager.getRestaurantList().addAll(filteredList);
+
+        // clear items first
+        mClusterManager.clearItems();
+        mClusterManager.cluster();
+        // clear hash map
+        mHashMap.clear();
+        setUpClusterManager();
+        setUpInfoWindows();
+
+        //only display marker for selected restaurant
+        updateClusters();
+
+        //on tap display all restaurants
+        updateMapOnClick();
+        mClusterManager.clearItems();
+        for (Restaurant r : mHashMap.keySet()) {
+            mClusterManager.addItem(r);
+        }
         mClusterManager.cluster();
     }
 
@@ -554,7 +577,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO update the clusters
-                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+//                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
 /*                if (filter_favouritedCheckBox.isChecked()) {
                     // clear items first
                     mMap.clear();
@@ -595,13 +619,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.hazards, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filter_hazardSpinner.setAdapter(adapter);
+        filter_hazardSpinner.setSelection(0,false);
         filter_hazardSpinner.setOnItemSelectedListener(this);
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // TODO  update the clusters
-        filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+//        filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+        updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+//        Toast.makeText(MapsActivity.this, filter_hazardSpinner.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -620,7 +648,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO update the clusters
-                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+//                filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+
             }
 
             @Override
@@ -705,7 +735,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                restaurantList.clear();
+/*                restaurantList.clear();
                 restaurantList.addAll((List) results.values);
 
                 // clear items first
@@ -713,7 +743,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mClusterManager.cluster();
                 // clear hash map
                 mHashMap.clear();
-
                 setUpClusterManager();
                 setUpInfoWindows();
 
@@ -726,7 +755,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for (Restaurant r : mHashMap.keySet()) {
                     mClusterManager.addItem(r);
                 }
-                mClusterManager.cluster();
+                mClusterManager.cluster();*/
             }
         };
     }
