@@ -715,8 +715,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 setUpClusterManager();
                 setUpInfoWindows();
 
-                //only display marker for selected restaurant
-                updateClusters();
 
                 //on tap display all restaurants
                 updateMapOnClick();
