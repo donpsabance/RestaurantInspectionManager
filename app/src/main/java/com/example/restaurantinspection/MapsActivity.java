@@ -617,9 +617,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // TODO  update the clusters
+
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
 //        updateItems(filter_restaurantSearchview.getQuery().toString().trim());
 //        Toast.makeText(MapsActivity.this, filter_hazardSpinner.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+
+        switch (position){
+            case 0:
+                editor.putString("hazardFilter", "none");
+                editor.apply();
+                break;
+            case 1:
+                editor.putString("hazardFilter", "Low");
+                editor.apply();
+                break;
+            case 2:
+                editor.putString("hazardFilter", "Moderate");
+                editor.apply();
+                break;
+            case 3:
+                editor.putString("hazardFilter", "High");
+                editor.apply();
+                break;
+
+        }
 
     }
 
@@ -629,6 +653,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setMaxCriticalViolations() {
+
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_maxViolations_InYear = findViewById(R.id.edit_txt_maxCritMap);
         filter_maxViolations_InYear.addTextChangedListener(new TextWatcher() {
             @Override
@@ -640,7 +668,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO update the clusters
                 filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+                if(!s.toString().trim().equalsIgnoreCase("")){
+
+                    editor.putInt("maxViolationFilter", Integer.parseInt(s.toString().trim()));
+                    editor.apply();
+                }
 
             }
 

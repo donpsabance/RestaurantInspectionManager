@@ -177,14 +177,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //pos 0 -none, 1 - low, 2 -moderate, 3 - high
         switch (position){
             case 0:
-                filterRestaurants("none");
-                loadRestaurants();
                 editor.putString("hazardFilter", "none");
                 editor.apply();
                 break;
             case 1:
-                filterRestaurants("low");
-                loadRestaurants();
                 editor.putString("hazardFilter", "Low");
                 editor.apply();
                 break;
