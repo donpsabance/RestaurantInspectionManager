@@ -86,4 +86,6 @@
     <string name="maximum_critical_nhazards_this_year">" 最大严重危害（今年）："</string>
     <string name="query_hint">" 输入餐厅名称"</string>
     <string name="search_for_a_restaurant">" 搜索餐厅"</string>
+    <string name="extra_filters"><u>更多选择</u></string>
+    <string name="hazard_n_constraints">危害约束:</string>
 </resources>

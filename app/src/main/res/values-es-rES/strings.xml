@@ -86,4 +86,6 @@
     <string name="maximum_critical_nhazards_this_year">Máximos riesgos críticos (este año):</string>
     <string name="query_hint">Ingrese un nombre de restaurante</string>
     <string name="search_for_a_restaurant">Busca un restaurante</string>
+    <string name="extra_filters"><u>filtros extra</u></string>
+    <string name="hazard_n_constraints">restricciones de peligro:</string>
 </resources>

@@ -112,8 +112,8 @@
 
     <TextView
         android:id="@+id/txt_maxNumCriticalFilter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="115dp"
+        android:layout_height="51dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="8dp"
         android:gravity="center"
