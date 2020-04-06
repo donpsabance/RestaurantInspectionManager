@@ -68,6 +68,12 @@ public class RestaurantActivity extends AppCompatActivity {
         for (String TrackingNum : list){
             if(TrackingNum.contains(restaurant.getTrackingNumber())){
                 restaurant.setFavourite(true);
+                //TODO save in copy as well
+                for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
+                    if(TrackingNum.contains(restaurant.getTrackingNumber())){
+                        restaurant.setFavourite(true);
+                    }
+                }
             }
         }
 
@@ -218,12 +224,24 @@ public class RestaurantActivity extends AppCompatActivity {
                 favourite_list.add(TrackingNumber + "+" + Last_Date);
                 saveList(favourite_list);
                 restaurant.setFavourite(true);
+                // TODO set favourite as copy as well
+                for(Restaurant restaurant_copy : restaurantManager.getFullRestaurantListCopy()){
+                    if(TrackingNumber.contains(restaurant_copy.getTrackingNumber())){
+                        restaurant_copy.setFavourite(true);
+                    }
+                }
                 Log.d("favourite","add favourite");
                 Log.d("List",favourite_list.toString());
             }else{
                 favourite_list.remove(TrackingNumber + "+" + Last_Date);
                 saveList(favourite_list);
                 restaurant.setFavourite(false);
+                // TODO set favourite for copy as well
+                for(Restaurant restaurant_copy : restaurantManager.getFullRestaurantListCopy()){
+                    if(TrackingNumber.contains(restaurant_copy.getTrackingNumber())){
+                        restaurant_copy.setFavourite(false);
+                    }
+                }
                 Log.d("favourite","Remove favourite");
                 Log.d("List",favourite_list.toString());
             }

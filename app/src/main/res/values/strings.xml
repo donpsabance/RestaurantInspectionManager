@@ -37,5 +37,19 @@
     <string name="hazard_message">hazard message</string>
     <string name="reports">Reports</string>
     <string name="unfavorite_icon">unfavorite icon</string>
+    <string name="query_hint">Enter a restaurant name</string>
+    <string name="extra_filters"><u>Extra Filters</u></string>
+    <string name="hazard_n_constraints">hazard\n constraints:</string>
+    <string name="favorites_only">favorites only</string>
+    <string name="max_critical_violations_n_within_the_year">Max critical violations\n within the year:</string>
+    <string name="maximum_critical_nhazards_this_year">Maximum critical \nhazards (this year):</string>
+    <string name="search_for_a_restaurant">Search for a restaurant</string>
     >
+
+    <string-array name="hazards">
+        <item>none</item>
+        <item>Low</item>
+        <item>Moderate</item>
+        <item>High</item>
+    </string-array>
 </resources>
