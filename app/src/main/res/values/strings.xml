@@ -80,5 +80,25 @@
     <string name="V404">404, Not Critical, Employee smoking in food preparation/processing/storage areas [s. 21(2)], Not Repeat</string>
     <string name="V501">501, Not Critical, Operator does not have FOODSAFE Level 1 or Equivalent [s. 10(1)],Not Repeat</string>
     <string name="V502">502, Not Critical, In the operator’s absence no staff on duty has FOODSAFE Level 1 or equivalent [s. 10(2)], Not Repeat</string>
+    <string name="search_icon" translatable="false">search icon</string>
+    <string name="please_enter_a_restaurant_name_or_keyword">Please enter a restaurant name or keyword</string>
+    <string name="num_of_critical"># of critical</string>
+    <string name="hazard_message" translatable="false">hazard message</string>
+    <string name="reports" translatable="false">Reports</string>
+    <string name="unfavorite_icon" translatable="false">unfavorite icon</string>
+    <string name="query_hint">Enter a restaurant name</string>
+    <string name="extra_filters" translatable="false"><u>Extra Filters</u></string>
+    <string name="hazard_n_constraints" translatable="false">hazard\n constraints:</string>
+    <string name="favorites_only">favorites only</string>
+    <string name="max_critical_violations_n_within_the_year">Max critical violations  within the year:</string>
+    <string name="maximum_critical_nhazards_this_year">Maximum critical  hazards (this year):</string>
+    <string name="search_for_a_restaurant">Search for a restaurant</string>
     >
+
+    <string-array name="hazards">
+        <item>none</item>
+        <item>Low</item>
+        <item>Moderate</item>
+        <item>High</item>
+    </string-array>
 </resources>

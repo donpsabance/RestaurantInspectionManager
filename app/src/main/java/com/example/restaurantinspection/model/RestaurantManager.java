@@ -15,6 +15,8 @@ public class RestaurantManager implements Iterable<Restaurant> {
     private static RestaurantManager instance;
     private boolean isExtraDataLoaded = false;
 
+    private List<Restaurant> fullRestaurantListCopy;
+
     //singleton model
     public static RestaurantManager getInstance(){
         if(instance == null){
@@ -44,4 +46,14 @@ public class RestaurantManager implements Iterable<Restaurant> {
     public void setExtraDataLoaded(boolean extraDataLoaded) {
         isExtraDataLoaded = extraDataLoaded;
     }
+
+    public void CreateFullCopy(){
+        fullRestaurantListCopy = new ArrayList<>(restaurantList);
+    }
+
+    public List<Restaurant> getFullRestaurantListCopy() {
+        return fullRestaurantListCopy;
+    }
+
+
 }

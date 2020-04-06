@@ -79,4 +79,11 @@
     <string name="V404">404, No Crítico, Empleado fumando en áreas de preparación / procesamiento / almacenamiento de alimentos [s. 21 (2)], no repetir</string>
     <string name="V501">501, No Crítico, el operador no tiene FOODSAFE Nivel 1 o Equivalente [s. 10 (1)], no repetir</string>
     <string name="V502">502, No Crítico, en ausencia del operador, ningún personal en servicio tiene FOODSAFE Nivel 1 o equivalente [s. 10 (2)], no repetir</string>
+    <string name="please_enter_a_restaurant_name_or_keyword">Por favor, introduzca el nombre o la palabra clave de un restaurante</string>
+    <string name="num_of_critical"># de crítico</string>
+    <string name="favorites_only">Solo favoritos</string>
+    <string name="max_critical_violations_n_within_the_year">Máximas violaciones críticas dentro del año:</string>
+    <string name="maximum_critical_nhazards_this_year">Máximos riesgos críticos (este año):</string>
+    <string name="query_hint">Ingrese un nombre de restaurante</string>
+    <string name="search_for_a_restaurant">Busca un restaurante</string>
 </resources>

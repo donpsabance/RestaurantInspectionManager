@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@android:style/Theme.NoTitleBar">
 
-    <fragment xmlns:tools="http://schemas.android.com/tools"
+    <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
@@ -21,28 +23,145 @@
         android:background="#FFF"
         android:id="@+id/relLayout1">
 
-        <ImageView
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:id="@+id/ic_magnify"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="10dp"
-            android:src="@drawable/ic_magnify"
+<!--        <ImageView-->
+<!--            android:layout_width="25dp"-->
+<!--            android:layout_height="25dp"-->
+<!--            android:id="@+id/ic_magnify"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:src="@drawable/ic_magnify"-->
+<!--            android:contentDescription="@string/search_icon"-->
 
-            />
+<!--            />-->
 
-        <EditText
+<!--        <EditText-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:textSize="15sp"-->
+<!--            android:textColor="#000"-->
+<!--            android:id="@+id/input_search"-->
+<!--            android:background="@null"-->
+<!--            android:layout_marginStart="40dp"-->
+<!--            android:hint="@string/please_enter_a_restaurant_name_or_keyword"-->
+<!--            android:imeOptions="actionSearch"-->
+<!--            android:inputType="text" />-->
+
+
+        <SearchView
+            android:id="@+id/searchmap"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:textSize="15sp"
-            android:textColor="#000"
-            android:id="@+id/input_search"
-            android:background="@null"
-            android:layout_marginStart="40dp"
-            android:imeOptions="actionSearch"
-            android:inputType="text" />
+            android:queryHint="@string/query_hint"
+            android:searchHintIcon="@android:drawable/ic_menu_search"
+            android:searchIcon="@android:drawable/ic_menu_search" />
+
 
     </RelativeLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/mapSettings_constraintLayout"
+        android:layout_width="196dp"
+        android:layout_height="208dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="29dp"
+        android:layout_marginBottom="83dp"
+        android:background="#b3000000"
+        android:visibility="invisible">
+
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/extra_filters"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/txt_MaxCritiviolationsMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center"
+            android:text="@string/maximum_critical_nhazards_this_year"
+            android:textColor="@color/white"
+            android:textSize="14dp"
+            app:layout_constraintStart_toStartOf="@+id/message"
+            app:layout_constraintTop_toBottomOf="@+id/message" />
+
+        <EditText
+            android:id="@+id/edit_txt_maxCritMap"
+            android:layout_width="50dp"
+            android:layout_height="35dp"
+            android:layout_marginStart="4dp"
+            android:background="#E8FFFFFF"
+            android:ems="10"
+            android:inputType="number"
+            android:maxLength="3"
+            app:layout_constraintBottom_toBottomOf="@+id/txt_MaxCritiviolationsMsg"
+            app:layout_constraintStart_toEndOf="@+id/txt_MaxCritiviolationsMsg"
+            app:layout_constraintTop_toTopOf="@+id/txt_MaxCritiviolationsMsg"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <TextView
+            android:id="@+id/txt_hazardConstraintMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="@string/hazard_n_constraints"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="@+id/txt_MaxCritiviolationsMsg"
+            app:layout_constraintHorizontal_bias="0.414"
+            app:layout_constraintStart_toStartOf="@+id/txt_MaxCritiviolationsMsg"
+            app:layout_constraintTop_toBottomOf="@+id/txt_MaxCritiviolationsMsg" />
+
+        <Spinner
+            android:id="@+id/spinner_hazzardConstraint"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            app:layout_constraintBottom_toBottomOf="@+id/txt_hazardConstraintMsg"
+            app:layout_constraintEnd_toEndOf="@+id/edit_txt_maxCritMap"
+            app:layout_constraintStart_toStartOf="@+id/edit_txt_maxCritMap"
+            app:layout_constraintTop_toTopOf="@+id/txt_hazardConstraintMsg" />
+
+        <CheckBox
+            android:id="@+id/checkBox_favourite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/txt_favouriteMsg"
+            app:layout_constraintEnd_toEndOf="@+id/spinner_hazzardConstraint"
+            app:layout_constraintStart_toStartOf="@+id/spinner_hazzardConstraint"
+            app:layout_constraintTop_toTopOf="@+id/txt_favouriteMsg" />
+
+        <TextView
+            android:id="@+id/txt_favouriteMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/favorites_only"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toEndOf="@+id/txt_hazardConstraintMsg"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/txt_hazardConstraintMsg"
+            app:layout_constraintTop_toBottomOf="@+id/txt_hazardConstraintMsg" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/settingsPopUpFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="26dp"
+        android:src="@drawable/ic_settings_white_50dp">
+
+    </com.google.android.material.floatingactionbutton.FloatingActionButton>
 
 </RelativeLayout>

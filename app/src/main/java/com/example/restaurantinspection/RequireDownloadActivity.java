@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.restaurantinspection.model.InspectionComparator;
 import com.example.restaurantinspection.model.Reader;
 import com.example.restaurantinspection.model.Restaurant;
+import com.example.restaurantinspection.model.RestaurantComparator;
 import com.example.restaurantinspection.model.RestaurantInspection;
 import com.example.restaurantinspection.model.RestaurantManager;
 import com.example.restaurantinspection.model.Service.CheckInternet;
@@ -45,6 +46,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -59,7 +61,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private static final String BASE_URL = "http://data.surrey.ca/";
     private static final String ID_RESTAURANTS = "restaurants";
     private static final String ID_INSPECTIONS = "fraser-health-restaurant-inspection-reports";
-    public static final String TAG_CHECK = "MainActivity";
+    public static final String TAG_CHECK = "DownloadActivity";
     private static final String RESTAURANTS_FILE_NAME = "downloaded_Restaurants.csv";
     private static final String NEW_RESTAURANTS_FILE_NAME = "New_downloaded_Restaurants.csv";
     private static final String INSPECTIONS_FILE_NAME = "downloaded_Inspections.csv";
@@ -147,9 +149,10 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     private void terminateActivity() {
-/*        Intent i = new Intent();
-        Log.d("CHECK","SENDING INTENT");
-        setResult(RESULT_OK,i);*/
+        restaurantManager.getRestaurantList().sort(new RestaurantComparator());
+        for (Restaurant restaurant : restaurantManager) {
+            Collections.sort(restaurant.getRestaurantInspectionList(), new InspectionComparator());
+        }
         startActivity(MainActivity.makeIntent(this));
         finish();
     }
@@ -478,7 +481,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
             reader.readLine();
             while (((line = reader.readLine()) != null) && (!line.equals(",,,,,,"))) {
                 // Split line by ','
-                Log.d("TEST", line);
+                //Log.d("TEST", line);
                 String[] parts = line.split("\"");
                 String[] tokens = parts[0].split(",");
                 String var_token5;
@@ -496,7 +499,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
                         tokens[2], tokens[3], tokens[4],
                         var_token5, var_token6);
 
-                Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
+                //Log.d("NEW MANAGER", sample.getTrackingNumber() + " " + sample.getInspectionDate() + " " + sample.getHazardRating());
                 if(hmap.containsKey(sample.getTrackingNumber())){
                     hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
                 }

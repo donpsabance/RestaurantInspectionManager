@@ -79,4 +79,11 @@
     <string name="V404">404,不严重,员工在食品准备/加工/存储区域吸烟[s.21（2）]，不重复</string>
     <string name="V501">501,不严重,操作员不具有FOODSAFE 1级或等效的标准。[s.10（1）]，不重复</string>
     <string name="V502">502,不严重,在操作员不在的情况下,没有值班人员的食品安全等级为FOODSAFE 1级或相当。[s.10（2）]，不重复</string>
+    <string name="please_enter_a_restaurant_name_or_keyword">请输入餐厅名称或关键字</string>
+    <string name="num_of_critical"># 严重问题</string>
+    <string name="favorites_only">仅限收藏</string>
+    <string name="max_critical_violations_n_within_the_year">" 一年内的最大严重违规情况"</string>
+    <string name="maximum_critical_nhazards_this_year">" 最大严重危害（今年）："</string>
+    <string name="query_hint">" 输入餐厅名称"</string>
+    <string name="search_for_a_restaurant">" 搜索餐厅"</string>
 </resources>

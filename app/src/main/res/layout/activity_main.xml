@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@android:style/Theme.NoTitleBar"
     tools:context=".MainActivity">
+
+    <RelativeLayout
+        android:id="@+id/mapSettings_constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#FFF"
+        android:elevation="10dp"
+        app:layout_constraintStart_toEndOf="@+id/restaurantListView"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <SearchView
+            android:id="@+id/searchmain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:queryHint="@string/query_hint"
+            android:searchHintIcon="@android:drawable/ic_menu_search"
+            android:searchIcon="@android:drawable/ic_menu_search" />
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/restaurantListView"
-        android:layout_width="407dp"
-        android:layout_height="564dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="404dp"
+        android:layout_height="495dp"
+        android:layout_marginTop="24dp"
         android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.428"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/spinnerHazard"
+        app:layout_constraintVertical_bias="0.2" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/mapButton"
@@ -29,5 +49,90 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_dialog_map" />
+
+    <EditText
+        android:id="@+id/searchBar"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:hint="@string/search_for_a_restaurant"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/guideline"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="50dp" />
+
+    <TextView
+        android:id="@+id/txt_hazardConstraintMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:gravity="center"
+        android:text="@string/hazard_n_constraints"
+        android:textColor="#000000"
+        android:textColorHint="#000000"
+        app:layout_constraintBottom_toBottomOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintStart_toEndOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintTop_toTopOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <CheckBox
+        android:id="@+id/favoritescheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:text="@string/favorites_only"
+        android:textColor="#000000"
+        android:textColorHint="#000000"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Spinner
+        android:id="@+id/spinnerHazard"
+        android:layout_width="50dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintEnd_toEndOf="@+id/txt_hazardConstraintMsg"
+        app:layout_constraintHorizontal_bias="0.586"
+        app:layout_constraintStart_toStartOf="@+id/txt_hazardConstraintMsg"
+        app:layout_constraintTop_toBottomOf="@+id/txt_hazardConstraintMsg" />
+
+    <TextView
+        android:id="@+id/txt_maxNumCriticalFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/max_critical_violations_n_within_the_year"
+        android:textColor="#000000"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+    <EditText
+        android:id="@+id/editText_maxCritical"
+        android:layout_width="50dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="4dp"
+        android:ems="10"
+        android:maxLength="3"
+        android:inputType="number"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintStart_toStartOf="@+id/txt_maxNumCriticalFilter"
+        app:layout_constraintTop_toBottomOf="@+id/txt_maxNumCriticalFilter" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

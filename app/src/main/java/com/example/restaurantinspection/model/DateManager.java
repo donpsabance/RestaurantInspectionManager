@@ -1,6 +1,8 @@
 package com.example.restaurantinspection.model;
 
 import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +12,24 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class DateManager {
+
+    public static Date dateCreate(String unformattedDate){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+        Date inspectionDate = null;
+
+        try {
+            inspectionDate = simpleDateFormat.parse(unformattedDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  inspectionDate;
+    }
+
+    public static boolean check_ifOver_AYear(Date date){
+        Date dateToday = new Date();
+        long dateDifference = TimeUnit.DAYS.convert(dateToday.getTime() - date.getTime(), TimeUnit.MILLISECONDS);
+        return dateDifference < 365;
+    }
 
     public static String formatDateInspection(Date inspectionDate){
 

@@ -49,7 +49,7 @@ public class Reader {
             reader.readLine();
             while ((line = reader.readLine()) != null) {
                 // Split line by ','
-                Log.d("TEST", line);
+                //Log.d("TEST", line);
 
                 String[] tokens = line.split(",");
                 String var_token5;
@@ -62,7 +62,7 @@ public class Reader {
                 RestaurantInspection sample = new RestaurantInspection(tokens[0], tokens[1],
                         tokens[2], tokens[3], tokens[4],
                         var_token5, tokens[6]);
-                Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
+                //Log.d("MY_ACTIVITY", sample.getTrackingNumber() + " " + sample.getInspectionDate());
                 if(hmap.containsKey(sample.getTrackingNumber())){
 
                     hmap.get(sample.getTrackingNumber()).getRestaurantInspectionList().add(sample);
