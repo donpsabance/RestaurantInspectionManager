@@ -37,15 +37,15 @@ public class MarkerClusterRenderer extends DefaultClusterRenderer {
 
         //set icon to match appropriate hazard level
 
-        if (item.getSnippet().endsWith("Low") || item.getSnippet().endsWith("Bajo")) {
+        if (item.getSnippet().endsWith("Low") || item.getSnippet().endsWith("Bajo") || item.getSnippet().endsWith(("低危"))) {
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         }
 
-        if (item.getSnippet().endsWith(("Moderate")) || item.getSnippet().endsWith("Mediano")) {
+        if (item.getSnippet().endsWith(("Moderate")) || item.getSnippet().endsWith("Mediano") || item.getSnippet().endsWith("中等")) {
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
         }
 
-        if (item.getSnippet().endsWith(("High")) || item.getSnippet().endsWith("Alto")) {
+        if (item.getSnippet().endsWith(("High")) || item.getSnippet().endsWith("Alto") || item.getSnippet().endsWith("高危")) {
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
 
