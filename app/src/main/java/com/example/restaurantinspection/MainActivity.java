@@ -82,10 +82,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         startActivity(new Intent(this, MapsActivity.class));
 
-
-        List<Restaurant> hazardFilter = restaurantManager.getFullRestaurantListCopy();
-        List<Restaurant> maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
-
         loadRestaurants();
         registerClickFeedback();
         setUpMapButton();
@@ -102,14 +98,20 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void loadSavedFilters(){
 
         SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
-        EditText editText = findViewById(R.id.editText_maxCritical);
+        EditText editText = filter_maximumHazard_EditText;
         SearchView searchView = findViewById(R.id.searchmain);
 
         String[] arr = getResources().getStringArray(R.array.hazards);
         hazardSpinner.setSelection(Arrays.asList(arr).indexOf(sharedPreferences.getString("hazardFilter", "none")));
         favoritesChecboxFilter.setChecked(sharedPreferences.getBoolean("favoritesFilter", false));
-        editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
         searchView.setQuery(sharedPreferences.getString("searchFilter", ""), false);
+
+        if(sharedPreferences.getInt("maxViolationFilter", 0) != -1){
+            editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
+        }
+         else{
+            editText.setText("", TextView.BufferType.EDITABLE);
+        }
 
     }
 
@@ -218,8 +220,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
 
-                if(!s.toString().trim().equalsIgnoreCase("")){
+                if(s.toString().trim().equalsIgnoreCase("")){
 
+                    editor.putInt("maxViolationFilter", -1);
+                    editor.apply();
+
+                } else {
                     editor.putInt("maxViolationFilter", Integer.parseInt(s.toString().trim()));
                     editor.apply();
                 }

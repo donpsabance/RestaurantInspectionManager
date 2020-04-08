@@ -145,26 +145,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String[] arr = getResources().getStringArray(R.array.hazards);
         filter_hazardSpinner.setSelection(Arrays.asList(arr).indexOf(sharedPreferences.getString("hazardFilter", "none")));
         filter_favouritedCheckBox.setChecked(sharedPreferences.getBoolean("favoritesFilter", false));
-        editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
         filter_restaurantSearchview.setQuery(sharedPreferences.getString("searchFilter", ""), false);
 
+        if(sharedPreferences.getInt("maxViolationFilter", 0) != -1){
+            editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
+        }
+        else{
+            editText.setText("", TextView.BufferType.EDITABLE);
+        }
+
     }
-
-
-/*    private void setUpSearchBar() {
-        mSearchText = findViewById(R.id.input_search);
-        mSearchText.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE ||
-                    event.getAction() == KeyEvent.ACTION_DOWN ||
-                    event.getAction() == KeyEvent.KEYCODE_ENTER) {
-                //TODO: execute method for searching
-
-            }
-            return false;
-        });
-
-    }*/
 
     private void setUpSearchBar() {
 
@@ -671,7 +661,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO update the clusters
                 filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-                if(!s.toString().trim().equalsIgnoreCase("")){
+                if(s.toString().trim().equalsIgnoreCase("")){
+
+                    editor.putInt("maxViolationFilter", -1);
+                    editor.apply();
+                } else {
 
                     editor.putInt("maxViolationFilter", Integer.parseInt(s.toString().trim()));
                     editor.apply();
@@ -760,25 +754,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                restaurantList.clear();
-                restaurantList.addAll((List) results.values);
 
-                // clear items first
-                mClusterManager.clearItems();
-                mClusterManager.cluster();
-                // clear hash map
-                mHashMap.clear();
-                setUpClusterManager();
-                setUpInfoWindows();
+                if(restaurantIndex == -1) {
+
+                    restaurantList.clear();
+                    restaurantList.addAll((List) results.values);
+
+                    // clear items first
+                    mClusterManager.clearItems();
+                    mClusterManager.cluster();
+                    // clear hash map
+                    mHashMap.clear();
+                    setUpClusterManager();
+                    setUpInfoWindows();
 
 
-                //on tap display all restaurants
-                updateMapOnClick();
-                mClusterManager.clearItems();
-                for (Restaurant r : mHashMap.keySet()) {
-                    mClusterManager.addItem(r);
+                    //on tap display all restaurants
+                    updateMapOnClick();
+                    mClusterManager.clearItems();
+                    for (Restaurant r : mHashMap.keySet()) {
+                        mClusterManager.addItem(r);
+                    }
+                    mClusterManager.cluster();
                 }
-                mClusterManager.cluster();
             }
         };
     }
