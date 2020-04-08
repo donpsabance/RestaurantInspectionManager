@@ -49,6 +49,7 @@ import com.google.gson.reflect.TypeToken;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -95,11 +96,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setUpHazardsSpinner();
         setUpMaxCriticalViolationsSearch();
         setUpFavoritesFilter();
+        loadSavedFilters();
+    }
+
+    private void loadSavedFilters(){
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        EditText editText = findViewById(R.id.editText_maxCritical);
+        SearchView searchView = findViewById(R.id.searchmain);
+
+        String[] arr = getResources().getStringArray(R.array.hazards);
+        hazardSpinner.setSelection(Arrays.asList(arr).indexOf(sharedPreferences.getString("hazardFilter", "none")));
+        favoritesChecboxFilter.setChecked(sharedPreferences.getBoolean("favoritesFilter", false));
+        editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
+        searchView.setQuery(sharedPreferences.getString("searchFilter", ""), false);
+
     }
 
 
     // search bar
     private void setUpSearchBar() {
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         restaurantFilter_SearchView = findViewById(R.id.searchmain);
         restaurantFilter_SearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -111,37 +131,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public boolean onQueryTextChange(String newText) {
                 arrayAdapter.getFilter().filter(newText);
+
+                editor.putString("searchFilter", newText);
+                editor.apply();
+
                 return false;
             }
         });
-    }
-
-    //load restaurants based on hazard level
-    private void filterRestaurants(String hazardLevel){
-
-        List<Restaurant> result = new ArrayList<>();
-        if(!hazardLevel.equalsIgnoreCase("none")){
-
-            restaurantManager.getRestaurantList().clear();
-            for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
-
-                //most recent inspection
-                if(restaurant.getRestaurantInspectionList() != null &&
-                        restaurant.getRestaurantInspectionList().size() > 0){
-                    if(restaurant.getRestaurantInspectionList().get(0).getHazardRating().equalsIgnoreCase(hazardLevel)){
-
-                        result.add(restaurant);
-
-                    }
-                }
-            }
-        } else if(hazardLevel.equalsIgnoreCase("none")){
-
-            result = restaurantManager.getFullRestaurantListCopy();
-
-        }
-
-        hazardFilter = result;
     }
 
     private void setUpHazardsSpinner() {
@@ -154,27 +150,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     // hazardSpinner click listener
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
-/*        //pos 0 -none, 1 - low, 2 -moderate, 3 - high
-        switch (position){
+        //pos 0 -none, 1 - low, 2 -moderate, 3 - high
+        switch (position) {
             case 0:
-                filterRestaurants("none");
-                loadRestaurants();
+                editor.putString("hazardFilter", "none");
+                editor.apply();
                 break;
             case 1:
-                filterRestaurants("low");
-                loadRestaurants();
+                editor.putString("hazardFilter", "Low");
+                editor.apply();
                 break;
             case 2:
-                filterRestaurants("moderate");
-                loadRestaurants();
+                editor.putString("hazardFilter", "Moderate");
+                editor.apply();
                 break;
             case 3:
-                filterRestaurants("high");
-                loadRestaurants();
+                editor.putString("hazardFilter", "High");
+                editor.apply();
                 break;
 
-        }*/
+        }
     }
 
     @Override
@@ -183,12 +183,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     private void setUpFavoritesFilter() {
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         favoritesChecboxFilter = findViewById(R.id.favoritescheckBox);
         favoritesChecboxFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // Todo filter adapter
                 arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+
+                editor.putBoolean("favoritesFilter", isChecked);
+                editor.apply();
 
             }
         });
@@ -197,6 +203,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
     private void setUpMaxCriticalViolationsSearch() {
+
+        SharedPreferences sharedPreferences = MainActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_maximumHazard_EditText = findViewById(R.id.editText_maxCritical);
         filter_maximumHazard_EditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -207,6 +217,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 arrayAdapter.getFilter().filter(restaurantFilter_SearchView.getQuery());
+
+                if(!s.toString().trim().equalsIgnoreCase("")){
+
+                    editor.putInt("maxViolationFilter", Integer.parseInt(s.toString().trim()));
+                    editor.apply();
+                }
             }
 
             @Override
@@ -575,6 +591,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     protected void onResume() {
         super.onResume();
+        loadSavedFilters();
         arrayAdapter.notifyDataSetChanged();
     }
 }
