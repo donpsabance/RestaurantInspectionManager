@@ -64,6 +64,8 @@ public class RestaurantActivity extends AppCompatActivity {
         initView(favourite_list);
     }
 
+
+
     private void compareRestaurant(List<String> list){
         for (String TrackingNum : list){
             if(TrackingNum.contains(restaurant.getTrackingNumber())){

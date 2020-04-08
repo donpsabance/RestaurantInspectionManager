@@ -58,9 +58,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, AdapterView.OnItemSelectedListener {
 
@@ -131,27 +133,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setFavoritesFilter();
         setHazardFilter();
         setMaxCriticalViolations();
+        loadSavedFilters();
     }
 
+    private void loadSavedFilters(){
 
-/*    private void setUpSearchBar() {
-        mSearchText = findViewById(R.id.input_search);
-        mSearchText.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE ||
-                    event.getAction() == KeyEvent.ACTION_DOWN ||
-                    event.getAction() == KeyEvent.KEYCODE_ENTER) {
-                //TODO: execute method for searching
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        EditText editText = filter_maxViolations_InYear;
+        SearchView searchView = findViewById(R.id.searchmain);
 
-            }
-            return false;
-        });
+        String[] arr = getResources().getStringArray(R.array.hazards);
+        filter_hazardSpinner.setSelection(Arrays.asList(arr).indexOf(sharedPreferences.getString("hazardFilter", "none")));
+        filter_favouritedCheckBox.setChecked(sharedPreferences.getBoolean("favoritesFilter", false));
+        filter_restaurantSearchview.setQuery(sharedPreferences.getString("searchFilter", ""), false);
 
-    }*/
+        if(sharedPreferences.getInt("maxViolationFilter", 0) != -1){
+            editText.setText(sharedPreferences.getInt("maxViolationFilter", 0) + "", TextView.BufferType.EDITABLE);
+        }
+        else{
+            editText.setText("", TextView.BufferType.EDITABLE);
+        }
+
+    }
 
     private void setUpSearchBar() {
-        filter_restaurantSearchview = findViewById(R.id.searchmap);
 
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
+        filter_restaurantSearchview = findViewById(R.id.searchmap);
         filter_restaurantSearchview.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -163,6 +173,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public boolean onQueryTextChange(String newText) {
                 QueryPreferences.setStoredQuery(MapsActivity.this, newText);
                 filter_class.getFilter().filter(newText);
+
+                editor.putString("searchFilter", newText);
+                editor.apply();
+
 //                updateItems(newText);
                 return false;
             }
@@ -579,6 +593,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setFavoritesFilter() {
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_favouritedCheckBox = findViewById(R.id.checkBox_favourite);
         filter_favouritedCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -586,6 +603,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // TODO update the clusters
 //                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
                 filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
+                editor.putBoolean("favoritesFilter", isChecked);
+                editor.apply();
             }
         });
     }
@@ -603,8 +622,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // TODO  update the clusters
         filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-//        updateItems(filter_restaurantSearchview.getQuery().toString().trim());
-//        Toast.makeText(MapsActivity.this, filter_hazardSpinner.getSelectedItem().toString(), Toast.LENGTH_SHORT).show();
+
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        switch (position) {
+            case 0:
+                editor.putString("hazardFilter", "none");
+                editor.apply();
+                break;
+            case 1:
+                editor.putString("hazardFilter", "Low");
+                editor.apply();
+                break;
+            case 2:
+                editor.putString("hazardFilter", "Moderate");
+                editor.apply();
+                break;
+            case 3:
+                editor.putString("hazardFilter", "High");
+                editor.apply();
+                break;
+
+        }
 
     }
 
@@ -614,6 +653,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setMaxCriticalViolations() {
+
+        SharedPreferences sharedPreferences = MapsActivity.this.getSharedPreferences(getString(R.string.sharedPrefFile), Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         filter_maxViolations_InYear = findViewById(R.id.edit_txt_maxCritMap);
         filter_maxViolations_InYear.addTextChangedListener(new TextWatcher() {
             @Override
@@ -625,8 +668,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 // TODO update the clusters
                 filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
-//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
+                if(s.toString().trim().equalsIgnoreCase("")){
 
+                    editor.putInt("maxViolationFilter", -1);
+                    editor.apply();
+                } else {
+
+                    editor.putInt("maxViolationFilter", Integer.parseInt(s.toString().trim()));
+                    editor.apply();
+                }
             }
 
             @Override
@@ -711,25 +761,29 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                restaurantList.clear();
-                restaurantList.addAll((List) results.values);
 
-                // clear items first
-                mClusterManager.clearItems();
-                mClusterManager.cluster();
-                // clear hash map
-                mHashMap.clear();
-                setUpClusterManager();
-                setUpInfoWindows();
+                if(restaurantIndex == -1) {
+
+                    restaurantList.clear();
+                    restaurantList.addAll((List) results.values);
+
+                    // clear items first
+                    mClusterManager.clearItems();
+                    mClusterManager.cluster();
+                    // clear hash map
+                    mHashMap.clear();
+                    setUpClusterManager();
+                    setUpInfoWindows();
 
 
-                //on tap display all restaurants
-                updateMapOnClick();
-                mClusterManager.clearItems();
-                for (Restaurant r : mHashMap.keySet()) {
-                    mClusterManager.addItem(r);
+                    //on tap display all restaurants
+                    updateMapOnClick();
+                    mClusterManager.clearItems();
+                    for (Restaurant r : mHashMap.keySet()) {
+                        mClusterManager.addItem(r);
+                    }
+                    mClusterManager.cluster();
                 }
-                mClusterManager.cluster();
             }
         };
     }
