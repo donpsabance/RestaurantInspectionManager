@@ -237,34 +237,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
-/*        TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                if(!s.toString().trim().equals("")){
-
-                    List<Restaurant> result = new ArrayList<>();
-                    int maxViolation = Integer.parseInt(s.toString());
-                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
-
-                        if(restaurant.getRestaurantInspectionList()  != null &&
-                                restaurant.getRestaurantInspectionList().size() > 0){
-
-                            if(restaurant.getRestaurantInspectionList().get(0).getNumCritical() <= maxViolation){
-
-                                result.add(restaurant);
-
-                            }
-                        }
-                    }
-                    maxViolationFilter = result;
-                    loadRestaurants();
-                } else {
-                    maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
-                    loadRestaurants();
-                }
-            }
-        };*/
     }
 
     private void compareRestaurant(List<String> list){
@@ -548,29 +520,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 notifyDataSetChanged();
             }
         };
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem menuItem = menu.findItem(R.id.search_menu);
-        SearchView searchView = (SearchView) menuItem.getActionView();
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                arrayAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
-        return true;
     }
 
     public List<String> readFavouriteList() {
