@@ -22,6 +22,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.Filter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -313,12 +314,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //start MapActivity
         FloatingActionButton fab = findViewById(R.id.mapButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                startActivityForResult(intent, ACTIVITY_RESULT_FINISH);
-            }
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+            startActivityForResult(intent, ACTIVITY_RESULT_FINISH);
         });
     }
 
@@ -394,17 +392,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void registerClickFeedback() {
 
         ListView listView = findViewById(R.id.restaurantListView);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        listView.setOnItemClickListener((parent, view, position, id) -> {
 
-                Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
-                Toast.makeText(MainActivity.this, "You clicked " + restaurant.getName(), Toast.LENGTH_SHORT).show();
+            Restaurant restaurant = restaurantManager.getRestaurantList().get(position);
+            Toast.makeText(MainActivity.this, getString(R.string.you_clicked) + restaurant.getName(), Toast.LENGTH_SHORT).show();
 
-                //start restaurant activity
-                Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
-                startActivity(intent);
-            }
+            //start restaurant activity
+            Intent intent = RestaurantActivity.makeIntent(MainActivity.this, position);
+            startActivity(intent);
         });
     }
 
@@ -433,6 +428,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             TextView addressText = itemView.findViewById(R.id.restaurantLocation);
             TextView descriptionText = itemView.findViewById(R.id.restaurantDescription);
             TextView reportText = itemView.findViewById(R.id.restaurantRecentReport);
+            TextView issuesText = itemView.findViewById(R.id.issuesfoundtext);
             ProgressBar hazardRating = itemView.findViewById(R.id.hazardRatingBar);
             ImageView star = itemView.findViewById(R.id.favorited);
 
@@ -457,9 +453,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 determineHazardLevel(hazardRating, restaurantInspection.getHazardRating(), issuesFound);
 
-                String formattedInspectionDate = DateManager.formatDateInspection(inspectionDate);
-                String reportMsg = "Most Recent Report: " + formattedInspectionDate + "\n";
-                reportMsg += issuesFound + " issues found";
+                String reportMsg = DateManager.formatDateInspection(inspectionDate);
+                issuesText.setText(Integer.toString(issuesFound));
 
                 int icon = determineIcon(restaurant.getName());
 

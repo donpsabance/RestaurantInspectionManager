@@ -26,7 +26,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
@@ -50,7 +49,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -434,7 +432,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 boolean isfavourite = r.getFavourite();
 
                 String restHazard = r.getRestaurantInspectionList().get(0).getHazardRating();
-                String restaurantSnippet = r.getAddress() + "\n" + "Hazard Rating: " + restHazard;
+                String restaurantSnippet = "";
+                if (restHazard.equalsIgnoreCase("Low")) {
+                    restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.low);
+                }
+                if (restHazard.equalsIgnoreCase("Moderate")) {
+                    restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.moderate);
+                }
+                if (restHazard.equalsIgnoreCase("Moderate")) {
+                    restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.high);
+                }
 
                 Restaurant restaurantItem = new Restaurant(restaurantPos, restaurantTitle, restaurantSnippet, isfavourite);
                 restaurants.add(restaurantItem);
@@ -474,20 +481,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
 
         locationPermission = false;
-        switch (requestCode) {
-            case LOCATION_PERMISSION_CODE: {
-
-                if (results.length > 0) {
-                    for (int i : results) {
-                        if (i != PackageManager.PERMISSION_GRANTED) {
-                            return;
-                        }
+        if (requestCode == LOCATION_PERMISSION_CODE) {
+            if (results.length > 0) {
+                for (int i : results) {
+                    if (i != PackageManager.PERMISSION_GRANTED) {
+                        return;
                     }
-
-                    //they accepted permissions, load map
-                    locationPermission = true;
-                    loadMap();
                 }
+
+                //they accepted permissions, load map
+                locationPermission = true;
+                loadMap();
             }
         }
     }
@@ -499,17 +503,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (locationPermission) {
                 final Task location = fusedLocationProviderClient.getLastLocation();
-                location.addOnCompleteListener(new OnCompleteListener() {
-                    @Override
-                    public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
-                            Location currentLocation = (Location) task.getResult();
+                location.addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Location currentLocation = (Location) task.getResult();
 
-                            moveMapFocus(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                                    DEFAULT_ZOOM);
-                        } else {
-                            Toast.makeText(MapsActivity.this, "ERROR: Could not get device location", Toast.LENGTH_SHORT).show();
-                        }
+                        moveMapFocus(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                                DEFAULT_ZOOM);
+                    } else {
+                        Toast.makeText(MapsActivity.this, R.string.device_location_error, Toast.LENGTH_SHORT).show();
                     }
                 });
             }

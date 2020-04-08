@@ -1,7 +1,6 @@
 package com.example.restaurantinspection.model.Util;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -37,15 +36,16 @@ public class MarkerClusterRenderer extends DefaultClusterRenderer {
         markerOptions.title(item.getTitle()).snippet(item.getSnippet());
 
         //set icon to match appropriate hazard level
-        if (item.getSnippet().endsWith(("Low"))) {
+
+        if (item.getSnippet().endsWith("Low") || item.getSnippet().endsWith("Bajo") || item.getSnippet().endsWith(("低危"))) {
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
         }
 
-        if (item.getSnippet().endsWith(("Moderate"))) {
+        if (item.getSnippet().endsWith(("Moderate")) || item.getSnippet().endsWith("Mediano") || item.getSnippet().endsWith("中等")) {
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE));
         }
 
-        if (item.getSnippet().endsWith(("High"))) {
+        if (item.getSnippet().endsWith(("High")) || item.getSnippet().endsWith("Alto") || item.getSnippet().endsWith("高危")) {
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
         }
 

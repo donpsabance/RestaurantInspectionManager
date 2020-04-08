@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#FFFFFF">
 
     <ImageView
@@ -17,7 +17,7 @@
     <ImageView
         android:id="@+id/restaurantIcon"
         android:layout_width="wrap_content"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:contentDescription="@string/todo"
         android:paddingStart="20dp"
         android:paddingTop="10dp"
@@ -42,23 +42,58 @@
         android:textStyle="italic" />
 
     <TextView
-        android:id="@+id/restaurantRecentReport"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:id="@+id/mostrecentreport"
+        android:layout_width="121dp"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/restaurantLocation"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="112dp"
         android:layout_toEndOf="@+id/restaurantIcon"
+        android:text="@string/most_recent_report"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/restaurantRecentReport"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/restaurantLocation"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="154dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="11dp"
+        android:layout_toEndOf="@+id/restaurantIcon"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/issuesfound"
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/restaurantLocation"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="29dp"
+        android:layout_marginEnd="88dp"
+        android:layout_toEndOf="@+id/restaurantIcon"
+        android:text="@string/issues_found"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/issuesfoundtext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/restaurantLocation"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="135dp" />
         android:text="@string/reports" />
 
     <TextView
         android:id="@+id/restaurantLocation"
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/restaurantDescription"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="20dp"
@@ -68,6 +103,7 @@
         android:layout_marginRight="20dp"
         android:layout_toEndOf="@+id/restaurantIcon"
         android:text="@string/address" />
+        android:layout_toEndOf="@+id/restaurantIcon" />
 
     <ProgressBar
         android:id="@+id/hazardRatingBar"
@@ -76,6 +112,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/restaurantRecentReport"
         android:layout_alignParentEnd="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="37dp"
+        android:layout_marginEnd="18dp"
+        android:layout_toEndOf="@+id/restaurantIcon" />
         android:layout_marginStart="18dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="19dp"

@@ -14,7 +14,8 @@
         android:paddingTop="8dp"
         android:paddingRight="5dp"
         android:paddingBottom="5dp"
-        tools:srcCompat="@tools:sample/avatars" />
+        tools:srcCompat="@tools:sample/avatars"
+        android:contentDescription="@string/todo" />
 
     <TextView
         android:id="@+id/violationDescription"
@@ -66,7 +67,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="7dp"
         android:layout_toEndOf="@+id/hazardColor"
-        android:textAllCaps="true"/>
+        android:textAllCaps="true" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline2"
