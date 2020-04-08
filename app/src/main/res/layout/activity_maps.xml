@@ -84,8 +84,8 @@
 
         <TextView
             android:id="@+id/txt_MaxCritiviolationsMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="129dp"
+            android:layout_height="35dp"
             android:layout_marginTop="16dp"
             android:gravity="center"
             android:text="@string/maximum_critical_nhazards_this_year"
@@ -110,14 +110,14 @@
 
         <TextView
             android:id="@+id/txt_hazardConstraintMsg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="131dp"
+            android:layout_height="39dp"
             android:layout_marginTop="20dp"
             android:gravity="center"
             android:text="@string/hazard_n_constraints"
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="@+id/txt_MaxCritiviolationsMsg"
-            app:layout_constraintHorizontal_bias="0.414"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/txt_MaxCritiviolationsMsg"
             app:layout_constraintTop_toBottomOf="@+id/txt_MaxCritiviolationsMsg" />
 
@@ -127,8 +127,10 @@
             android:layout_height="30dp"
             app:layout_constraintBottom_toBottomOf="@+id/txt_hazardConstraintMsg"
             app:layout_constraintEnd_toEndOf="@+id/edit_txt_maxCritMap"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/edit_txt_maxCritMap"
-            app:layout_constraintTop_toTopOf="@+id/txt_hazardConstraintMsg" />
+            app:layout_constraintTop_toTopOf="@+id/txt_hazardConstraintMsg"
+            app:layout_constraintVertical_bias="0.0" />
 
         <CheckBox
             android:id="@+id/checkBox_favourite"
@@ -136,18 +138,20 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/txt_favouriteMsg"
             app:layout_constraintEnd_toEndOf="@+id/spinner_hazzardConstraint"
+            app:layout_constraintHorizontal_bias="0.333"
             app:layout_constraintStart_toStartOf="@+id/spinner_hazzardConstraint"
-            app:layout_constraintTop_toTopOf="@+id/txt_favouriteMsg" />
+            app:layout_constraintTop_toTopOf="@+id/txt_favouriteMsg"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/txt_favouriteMsg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:text="@string/favorites_only"
             android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="@+id/txt_hazardConstraintMsg"
-            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintHorizontal_bias="0.266"
             app:layout_constraintStart_toStartOf="@+id/txt_hazardConstraintMsg"
             app:layout_constraintTop_toBottomOf="@+id/txt_hazardConstraintMsg" />
     </androidx.constraintlayout.widget.ConstraintLayout>

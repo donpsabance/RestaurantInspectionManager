@@ -1,7 +1,5 @@
 package com.example.restaurantinspection.model;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -33,10 +31,6 @@ public class RestaurantManager implements Iterable<Restaurant> {
 
     public void add(Restaurant restaurant){
         restaurantList.add(restaurant);
-    }
-
-    public void setRestaurantList(List<Restaurant> restaurantList) {
-        this.restaurantList = restaurantList;
     }
 
     @NonNull

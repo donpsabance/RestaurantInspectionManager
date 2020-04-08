@@ -1,9 +1,9 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Restaurant Inspection</string>
     <string name="restaurant_information">Restaurant Information</string>
-    <string name="todo">TODO</string>
+    <string name="todo" translatable="false">TODO</string>
     <string name="critical_issues">Critical issues:</string>
-    <string name="hazard_rating">Hazard rating:</string>
+    <string name="hazard_rating">Hazard rating: </string>
     <string name="violation_severity">Violation Severity:</string>
     <string name="violation_100_199">No qualified permit or illegal construction.</string>
     <string name="violation_200_299">Unsafe food storage/packaging.</string>
@@ -21,28 +21,77 @@
     <string name="gps_coordinates">GPS Coordinates:</string>
     <string name="noinspections">No inspections available</string>
     <string name="noavailablereports">No available reports</string>
-    <string name="no_violations_message"><![CDATA[<No violations>]]></string>
+    <string name="no_violations_message">No Violation</string>
     <string name="inspection_type">Inspection type:</string>
     <string name="non_crit_issuesmessage">Non critical issues:</string>
     <string name="title_activity_maps">Map</string>
     <string name="default_time">0000–00–00T00:00:00.000000</string>>
-    <string name="Last_Modified_time">The time is %1$s</string>>
+    <string name="Last_Modified_time" translatable="false">The time is %1$s</string>>
     <string name="Update">Do you want to update the new inspection?</string>>
     <string name="Yes">Yes</string>>
     <string name="No">No</string>
     <string name="new_data_is_available_would_you_like_to_update">New Data is available. Would you like to update?</string>
-    <string name="search_icon">search icon</string>
+    <string name="most_recent_report">Most Recent Report:</string>
+    <string name="issues_found">Issues found:</string>
+    <string name="please_wait">Please Wait~~</string>
+    <string name="cancel">Cancel</string>
+    <string name="downloading">Downloading</string>
+    <string name="loading">Loading~~~~</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="device_location_error">ERROR: Could not get device location</string>
+    <string name="you_clicked">You clicked </string>
+    <string name="critical">Critical</string>
+    <string name="not_critical">Not Critical</string>
+    <string name="routine">Routine</string>
+    <string name="follow_up">Follow-Up</string>
+    <string name="V101">101, Not Critical,Plans/construction/alterations not in accordance with the Regulation [s. 3; s. 4], Not Repeat</string>
+    <string name="V102">102, Not Critical, Operation of an unapproved food premise [s. 6(1)],Not Repeat</string>
+    <string name="V103">103, Not Critical, Failure to hold a valid permit while operating a food service establishment [s. 8(1)],Not Repeat</string>
+    <string name="V104">104, Not Critical, Permit not posted in a conspicuous location [s. 8(7)],Not Repeat</string>
+    <string name="V201">201, Critical, Food contaminated or unfit for human consumption [s. 13], Not Repeat</string>
+    <string name="V202">202, Critical, Food not processed in a manner that makes it safe to eat [s. 14(1)], Not Repeat</string>
+    <string name="V203">203, Critical, Food not cooled in an acceptable manner [s. 12(a)],Not Repeat</string>
+    <string name="V204">204, Critical, Food not cooked or reheated in a manner that makes it safe to eat [s. 14(1)], Not Repeat</string>
+    <string name="V205">205, Critical, Cold potentially hazardous food stored/displayed above 4 °C. [s. 14(2)], Not Repeat</string>
+    <string name="V206">206, Critical, Hot potentially hazardous food stored/displayed below 60 °C. [s. 14(2)], Not Repeat</string>
+    <string name="V208">208, Not Critical, Foods obtained from unapproved sources [s. 11], Not Repeat</string>
+    <string name="V209">209, Not Critical, Food not protected from contamination [s. 12(a)],Not Repeat</string>
+    <string name="V210">210, Not Critical, Food not thawed in an acceptable manner [s. 14(2)], Not Repeat</string>
+    <string name="V211">211, Not Critical, Frozen potentially hazardous food stored/displayed above -18 °C. [s. 14(3)], Not Repeat</string>
+    <string name="V212">212, Not Critical, Operator has not provided acceptable written food handling procedures [s. 23], Not Repeat</string>
+    <string name="V301">301, Critical,Equipment/utensils/food contact surfaces not maintained in sanitary condition [s. 17(1)],Not Repeat</string>
+    <string name="V302">302, Critical, Equipment/utensils/food contact surfaces not properly washed and sanitized [s. 17(2)], Not Repeat</string>
+    <string name="V303">303, Critical,Equipment/facilities/hot and cold water for sanitary maintenance not adequate [s. 17(3); s. 4(1)(f)],Not Repeat</string>
+    <string name="V304">304, Not Critical, Premises not free of pests [s. 26(a)],Not Repeat</string>
+    <string name="V305">305, Not Critical, Conditions observed that may allow entrance/harbouring/breeding of pests [s. 26(b)(c)],Not Repeat</string>
+    <string name="V306">306, Not Critical, Food premises not maintained in a sanitary condition [s. 17(1)],Not Repeat</string>
+    <string name="V307">307, Not Critical, Equipment/utensils/food contact surfaces are not of suitable design/material [s. 16; s. 19], Not Repeat</string>
+    <string name="V308">308, Not Critical, Equipment/utensils/food contact surfaces are not in good working order [s. 16(b)],Not Repeat</string>
+    <string name="V309">309, Not Critical, Chemicals cleansers and similar agents stored or labelled improperly [s. 27], Not Repeat</string>
+    <string name="V310">310, Not Critical, Single-use containers and utensils are used more than once [s. 20], Not Repeat</string>
+    <string name="V311">311, Not Critical, Premises not maintained as per approved plans [s. 6(1)(b)],Not Repeat</string>
+    <string name="V312">312, Not Critical, Items not required for food premises operation being stored on the premises [s. 18], Not Repeat</string>
+    <string name="V313">313, Not Critical, Live animal on the premises excluding guide animal in approved areas [s. 25(1)],Not Repeat</string>
+    <string name="V314">314, Not Critical, Operator has not provided acceptable written sanitation procedures [s. 24], Not Repeat</string>
+    <string name="V315">315, Not Critical, Refrigeration units and hot holding equipment lack accurate thermometers [s. 19(2)], Not Repeat</string>
+    <string name="V401">401, Critical, Adequate handwashing stations not available for employees [s. 21(4)], Not Repeat</string>
+    <string name="V402">402, Critical, Employee does not wash hands properly or at adequate frequency [s. 21(3)], Not Repeat</string>
+    <string name="V403">403, Not Critical, Employee lacks good personal hygiene clean clothing and hair control [s. 21(1)],Not Repeat</string>
+    <string name="V404">404, Not Critical, Employee smoking in food preparation/processing/storage areas [s. 21(2)], Not Repeat</string>
+    <string name="V501">501, Not Critical, Operator does not have FOODSAFE Level 1 or Equivalent [s. 10(1)],Not Repeat</string>
+    <string name="V502">502, Not Critical, In the operator’s absence no staff on duty has FOODSAFE Level 1 or equivalent [s. 10(2)], Not Repeat</string>
+    <string name="search_icon" translatable="false">search icon</string>
     <string name="please_enter_a_restaurant_name_or_keyword">Please enter a restaurant name or keyword</string>
     <string name="num_of_critical"># of critical</string>
-    <string name="hazard_message">hazard message</string>
-    <string name="reports">Reports</string>
-    <string name="unfavorite_icon">unfavorite icon</string>
+    <string name="hazard_message" translatable="false">hazard message</string>
+    <string name="reports" translatable="false">Reports</string>
+    <string name="unfavorite_icon" translatable="false">unfavorite icon</string>
     <string name="query_hint">Enter a restaurant name</string>
     <string name="extra_filters"><u>Extra Filters</u></string>
-    <string name="hazard_n_constraints">hazard\n constraints:</string>
+    <string name="hazard_n_constraints">hazard  constraints:</string>
     <string name="favorites_only">favorites only</string>
-    <string name="max_critical_violations_n_within_the_year">Max critical violations\n within the year:</string>
-    <string name="maximum_critical_nhazards_this_year">Maximum critical \nhazards (this year):</string>
+    <string name="max_critical_violations_n_within_the_year">Max critical violations  within the year:</string>
+    <string name="maximum_critical_nhazards_this_year">Maximum critical  hazards (this year):</string>
     <string name="search_for_a_restaurant">Search for a restaurant</string>
     >
 

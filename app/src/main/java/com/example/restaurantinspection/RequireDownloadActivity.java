@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -161,34 +160,27 @@ public class RequireDownloadActivity extends AppCompatActivity {
     private void DownloadingDialog(Thread thread)
     {
         progressDialog = new ProgressDialog(RequireDownloadActivity.this);
-        progressDialog.setTitle("Please Wait~~");
-        progressDialog.setMessage("Downloading");
+        progressDialog.setTitle(getString(R.string.please_wait));
+        progressDialog.setMessage(getString(R.string.downloading));
         progressDialog.setCancelable(false);
-        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                thread.interrupt();
-                deleteFile(NEW_RESTAURANTS_FILE_NAME);
-                deleteFile(NEW_INSPECTIONS_FILE_NAME);
-                cancel(true);
+        progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.cancel), (dialog, which) -> {
+            thread.interrupt();
+            deleteFile(NEW_RESTAURANTS_FILE_NAME);
+            deleteFile(NEW_INSPECTIONS_FILE_NAME);
+            cancel(true);
 
-            }
         });
         progressDialog.show();
     }
     private void cancel(boolean bool) {
-        if(bool) {
-            cancelled = true;
-        }else{
-            cancelled = false;
-        }
+        cancelled = bool;
 
     }
     private void LoadingDialog()
     {
         progressDialog = new ProgressDialog(RequireDownloadActivity.this);
-        progressDialog.setTitle("Please Wait~~");
-        progressDialog.setMessage("Loading~~~~");
+        progressDialog.setTitle(getString(R.string.please_wait));
+        progressDialog.setMessage(getString(R.string.loading));
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
 
@@ -243,12 +235,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
         });
 
-        btnLoadFromStorage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                justLoadWhateverInStorage();
-            }
-        });
+        btnLoadFromStorage.setOnClickListener(v -> justLoadWhateverInStorage());
     }
 
 
@@ -291,7 +278,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Feed> call, Throwable t) {
-                Toast.makeText(RequireDownloadActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RequireDownloadActivity.this, R.string.something_went_wrong, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -463,8 +450,6 @@ public class RequireDownloadActivity extends AppCompatActivity {
 
             }
             int count = 0;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -597,8 +582,7 @@ public class RequireDownloadActivity extends AppCompatActivity {
     }
 
     public static Intent makeIntent(Context context) {
-        Intent intent = new Intent(context, RequireDownloadActivity.class);
-        return intent;
+        return new Intent(context, RequireDownloadActivity.class);
     }
 
     @Override
