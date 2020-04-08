@@ -67,26 +67,20 @@ import java.util.Map;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, AdapterView.OnItemSelectedListener {
 
     public static final String RESTAURANT_INDEX = "com.example.restaurantinspection - restaurant index";
-    private final String LOG_TAG = "RESTAURANT INSPECTION: ";
     private RestaurantManager restaurantManager = RestaurantManager.getInstance();
     private int restaurantIndex;
 
     private GoogleMap mMap;
     private HashMap<Restaurant, Integer> mHashMap = new HashMap<>();
     private ClusterManager<Restaurant> mClusterManager;
-    private MarkerClusterRenderer mRenderer;
     private List<Restaurant> restaurants = new ArrayList<>();
     private List<Restaurant> searchResult = new ArrayList<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private LocationCallback locationCallback;
-    private LocationRequest locationRequest;
     private EditText mSearchText;
 
     private static final int LOADING_DATA_RESULT_CODE = 100;
     private static final int LOCATION_PERMISSION_CODE = 1234;
     private final float DEFAULT_ZOOM = 12f;
-    private final long MIN_TIME = 1000;
-    private final float MIN_DISTANCE = 1f;
 
     // Views used for filtering
     private Spinner filter_hazardSpinner;
@@ -177,75 +171,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 editor.putString("searchFilter", newText);
                 editor.apply();
 
-//                updateItems(newText);
                 return false;
             }
         });
-    }
-
-    private void updateItems(String constraint) {
-        String query = QueryPreferences.getStoredQuery(MapsActivity.this);
-        //TODO: execute search method - below is placeholder search method to test marker behavior
-        List<Restaurant> filteredList = new ArrayList<>();
-        // restaurant search bar filter
-        if(constraint == null || constraint.length() == 0){
-            filteredList.addAll(restaurantManager.getFullRestaurantListCopy());
-        } else {
-            String filteredPattern = constraint.toString().toLowerCase().trim();
-            for (Restaurant restaurants : restaurantManager.getFullRestaurantListCopy()){
-                if (restaurants.getName().toLowerCase().contains(filteredPattern)){
-                    filteredList.add(restaurants);
-                }
-            }
-        }
-
-        // Check box filter
-        Iterator<Restaurant> iterator;
-        if(filter_favouritedCheckBox.isChecked()){
-            for(iterator = filteredList.iterator(); iterator.hasNext();){
-                Restaurant restaurant = iterator.next();
-                if(!restaurant.getFavourite()){
-                    iterator.remove();
-                }
-            }
-        }
-        // THE SPINNER FILTER
-        String selectedHazardLevel = filter_hazardSpinner.getSelectedItem().toString();
-        if(!selectedHazardLevel.equalsIgnoreCase("none")){
-            for (iterator = filteredList.iterator(); iterator.hasNext();){
-                Restaurant restaurant = iterator.next();
-                List<RestaurantInspection> inspectionList = restaurant.getRestaurantInspectionList();
-                if(inspectionList.size() > 0 ){
-                    if((! inspectionList.get(0).getHazardRating().toLowerCase().equalsIgnoreCase(selectedHazardLevel))){
-                        iterator.remove();
-                    }
-                } else {
-                    iterator.remove();
-                }
-            }
-        }
-
-        restaurantManager.getRestaurantList().clear();
-        restaurantManager.getRestaurantList().addAll(filteredList);
-
-        // clear items first
-        mClusterManager.clearItems();
-        mClusterManager.cluster();
-        // clear hash map
-        mHashMap.clear();
-        setUpClusterManager();
-        setUpInfoWindows();
-
-        //only display marker for selected restaurant
-        updateClusters();
-
-        //on tap display all restaurants
-        updateMapOnClick();
-        mClusterManager.clearItems();
-        for (Restaurant r : mHashMap.keySet()) {
-            mClusterManager.addItem(r);
-        }
-        mClusterManager.cluster();
     }
 
     // allows additional settings to be shown/hidden
@@ -316,12 +244,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void startLocationUpdates() {
 
-        locationRequest = new LocationRequest();
+        LocationRequest locationRequest = new LocationRequest();
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        float MIN_DISTANCE = 1f;
         locationRequest.setSmallestDisplacement(MIN_DISTANCE);
+        long MIN_TIME = 1000;
         locationRequest.setInterval(MIN_TIME);
 
-        locationCallback = new LocationCallback() {
+        LocationCallback locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 if (locationResult == null) {
@@ -412,7 +342,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void setUpClusterManager() {
         //Initalize cluster manager
         mClusterManager = new ClusterManager(this, mMap);
-        mRenderer = new MarkerClusterRenderer(this, mMap, mClusterManager);
+        MarkerClusterRenderer mRenderer = new MarkerClusterRenderer(this, mMap, mClusterManager);
         mClusterManager.setRenderer(mRenderer);
 
         //set cluster manager
@@ -445,7 +375,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (restHazard.equalsIgnoreCase("Moderate")) {
                     restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.moderate);
                 }
-                if (restHazard.equalsIgnoreCase("Moderate")) {
+                if (restHazard.equalsIgnoreCase("High")) {
                     restaurantSnippet = r.getAddress() + "\n" + getString(R.string.hazard_rating) + getString(R.string.high);
                 }
 
@@ -522,6 +452,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         } catch (SecurityException securityException) {
 
+            String LOG_TAG = "RESTAURANT INSPECTION: ";
             Log.wtf(LOG_TAG, "ERROR: " + securityException.getStackTrace());
         }
     }
@@ -601,7 +532,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 // TODO update the clusters
-//                updateItems(filter_restaurantSearchview.getQuery().toString().trim());
                 filter_class.getFilter().filter(filter_restaurantSearchview.getQuery());
                 editor.putBoolean("favoritesFilter", isChecked);
                 editor.apply();

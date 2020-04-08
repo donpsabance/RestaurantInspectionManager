@@ -237,34 +237,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             }
         });
-/*        TextWatcher textWatcher = new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-
-                if(!s.toString().trim().equals("")){
-
-                    List<Restaurant> result = new ArrayList<>();
-                    int maxViolation = Integer.parseInt(s.toString());
-                    for(Restaurant restaurant : restaurantManager.getFullRestaurantListCopy()){
-
-                        if(restaurant.getRestaurantInspectionList()  != null &&
-                                restaurant.getRestaurantInspectionList().size() > 0){
-
-                            if(restaurant.getRestaurantInspectionList().get(0).getNumCritical() <= maxViolation){
-
-                                result.add(restaurant);
-
-                            }
-                        }
-                    }
-                    maxViolationFilter = result;
-                    loadRestaurants();
-                } else {
-                    maxViolationFilter = restaurantManager.getFullRestaurantListCopy();
-                    loadRestaurants();
-                }
-            }
-        };*/
     }
 
     private void compareRestaurant(List<String> list){
