@@ -93,6 +93,7 @@
     <string name="max_critical_violations_n_within_the_year">Max critical violations  within the year:</string>
     <string name="maximum_critical_nhazards_this_year">Maximum critical  hazards (this year):</string>
     <string name="search_for_a_restaurant">Search for a restaurant</string>
+    <string name="sharedPrefFile">sharedPref</string>
     >
 
     <string-array name="hazards">
