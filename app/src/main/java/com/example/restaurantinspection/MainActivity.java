@@ -528,29 +528,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         };
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem menuItem = menu.findItem(R.id.search_menu);
-        SearchView searchView = (SearchView) menuItem.getActionView();
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                arrayAdapter.getFilter().filter(newText);
-                return false;
-            }
-        });
-        return true;
-    }
-
     public List<String> readFavouriteList() {
         List<String> list = new ArrayList<>();
         SharedPreferences sp1 = getSharedPreferences("favourite_list", Context.MODE_PRIVATE);
