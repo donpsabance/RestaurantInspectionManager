@@ -1,6 +1,7 @@
 package com.example.restaurantinspection;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,6 +22,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -335,12 +337,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    @SuppressLint("RestrictedApi")
     private void updateClusters() {
         extractDatafromIntent();
 
         //if there's extracted data
         if (restaurantIndex != -1) {
-
+            FloatingActionButton fab = findViewById(R.id.settingsPopUpFab);
+            fab.setVisibility(View.INVISIBLE);
+            RelativeLayout layout = findViewById(R.id.relLayout1);
+            layout.setVisibility(View.INVISIBLE);
             //remove all restaurants
             mClusterManager.clearItems();
             for (Restaurant r : mHashMap.keySet()) {
